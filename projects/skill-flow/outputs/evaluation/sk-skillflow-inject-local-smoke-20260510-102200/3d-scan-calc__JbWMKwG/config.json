@@ -1,0 +1,45 @@
+{
+    "task": {
+        "path": "integration/skillsbench/tasks/3d-scan-calc",
+        "git_url": null,
+        "git_commit_id": null,
+        "overwrite": false,
+        "download_dir": null,
+        "source": "tasks"
+    },
+    "trial_name": "3d-scan-calc__JbWMKwG",
+    "trials_dir": "outputs/evaluation/sk-skillflow-inject-local-smoke-20260510-102200",
+    "timeout_multiplier": 1.0,
+    "agent": {
+        "name": null,
+        "import_path": "benchmark.agents.skillflow_injection_agent:SkillFlowInjectionAgent",
+        "model_name": "openai/gpt-5-mini-2025-08-07",
+        "override_timeout_sec": null,
+        "override_setup_timeout_sec": null,
+        "max_timeout_sec": null,
+        "kwargs": {
+            "version": "0.79",
+            "selector_cache": "outputs/pipeline/skillsbench_external_full/result_cache.json",
+            "tasks_dir": "integration/skillsbench/tasks",
+            "corpus_dir": "/mnt/d/LocalEnvironments/Datasets/skillflow/skills",
+            "reasoning_effort": "medium"
+        }
+    },
+    "environment": {
+        "type": "docker",
+        "import_path": null,
+        "force_build": false,
+        "delete": true,
+        "override_cpus": null,
+        "override_memory_mb": null,
+        "override_storage_mb": null,
+        "override_gpus": null,
+        "kwargs": {}
+    },
+    "verifier": {
+        "override_timeout_sec": null,
+        "max_timeout_sec": null,
+        "disable": false
+    },
+    "job_id": "cd4f0cb3-7f9a-4f53-ab99-fb37d690b54d"
+}

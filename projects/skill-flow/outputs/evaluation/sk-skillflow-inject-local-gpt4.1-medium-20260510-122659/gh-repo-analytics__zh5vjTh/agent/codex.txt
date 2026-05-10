@@ -1,0 +1,1 @@
+I need access to the GitHub CLI with authentication to fetch PR and issue data, but it appears authentication is not set up (`gh auth login` or `GH_TOKEN` is required). Please authenticate with GitHub CLI, then let me know—I'll proceed immediately once access is available.

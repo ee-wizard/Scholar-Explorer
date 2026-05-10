@@ -1,0 +1,6 @@
+Here are the answers, saved in /root/answers.json:
+
+- Q1: Renaissance Technologies AUM in Q3 2025 is $75,753,182,516.
+- Q2: Renaissance held 3,457 stocks in Q3 2025.
+- Q3: Top 5 stocks with increased investment by Berkshire Hathaway (CUSIPs): 025816109, 037833100, 191216100, 060505104, 037833100.
+- Q4: Top 3 fund managers in Palantir: VANGUARD GROUP INC, STATE STREET CORP, BlackRock, Inc.

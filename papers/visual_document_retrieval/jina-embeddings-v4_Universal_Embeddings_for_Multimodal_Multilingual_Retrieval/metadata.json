@@ -1,0 +1,23 @@
+{
+    "title": "jina-embeddings-v4: Universal Embeddings for Multimodal Multilingual Retrieval",
+    "arxiv_id": "2506.18902",
+    "versioned_id": "2506.18902v3",
+    "authors": [
+        "Michael Günther",
+        "Saba Sturua",
+        "Mohammad Kalim Akram",
+        "Isabelle Mohr",
+        "Andrei Ungureanu",
+        "Bo Wang",
+        "Sedigheh Eslami",
+        "Scott Martens",
+        "Maximilian Werk",
+        "Nan Wang",
+        "Han Xiao"
+    ],
+    "published": "2025-06-23T17:59:55Z",
+    "primary_category": "cs.AI",
+    "comment": "22 pages, 1-10 main, 14-22 experimental results, benchmark tables",
+    "pdf_path": "papers/visual_document_retrieval/jina-embeddings-v4_Universal_Embeddings_for_Multimodal_Multilingual_Retrieval/paper.pdf"
+}
+

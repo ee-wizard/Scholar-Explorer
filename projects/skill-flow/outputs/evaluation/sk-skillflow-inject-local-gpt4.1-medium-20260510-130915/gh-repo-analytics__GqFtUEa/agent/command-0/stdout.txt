@@ -1,0 +1,1 @@
+The GitHub CLI isn't authenticated, so I can't fetch the required PR and issue data. Please run gh auth login or set the GH_TOKEN environment variable with a valid GitHub token, then let me know so I can proceed.

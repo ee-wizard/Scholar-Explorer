@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py", line 359, in run
+    await self._setup_agent()
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py", line 232, in _setup_agent
+    await asyncio.wait_for(
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skillflow_injection_agent.py", line 88, in setup
+    folders = self._resolve_from_json(task_name)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skillflow_injection_agent.py", line 110, in _resolve_from_json
+    return self._resolve_from_selector_cache(task_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skillflow_injection_agent.py", line 127, in _resolve_from_selector_cache
+    self._selector_cache.read_text(encoding="utf-8")
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1027, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'outputs/experiments/selector_cache_gpt-4o-mini-top10.json'

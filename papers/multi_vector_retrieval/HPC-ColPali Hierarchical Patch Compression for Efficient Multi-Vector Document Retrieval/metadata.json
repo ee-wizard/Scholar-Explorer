@@ -1,0 +1,40 @@
+{
+  "execution_timestamp": "2026-04-29T14:12:35.300184+08:00",
+  "paper_name": "Hierarchical_Patch_Compression_for_ColPali_Efficient_Multi-Vector_Document_Retrieval_with_Dynamic_Pruning_and_Q_21edb782",
+  "output_dir": "papers\\multi_vector_retrieval\\HPC-ColPali Hierarchical Patch Compression for Efficient Multi-Vector Document Retrieval",
+  "source_file": "<arxiv-api>",
+  "selection": {
+    "mode": "id_direct",
+    "selection": "direct_id"
+  },
+  "source": {
+    "arxivId": "2506.21601",
+    "versionedId": "2506.21601v2",
+    "absUrl": "https://arxiv.org/abs/2506.21601v2",
+    "pdfUrl": "https://arxiv.org/pdf/2506.21601v2",
+    "doi": "",
+    "published": "2025-06-19T08:45:52Z",
+    "updated": "2025-07-02T03:32:17Z"
+  },
+  "paper": {
+    "title": "Hierarchical Patch Compression for ColPali: Efficient Multi-Vector Document Retrieval with Dynamic Pruning and Quantization",
+    "authors": [
+      "Duong Bach"
+    ],
+    "keywords": [
+      "cs.CV",
+      "cs.IR"
+    ],
+    "Abstract": "Multi-vector document retrieval systems, such as ColPali, excel in fine-grained matching for complex queries but incur significant storage and computational costs due to their reliance on high-dimensional patch embeddings and late-interaction scoring. To address these challenges, we propose HPC-ColPali, a Hierarchical Patch Compression framework that enhances the efficiency of ColPali while preserving its retrieval accuracy. Our approach integrates three innovative techniques: (1) K-Means quantization, which compresses patch embeddings into 1-byte centroid indices, achieving up to 32$\\times$ storage reduction; (2) attention-guided dynamic pruning, utilizing Vision-Language Model attention weights to retain only the top-$p\\%$ most salient patches, reducing late-interaction computation by up to 60\\% with less than 2\\% nDCG@10 loss; and (3) optional binary encoding of centroid indices into $b$-bit strings ($b=\\lceil\\log_2 K\\rceil$), enabling rapid Hamming distance-based similarity search for resource-constrained environments. Evaluated on the ViDoRe and SEC-Filings datasets, HPC-ColPali achieves 30--50\\% lower query latency under HNSW indexing while maintaining high retrieval precision. When integrated into a Retrieval-Augmented Generation pipeline for legal summarization, it reduces hallucination rates by 30\\% and halves end-to-end latency. These advancements establish HPC-ColPali as a scalable and efficient solution for multi-vector document retrieval across diverse applications. Code is available at https://github.com/DngBack/HPC-ColPali.",
+    "primaryCategory": "cs.IR",
+    "journalRef": "",
+    "comment": "9 pages"
+  },
+  "download": {
+    "source_url": "https://arxiv.org/pdf/2506.21601v2",
+    "final_url": "https://arxiv.org/pdf/2506.21601v2",
+    "pdf_saved": true,
+    "pdf_file": "papers\\multi_vector_retrieval\\HPC-ColPali Hierarchical Patch Compression for Efficient Multi-Vector Document Retrieval\\Hierarchical_Patch_Compression_for_ColPali_Efficient_Multi-Vector_Document_Retrieval_with_Dynamic_Pruning_and_Q_21edb782.pdf",
+    "download_errors": []
+  }
+}

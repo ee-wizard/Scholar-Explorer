@@ -1,0 +1,24 @@
+{
+    "title": "Nemotron ColEmbed V2: Top-Performing Late Interaction Embedding Models for Visual Document Retrieval",
+    "arxiv_id": "2602.03992",
+    "versioned_id": "2602.03992v2",
+    "authors": [
+        "Gabriel de Souza P. Moreira",
+        "Ronay Ak",
+        "Mengyao Xu",
+        "Oliver Holworthy",
+        "Benedikt Schifferer",
+        "Zhiding Yu",
+        "Yauhen Babakhin",
+        "Radek Osmulski",
+        "Jiarui Cai",
+        "Ryan Chesler",
+        "Bo Liu",
+        "Even Oldridge"
+    ],
+    "published": "2026-02-03T20:26:44Z",
+    "primary_category": "cs.IR",
+    "comment": "Proceedings of the 1st Late Interaction Workshop (LIR) @ ECIR 2026",
+    "pdf_path": "papers/visual_document_retrieval/Nemotron_ColEmbed_V2_Top-Performing_Late_Interaction_Embedding_Models_for_Visual_Document_Retrieval/paper.pdf"
+}
+

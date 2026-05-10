@@ -1,0 +1,6 @@
+The mass calculation is complete. The largest connected component (main part) has:
+
+- Material ID: 42
+- Mass: 34648.04 g
+
+The result is saved in /root/mass_report.json as requested. Task complete!

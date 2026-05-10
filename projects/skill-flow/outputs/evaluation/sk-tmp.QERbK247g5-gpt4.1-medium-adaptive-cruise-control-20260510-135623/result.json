@@ -1,0 +1,29 @@
+{
+    "id": "ac841340-ed1a-4494-90a9-0fce965f5d22",
+    "started_at": "2026-05-10T13:57:04.001115",
+    "finished_at": "2026-05-10T14:00:26.573147",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 0,
+        "evals": {
+            "codex__gpt-4.1__tasks": {
+                "n_trials": 1,
+                "n_errors": 0,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "reward_stats": {
+                    "reward": {
+                        "0.0": [
+                            "adaptive-cruise-control__TxSfMyv"
+                        ]
+                    }
+                },
+                "exception_stats": {}
+            }
+        }
+    }
+}

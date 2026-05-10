@@ -1,0 +1,10 @@
+The calculation is complete. The result is:
+
+```json
+{
+  "main_part_mass": 59.21,
+  "material_id": 0
+}
+```
+
+This is saved in /root/mass_report.json. If you need a different format or further analysis, let me know!

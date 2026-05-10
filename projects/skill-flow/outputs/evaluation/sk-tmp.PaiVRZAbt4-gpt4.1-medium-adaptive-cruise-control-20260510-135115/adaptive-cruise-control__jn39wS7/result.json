@@ -1,0 +1,88 @@
+{
+    "id": "76a0cebf-793d-4405-a03c-0e6c77fc9406",
+    "task_name": "adaptive-cruise-control",
+    "trial_name": "adaptive-cruise-control__jn39wS7",
+    "trial_uri": "file:///mnt/d/Projects/Scholar/GeneralExplorer/projects/skill-flow/outputs/evaluation/sk-tmp.PaiVRZAbt4-gpt4.1-medium-adaptive-cruise-control-20260510-135115/adaptive-cruise-control__jn39wS7",
+    "task_id": {
+        "path": "integration/skillsbench/tasks/adaptive-cruise-control"
+    },
+    "source": "tasks",
+    "task_checksum": "ad72ca0caba462b9e588f2fc759f647997814ae185d45ad840bf1769089dc95b",
+    "config": {
+        "task": {
+            "path": "integration/skillsbench/tasks/adaptive-cruise-control",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": "tasks"
+        },
+        "trial_name": "adaptive-cruise-control__jn39wS7",
+        "trials_dir": "outputs/evaluation/sk-tmp.PaiVRZAbt4-gpt4.1-medium-adaptive-cruise-control-20260510-135115",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "benchmark.agents.skillflow_injection_agent:SkillFlowInjectionAgent",
+            "model_name": "github/gpt-4.1",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "version": "0.79",
+                "selector_cache": "outputs/pipeline/skillsbench_external_full/result_cache.json",
+                "tasks_dir": "integration/skillsbench/tasks",
+                "corpus_dir": "/mnt/d/LocalEnvironments/Datasets/skillflow/skills",
+                "reasoning_effort": "medium"
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "kwargs": {
+                "HTTPS_PROXY": "http://host.docker.internal:7897",
+                "https_proxy": "http://host.docker.internal:7897",
+                "HTTP_PROXY": "http://host.docker.internal:7897",
+                "http_proxy": "http://host.docker.internal:7897",
+                "NO_PROXY": "172.31.*,172.30.*,172.29.*,172.28.*,172.27.*,172.26.*,172.25.*,172.24.*,172.23.*,172.22.*,172.21.*,172.20.*,172.19.*,172.18.*,172.17.*,172.16.*,10.*,192.168.*,127.*,localhost,<local>",
+                "no_proxy": "172.31.*,172.30.*,172.29.*,172.28.*,172.27.*,172.26.*,172.25.*,172.24.*,172.23.*,172.22.*,172.21.*,172.20.*,172.19.*,172.18.*,172.17.*,172.16.*,10.*,192.168.*,127.*,localhost,<local>"
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "f150ba2a-e30b-40eb-9fb8-a3aec466b164"
+    },
+    "agent_info": {
+        "name": "codex",
+        "version": "0.79",
+        "model_info": {
+            "name": "gpt-4.1",
+            "provider": "github"
+        }
+    },
+    "agent_result": null,
+    "verifier_result": null,
+    "exception_info": {
+        "exception_type": "RuntimeError",
+        "exception_message": "Docker compose command failed for environment adaptive-cruise-control. Command: docker compose -p adaptive-cruise-control__jn39ws7 -f /mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/environments/docker/docker-compose-build.yaml build. Return code: 100. Stdout:  Image hb__adaptive-cruise-control Building \n Image hb__adaptive-cruise-control Building \nSending build context to Docker daemon  15.16kB\r\r\nStep 1/8 : FROM ubuntu:24.04\n ---> d94c97dd9cac\nStep 2/8 : ENV DEBIAN_FRONTEND=noninteractive\n ---> Using cache\n ---> 87931ab93db7\nStep 3/8 : RUN apt-get update && apt-get install -y     python3     python3-pip     python3-venv     && rm -rf /var/lib/apt/lists/*\n ---> Running in f26eba58f8dc\nIgn:1 http://archive.ubuntu.com/ubuntu noble InRelease\nIgn:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease\nIgn:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease\nIgn:4 http://security.ubuntu.com/ubuntu noble-security InRelease\nIgn:1 http://archive.ubuntu.com/ubuntu noble InRelease\nIgn:4 http://security.ubuntu.com/ubuntu noble-security InRelease\nIgn:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease\nIgn:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease\nIgn:4 http://security.ubuntu.com/ubuntu noble-security InRelease\nIgn:1 http://archive.ubuntu.com/ubuntu noble InRelease\nIgn:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease\nIgn:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease\nErr:1 http://archive.ubuntu.com/ubuntu noble InRelease\n  Could not connect to host.docker.internal:7897 (172.17.0.1). - connect (111: Connection refused)\nErr:4 http://security.ubuntu.com/ubuntu noble-security InRelease\n  Could not connect to host.docker.internal:7897 (172.17.0.1). - connect (111: Connection refused)\nErr:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease\n  Unable to connect to host.docker.internal:7897:\nErr:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease\n  Unable to connect to host.docker.internal:7897:\nReading package lists...\n\u001b[91mW: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Could not connect to host.docker.internal:7897 (172.17.0.1). - connect (111: Connection refused)\nW: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Unable to connect to host.docker.internal:7897:\nW: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Unable to connect to host.docker.internal:7897:\nW: Failed to fetch http://security.ubuntu.com/ubuntu/dists/noble-security/InRelease  Could not connect to host.docker.internal:7897 (172.17.0.1). - connect (111: Connection refused)\nW: Some index files failed to download. They have been ignored, or old ones used instead.\n\u001b[0mReading package lists...\nBuilding dependency tree...\nReading state information...\nPackage python3 is not available, but is referred to by another package.\nThis may mean that the package is missing, has been obsoleted, or\nis only available from another source\n\n\u001b[91mE: Package 'python3' has no installation candidate\nE: Unable to locate package python3-pip\nE: Unable to locate package python3-venv\n\u001b[0mThe command '/bin/sh -c apt-get update && apt-get install -y     python3     python3-pip     python3-venv     && rm -rf /var/lib/apt/lists/*' returned a non-zero code: 100\n. Stderr: None. ",
+        "exception_traceback": "Traceback (most recent call last):\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py\", line 358, in run\n    await self._setup_environment()\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py\", line 204, in _setup_environment\n    await self._start_environment_with_retry()\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/asyncio/__init__.py\", line 193, in async_wrapped\n    return await copy(fn, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/asyncio/__init__.py\", line 112, in __call__\n    do = await self.iter(retry_state=retry_state)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/asyncio/__init__.py\", line 157, in iter\n    result = await action(retry_state)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/_utils.py\", line 111, in inner\n    return call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/__init__.py\", line 394, in <lambda>\n    self._add_action_func(lambda rs: rs.outcome.result())\n                                     ^^^^^^^^^^^^^^^^^^^\n  File \"/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py\", line 449, in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/asyncio/__init__.py\", line 116, in __call__\n    result = await fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py\", line 216, in _start_environment_with_retry\n    await asyncio.wait_for(\n  File \"/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/environments/docker/docker.py\", line 205, in start\n    await self._run_docker_compose_command([\"build\"])\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/environments/docker/docker.py\", line 184, in _run_docker_compose_command\n    raise RuntimeError(\nRuntimeError: Docker compose command failed for environment adaptive-cruise-control. Command: docker compose -p adaptive-cruise-control__jn39ws7 -f /mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/environments/docker/docker-compose-build.yaml build. Return code: 100. Stdout:  Image hb__adaptive-cruise-control Building \n Image hb__adaptive-cruise-control Building \nSending build context to Docker daemon  15.16kB\r\r\nStep 1/8 : FROM ubuntu:24.04\n ---> d94c97dd9cac\nStep 2/8 : ENV DEBIAN_FRONTEND=noninteractive\n ---> Using cache\n ---> 87931ab93db7\nStep 3/8 : RUN apt-get update && apt-get install -y     python3     python3-pip     python3-venv     && rm -rf /var/lib/apt/lists/*\n ---> Running in f26eba58f8dc\nIgn:1 http://archive.ubuntu.com/ubuntu noble InRelease\nIgn:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease\nIgn:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease\nIgn:4 http://security.ubuntu.com/ubuntu noble-security InRelease\nIgn:1 http://archive.ubuntu.com/ubuntu noble InRelease\nIgn:4 http://security.ubuntu.com/ubuntu noble-security InRelease\nIgn:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease\nIgn:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease\nIgn:4 http://security.ubuntu.com/ubuntu noble-security InRelease\nIgn:1 http://archive.ubuntu.com/ubuntu noble InRelease\nIgn:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease\nIgn:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease\nErr:1 http://archive.ubuntu.com/ubuntu noble InRelease\n  Could not connect to host.docker.internal:7897 (172.17.0.1). - connect (111: Connection refused)\nErr:4 http://security.ubuntu.com/ubuntu noble-security InRelease\n  Could not connect to host.docker.internal:7897 (172.17.0.1). - connect (111: Connection refused)\nErr:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease\n  Unable to connect to host.docker.internal:7897:\nErr:3 http://archive.ubuntu.com/ubuntu noble-backports InRelease\n  Unable to connect to host.docker.internal:7897:\nReading package lists...\n\u001b[91mW: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble/InRelease  Could not connect to host.docker.internal:7897 (172.17.0.1). - connect (111: Connection refused)\nW: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-updates/InRelease  Unable to connect to host.docker.internal:7897:\nW: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/noble-backports/InRelease  Unable to connect to host.docker.internal:7897:\nW: Failed to fetch http://security.ubuntu.com/ubuntu/dists/noble-security/InRelease  Could not connect to host.docker.internal:7897 (172.17.0.1). - connect (111: Connection refused)\nW: Some index files failed to download. They have been ignored, or old ones used instead.\n\u001b[0mReading package lists...\nBuilding dependency tree...\nReading state information...\nPackage python3 is not available, but is referred to by another package.\nThis may mean that the package is missing, has been obsoleted, or\nis only available from another source\n\n\u001b[91mE: Package 'python3' has no installation candidate\nE: Unable to locate package python3-pip\nE: Unable to locate package python3-venv\n\u001b[0mThe command '/bin/sh -c apt-get update && apt-get install -y     python3     python3-pip     python3-venv     && rm -rf /var/lib/apt/lists/*' returned a non-zero code: 100\n. Stderr: None. \n",
+        "occurred_at": "2026-05-10T13:52:01.126160"
+    },
+    "started_at": "2026-05-10T05:51:52.182244Z",
+    "finished_at": "2026-05-10T05:52:01.432520Z",
+    "environment_setup": {
+        "started_at": "2026-05-10T05:51:52.247965Z",
+        "finished_at": "2026-05-10T05:52:01.110867Z"
+    },
+    "agent_setup": null,
+    "agent_execution": null,
+    "verifier": null
+}

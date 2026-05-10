@@ -1,0 +1,758 @@
+[
+    {
+        "type": "text",
+        "text": "VIDORE BENCHMARK V2: Raising the Bar for Visual Retrieval ",
+        "text_level": 1,
+        "bbox": [
+            189,
+            113,
+            571,
+            148
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Quentin Mace´1 Antonio Loison ´ 1 Manuel Faysse 1,2 1Illuin Technology 2CentraleSupelec ´ ",
+        "bbox": [
+            189,
+            160,
+            589,
+            193
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The ViDoRe Benchmark V1 was approaching saturation with top models exceeding $9 0 \\%$ nDCG $\\ @ 5$ , limiting its ability to discern improvements. ViDoRe Benchmark V2 introduces realistic, challenging retrieval scenarios via blind contextual querying, long and cross-document queries, and a hybrid synthetic and human-in-the-loop query generation process. It comprises four diverse, multilingual datasets and provides clear evaluation instructions. Initial results demonstrate substantial room for advancement and highlight insights on model generalization and multilingual capability. This benchmark is designed as a living resource, inviting community contributions to maintain relevance through future evaluations. ",
+        "bbox": [
+            191,
+            236,
+            810,
+            362
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Contact: quentin.mace@illuin.tech   \nWeb Blog Version: https://huggingface.co/blog/manu/vidore-v2   \nLeaderboard: https://huggingface.co/spaces/vidore/vidore-leaderboard   \nDate: March 18, 2025 ",
+        "bbox": [
+            191,
+            377,
+            689,
+            431
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Why a new benchmark? ",
+        "text_level": 1,
+        "bbox": [
+            176,
+            467,
+            390,
+            484
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Since the release of the original ViDoRe Benchmark (Faysse et al., 2025), evaluating visual models on document retrieval tasks, visual retrieval models have significantly advanced! While the original ColPali model reported an average score of $8 1 . 3 \\mathrm { n D C G } @ 5 $ , current SOTA models on the leaderboard surpass a nDCG $\\ @ 5$ of 90, with some tasks becoming “too easy” to yield a meaningful signal! With the benchmark approaching saturation for SOTA models, there is limited room to truly measure improvements and understand model capabilities in realistic scenarios. To continue pushing the boundaries of visual retrieval, it became essential to introduce a new benchmark designed specifically to challenge these advanced models: VIDORE BENCHMARK V2. ",
+        "bbox": [
+            173,
+            501,
+            826,
+            626
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Motivating the Creation of ViDoRe Benchmark V2 ",
+        "text_level": 1,
+        "bbox": [
+            176,
+            648,
+            658,
+            667
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In developing ViDoRe Benchmark V2, our main goal was to create a benchmark reflective of real-world retrieval challenges—difficult, diverse, and meaningful. Current benchmarks exhibit limitations that prevent them from accurately reflecting real user behavior and complex retrieval scenarios (Thakur et al., 2025). We identified three critical issues in existing benchmarks: ",
+        "bbox": [
+            176,
+            683,
+            825,
+            753
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1. Extractive Nature of Queries: Current benchmarks typically rely on extractive queries, providing unrealistic retrieval contexts since real users rarely formulate queries from exact phrases in documents.   \n2. Single-Page Query Bias: Many benchmarks overly emphasize retrieval from singlepage contexts, neglecting complex, multi-document or cross-document queries common in real-world applications.   \n3. Challenges in Synthetic Query Generation: Purely synthetic benchmarks, while appealing in theory, are difficult to implement effectively without extensive manual oversight. They often produce outliers, irrelevant or trivial queries, making human filtering essential yet costly. ",
+        "bbox": [
+            210,
+            768,
+            825,
+            924
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "discarded",
+        "text": "",
+        "bbox": [
+            671,
+            114,
+            807,
+            219
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "discarded",
+        "text": "arXiv:2505.17166v2 [cs.IR] 19 Sep 2025 ",
+        "bbox": [
+            22,
+            280,
+            62,
+            722
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "2 Design Decisions and Techniques Used ",
+        "text_level": 1,
+        "bbox": [
+            173,
+            101,
+            558,
+            119
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "To address these challenges and create a robust, realistic benchmark, ViDoRe Benchmark V2 includes several innovative features: ",
+        "bbox": [
+            174,
+            133,
+            823,
+            162
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "• Blind Contextual Querying: In practice, users don’t often know the content of the corpus they are querying. To reduce the widespread extractive bias in most synthetic query-document datasets (datasets are often created with knowledge of the document content), we only provided query annotator models with limited information about the document (summaries, metadata, etc) and filtered out the many irrelevant queries that resulted, better reproducing real-world user interactions with the corpus.   \nLong and Cross-Document Queries: Unlike traditional benchmarks, ViDoRe Benchmark V2 emphasizes long-form and cross-document queries, closely mirroring real-world retrieval situations. Multiple datasets specifically focus on scenarios involving comprehensive documents or multi-document retrieval tasks.   \nHybrid Synthetic and Human-in-the-Loop Creation: Recognizing the limitations of synthetic query generation alone, we adopted a hybrid approach—generating queries synthetically and extensively refining them through human review. This process, though intensive, ensured significantly higher query quality and dataset reliability. ",
+        "bbox": [
+            215,
+            176,
+            826,
+            412
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3 Dataset Selection for ViDoRe Benchmark V2 ",
+        "text_level": 1,
+        "bbox": [
+            174,
+            433,
+            606,
+            450
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The selected datasets (Table 1) for ViDoRe Benchmark V2 are diverse, publicly available, and challenging. Each dataset presents distinct visual complexity and is suitable for realistic retrieval tasks, including multilingual versions with queries translated into French, English, Spanish, and German. This multilingual approach further extends the applicability and challenge level of the benchmark. Each dataset is associated to a multilingual version with translated queries. ",
+        "bbox": [
+            173,
+            465,
+            826,
+            550
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "table",
+        "img_path": "images/65f5ab57f8f24684057f4f9b876d5a2ea12f6ae0769bc20650e459bec71e282e.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td>Suen Sue</td><td>20</td><td>S ebu </td><td>efes#</td><td>20</td><td>sn #</td><td></td><td>Aen/aSyV h </td><td>Comments</td></tr><tr><td>Insurance Terms of Service1 Biomedical</td><td>En</td><td>Fr En</td><td>4 27</td><td>260 1,016</td><td>-</td><td>18 160</td><td>86 515</td><td>4.8</td><td>Small but challenging, multi-document Largest dataset, most extractive</td></tr><tr><td>Economics</td><td>En</td><td>En</td><td>5</td><td></td><td>-</td><td>58</td><td>907</td><td>3.2 15.6</td><td>Cross-document queries, high complexity</td></tr><tr><td></td><td></td><td></td><td></td><td>452</td><td>Synthetic</td><td>57</td><td>222</td><td>3.9</td><td></td></tr><tr><td>ESG Reports</td><td>En</td><td>En</td><td>30</td><td>1,538</td><td>Human</td><td>52</td><td>128</td><td>2.5</td><td>Natively cross-lingual, industry-specific</td></tr></table>",
+        "bbox": [
+            171,
+            564,
+            857,
+            707
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Table 1: Summary of dataset statistics. Feel free to explore datasets on HuggingFace. ",
+        "bbox": [
+            187,
+            717,
+            803,
+            732
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "4 Evaluating Models ",
+        "text_level": 1,
+        "bbox": [
+            174,
+            762,
+            375,
+            780
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "To evaluate models on ViDoRe Benchmark 2, we follow these steps: ",
+        "bbox": [
+            174,
+            795,
+            661,
+            810
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Option 1: Using the CLI ",
+        "text_level": 1,
+        "bbox": [
+            176,
+            829,
+            354,
+            844
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Here is a CLI example for using a colpali type retriever on vidore benchmark 2. For other retrievers, please refer to this repo. ",
+        "bbox": [
+            178,
+            854,
+            825,
+            885
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "discarded",
+        "text": "ViDoRe Benchmark V2 Raising the Bar for Visual Retrieval ",
+        "bbox": [
+            307,
+            35,
+            689,
+            47
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "discarded",
+        "text": "1Since the dataset release, the insurance dataset was removed from the dataset for legal copyright reasons. ",
+        "bbox": [
+            178,
+            897,
+            825,
+            924
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "discarded",
+        "text": "",
+        "bbox": [
+            493,
+            949,
+            504,
+            959
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "idore-benchmark evaluate-retriever \\\\--model-class colpali \\\\--model-name vidore/colpali-v1.3 \\\\--collection-name vidore/vidore-benchmark-v2-dev-67ae03e3924e85b36e7f53b0 \\\\--dataset-format beir \\\\--split test",
+        "bbox": [
+            184,
+            103,
+            823,
+            186
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Option 2: Creating a custom retriever ",
+        "text_level": 1,
+        "bbox": [
+            174,
+            204,
+            450,
+            218
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Detailed instructions on how to create a custom retriever are available at https:// github.com/illuin-tech/vidore-benchmark. We will soon transition to using the MTEB (Muennighoff et al., 2022) library to evaluate all models. ",
+        "bbox": [
+            174,
+            231,
+            823,
+            272
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "5 Results ",
+        "text_level": 1,
+        "bbox": [
+            174,
+            291,
+            271,
+            308
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Here are for example some nDCG $\\ @ 5$ results of visual retrieval models on ViDoRe Benchmark 2 (Faysse et al., 2025; Ma et al., 2024; Zhang et al., 2024; Yu et al., 2024; Team, 2025).2 ",
+        "bbox": [
+            174,
+            321,
+            823,
+            353
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "table",
+        "img_path": "images/3818bb42203abb9edc0812b6f02253be96d77b1928110c8c3cde444513dc7b7b.jpg",
+        "table_caption": [],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model voyageai</td><td>(ru son nnn</td><td>iunnee</td><td>Innuin wnnu</td><td>SotcouS</td><td>20</td><td>C!in o</td><td>SEF</td><td></td><td>Er Hod n</td><td>Cnu on</td><td>AAee</td></tr><tr><td>metrics-AI/colqwen2.5-3B</td><td>0.561 0.641</td><td>0.579</td><td>0.595</td><td>0.588</td><td>0.564</td><td>0.515</td><td>0.472</td><td></td><td>0.462</td><td>0.550</td><td>0.550</td></tr><tr><td></td><td>0.645</td><td></td><td>0.557</td><td>0.566</td><td>0.639</td><td>0.569</td><td>0.496</td><td></td><td>0.492</td><td>0.535</td><td>0.564</td></tr><tr><td>colsmolvlm-v0.1</td><td>0.624</td><td>0.555</td><td>0.432</td><td>0.609</td><td>0.581</td><td>0.505</td><td>0.511</td><td></td><td>0.476</td><td>0.474</td><td>0.530</td></tr><tr><td>colqwen2-v1.0</td><td>0.622</td><td>0.651</td><td>0.572</td><td>0.615</td><td>0.618</td><td>0.565</td><td>0.534</td><td></td><td>0.542</td><td>0.532</td><td>0.583</td></tr><tr><td>colpali-v1.2</td><td>0.321</td><td>0.560</td><td>0.458</td><td>0.531</td><td>0.585</td><td>0.557</td><td>0.519</td><td>0.540</td><td></td><td>0.479</td><td>0.505</td></tr><tr><td>dse-qwen2-2b-mrl-v1</td><td>0.614</td><td>0.655</td><td>0.563</td><td>0.615</td><td>0.592 0.532</td><td>0.551</td><td>0.549</td><td>0.557</td><td></td><td>0.528</td><td>0.580</td></tr><tr><td>colSmol-256M</td><td>0.460</td><td>0.504</td><td>0.341</td><td>0.534</td><td>0.597</td><td>0.340</td><td>0.272</td><td>0.313</td><td></td><td>0.273</td><td>0.397</td></tr><tr><td>colpali-v1.3</td><td>0.511</td><td>0.598</td><td>0.501</td><td>0.516</td><td></td><td>0.565</td><td>0.570</td><td>0.557</td><td></td><td>0.499</td><td>0.546</td></tr><tr><td>colqwen2.5-v0.2</td><td>0.684</td><td>0.603</td><td>0.532</td><td>0.598</td><td>0.636</td><td>0.611</td><td>0.574</td><td>0.574</td><td></td><td>0.565</td><td>0.597</td></tr><tr><td>dse-llamaindex</td><td>0.631</td><td>0.688</td><td>0.610 0.600</td><td>0.612 0.548</td><td>0.606 0.653</td><td>0.569</td><td>0.503 0.517</td><td>0.512</td><td></td><td>0.528</td><td>0.584</td></tr><tr><td>tsystems/colqwen2.5-3b-multi-v1.0</td><td>0.721</td><td>0.693 0.607</td><td>0.554</td><td>0.629</td><td>0.640</td><td>0.617 0.551</td><td>0.543</td><td>0.533 0.567</td><td></td><td>0.512 0.562</td><td>0.599</td></tr><tr><td>gme-qwen2-VL-7B</td><td>0.658 0.537</td><td>0.505</td><td>0.452</td><td>0.596</td><td>0.548</td><td>0.477</td><td>0.459</td><td>0.464</td><td></td><td>0.487</td><td>0.590 0.503</td></tr><tr><td>visrag-ret</td><td>0.522</td><td>0.587</td><td>0.377</td><td>0.503</td><td>0.543</td><td>0.421</td><td>0.392</td><td>0.391</td><td></td><td>0.361</td><td>0.455</td></tr><tr><td>colSmol-500M colpali-v1.1</td><td>0.465</td><td>0.547</td><td>0.484</td><td>0.567</td><td>0.564</td><td>0.507</td><td>0.461</td><td>0.481</td><td></td><td>0.438</td><td>0.502</td></tr></table>",
+        "bbox": [
+            243,
+            364,
+            753,
+            641
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Table 2: Model performance across datasets (nDCG@5). Highest per column in bold. ",
+        "bbox": [
+            187,
+            651,
+            802,
+            666
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Analyzing the results, we can extract a few general takeaways: ",
+        "bbox": [
+            174,
+            678,
+            629,
+            694
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "• ViDoRe v2 maintains strong correlation with v1, with consistent model rankings across versions (Figure 1).   \n• ViDoRe v2 leaves substantial room for future improvements, contrasting with ViDoRe v1, which was approaching performance saturation (scores exceeding $9 0 \\%$ as seen in Figure 2).   \nCertain models exhibit signs of slightly overfitting to the training distribution, resulting in reduced generalization to novel data (e.g., vidore/colSmol-256M, vidore/colSmol-500M, Metric-AI/ColQwen2.5-3b-multilingual-v1.0). These models perform worst on the V2 than what their performance on the V1 would lead to believe (Figure 1). ",
+        "bbox": [
+            215,
+            703,
+            825,
+            851
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "discarded",
+        "text": "ViDoRe Benchmark V2 Raising the Bar for Visual Retrieval ",
+        "bbox": [
+            307,
+            35,
+            689,
+            47
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "discarded",
+        "text": "3 ",
+        "bbox": [
+            493,
+            949,
+            503,
+            959
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "discarded",
+        "text": "2We adapted the evaluation procedure for the voyageAI API, resulting in slightly lower performance on the ViDoRe benchmark v1 compared to the values reported by voyageAI. This discrepancy likely arises from our resizing of input images to a maximum image height of 1200 pixels to facilitate efficient benchmarking, a preprocessing step presumably not applied in voyageAI’s original benchmarking setup. ",
+        "bbox": [
+            174,
+            859,
+            826,
+            924
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/f03a3ef342b9a850e97854e97b4fb659481ebff256deb088b3d799d5d0cdc177.jpg",
+        "image_caption": [
+            "Figure 1: Performance results across models for V1 and V2. We observe strong correlations, although a clear saturation on V1 for top models. Results are in nDCG@5. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            181,
+            119,
+            820,
+            248
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• The multilingual splits in ViDoRe v2 provide a more accurate assessment of nonenglish capabilities in visual retriever models. We observe a significant performance gap between models trained exclusively in English using an English-only VLM and those that are not.(Figure 3) ",
+        "bbox": [
+            215,
+            328,
+            825,
+            385
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• Larger model scale is beneficial; notably, the gme-qwen7B model achieves strong overall performance but incurs significant computational cost and inference latency. Inversely, while impressive for their sizes, models under 1B parameters tend to lag behind, especially on previously unseen data distributions. ",
+        "bbox": [
+            215,
+            390,
+            825,
+            446
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• We tend to see better separation between model performances with the human labeled dataset (ESG human), indicating it is of slightly higher quality than the synthetic datasets and is a more discriminating signal (Figure 2). ",
+        "bbox": [
+            215,
+            454,
+            823,
+            497
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/85cbff96dc09dedac538e5037c6ada40c2674cc77f43220b8ee1083c2508b98e.jpg",
+        "image_caption": [
+            "Figure 2: Performance results across monolingual tasks. ViDoRe v2 leaves substantial room for future improvements, contrasting with ViDoRe v1, which was approaching performance saturation. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            184,
+            527,
+            815,
+            746
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "6 Moving Forward ",
+        "text_level": 1,
+        "bbox": [
+            174,
+            833,
+            356,
+            852
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Our goal is for ViDoRe V2 to become a dynamic, ”living benchmark” that regularly grows with new tasks and datasets. To achieve this, we welcome and encourage the community to contribute datasets and evaluation tasks. This collaborative approach helps ensure that the benchmark stays relevant, useful, and reflective of real-world challenges. ",
+        "bbox": [
+            173,
+            867,
+            825,
+            924
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "discarded",
+        "text": "ViDoRe Benchmark V2 Raising the Bar for Visual Retrieval ",
+        "bbox": [
+            307,
+            35,
+            689,
+            47
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "discarded",
+        "text": "4 ",
+        "bbox": [
+            493,
+            949,
+            503,
+            959
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/8565eaee52c14ca2ff535fbe0f687f75fc8cbb6f5c3eabf149db93b3101ca87b.jpg",
+        "image_caption": [
+            "Figure 3: Performance results across crosslingual tasks.We observe a significant performance gap between models trained exclusively in English using an English-only VLM and those that are not. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            184,
+            108,
+            813,
+            321
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We are also open on integrating new retrieval metrics such as confidence estimation measures (Gisserot-Boukhlef et al., 2024), increasing multilingual coverage allowed by ever better base models (Yang et al., 2025; Boizard et al., 2025), and extending the leaderboard to new modalities (audio, image querying, etc...) ",
+        "bbox": [
+            174,
+            407,
+            825,
+            465
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgements ",
+        "text_level": 1,
+        "bbox": [
+            176,
+            484,
+            352,
+            502
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Training compute for running evaluations is obtained on the Jean Zay supercomputer operated by GENCI IDRIS through compute grant AD011016393. ",
+        "bbox": [
+            173,
+            516,
+            823,
+            546
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "For deeper discussions and projects around Visual RAG, ColPali, or agentic systems, please contact contact@illuin.tech or visit https://www.illuin.tech. We welcome community contributions of document-query sets to enhance this living benchmark. ",
+        "bbox": [
+            176,
+            551,
+            823,
+            594
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "discarded",
+        "text": "ViDoRe Benchmark V2 Raising the Bar for Visual Retrieval ",
+        "bbox": [
+            307,
+            35,
+            689,
+            47
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "discarded",
+        "text": "5 ",
+        "bbox": [
+            493,
+            949,
+            503,
+            959
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "References ",
+        "text_level": 1,
+        "bbox": [
+            176,
+            102,
+            272,
+            118
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Nicolas Boizard, Hippolyte Gisserot-Boukhlef, Duarte M. Alves, Andre Martins, Ayoub ´ Hammal, Caio Corro, Celine Hudelot, Emmanuel Malherbe, Etienne Malaboeuf, Fanny ´ Jourdan, Gabriel Hautreux, Joao Alves, Kevin El-Haddad, Manuel Faysse, Maxime ˜ Peyrard, Nuno M. Guerreiro, Patrick Fernandes, Ricardo Rei, and Pierre Colombo. Eurobert: Scaling multilingual encoders for european languages, 2025. URL https: //arxiv.org/abs/2503.05500. ",
+        "bbox": [
+            176,
+            126,
+            826,
+            209
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Manuel Faysse, Hugues Sibille, Tony Wu, Bilel Omrani, Gautier Viaud, Celine Hudelot, and ´ Pierre Colombo. Colpali: Efficient document retrieval with vision language models, 2025. URL https://arxiv.org/abs/2407.01449. ",
+        "bbox": [
+            174,
+            218,
+            823,
+            261
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Hippolyte Gisserot-Boukhlef, Manuel Faysse, Emmanuel Malherbe, Celine Hudelot, and ´ Pierre Colombo. Towards trustworthy reranking: A simple yet effective abstention mechanism, 2024. URL https://arxiv.org/abs/2402.12997. ",
+        "bbox": [
+            173,
+            270,
+            823,
+            314
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Xueguang Ma, Sheng-Chieh Lin, Minghan Li, Wenhu Chen, and Jimmy Lin. Unifying multimodal retrieval via document screenshot embedding, 2024. URL https: //arxiv.org/abs/2406.11251. ",
+        "bbox": [
+            173,
+            321,
+            823,
+            364
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Niklas Muennighoff, Nouamane Tazi, Lo¨ıc Magne, and Nils Reimers. MTEB: Massive Text Embedding Benchmark, 2022. URL https://arxiv.org/abs/2210.07316. Version Number: 3. ",
+        "bbox": [
+            176,
+            373,
+            823,
+            416
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Nomic Team. Nomic embed multimodal: Interleaved text, image, and screenshots for visual document retrieval, 2025. URL https://nomic.ai/blog/posts/nomic-embed-multimodal. ",
+        "bbox": [
+            173,
+            425,
+            825,
+            454
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Nandan Thakur, Jimmy Lin, Sam Havens, Michael Carbin, Omar Khattab, and Andrew Drozdov. Freshstack: Building realistic benchmarks for evaluating retrieval on technical documents, 2025. URL https://arxiv.org/abs/2504.13128. ",
+        "bbox": [
+            176,
+            463,
+            823,
+            506
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "An Yang, Bowen Yu, Chengyuan Li, Dayiheng Liu, Fei Huang, Haoyan Huang, Jiandong Jiang, Jianhong Tu, Jianwei Zhang, Jingren Zhou, Junyang Lin, Kai Dang, Kexin Yang, Le Yu, Mei Li, Minmin Sun, Qin Zhu, Rui Men, Tao He, Weijia Xu, Wenbiao Yin, Wenyuan Yu, Xiafei Qiu, Xingzhang Ren, Xinlong Yang, Yong Li, Zhiying Xu, and Zipeng Zhang. Qwen2.5-1m technical report, 2025. URL https://arxiv.org/abs/2501.15383. ",
+        "bbox": [
+            174,
+            515,
+            825,
+            585
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Shi Yu, Chaoyue Tang, Bokai Xu, Junbo Cui, Junhao Ran, Yukun Yan, Zhenghao Liu, Shuo Wang, Xu Han, Zhiyuan Liu, and Maosong Sun. Visrag: Vision-based retrievalaugmented generation on multi-modality documents, 2024. URL https://arxiv.org/ abs/2410.10594. ",
+        "bbox": [
+            174,
+            593,
+            826,
+            650
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Xin Zhang, Yanzhao Zhang, Wen Xie, Mingxin Li, Ziqi Dai, Dingkun Long, Pengjun Xie, Meishan Zhang, Wenjie Li, and Min Zhang. Gme: Improving universal multimodal retrieval by multimodal llms, 2024. URL http://arxiv.org/abs/2412.16855. ",
+        "bbox": [
+            174,
+            660,
+            826,
+            702
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "discarded",
+        "text": "ViDoRe Benchmark V2 Raising the Bar for Visual Retrieval ",
+        "bbox": [
+            307,
+            35,
+            689,
+            47
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "discarded",
+        "text": "",
+        "bbox": [
+            493,
+            950,
+            503,
+            959
+        ],
+        "page_idx": 5
+    }
+]

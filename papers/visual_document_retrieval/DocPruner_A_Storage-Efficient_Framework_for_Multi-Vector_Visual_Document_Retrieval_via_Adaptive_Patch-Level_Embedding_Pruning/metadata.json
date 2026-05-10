@@ -1,0 +1,18 @@
+{
+    "title": "DocPruner: A Storage-Efficient Framework for Multi-Vector Visual Document Retrieval via Adaptive Patch-Level Embedding Pruning",
+    "arxiv_id": "2509.23883",
+    "versioned_id": "2509.23883v1",
+    "authors": [
+        "Yibo Yan",
+        "Guangwei Xu",
+        "Xin Zou",
+        "Shuliang Liu",
+        "James Kwok",
+        "Xuming Hu"
+    ],
+    "published": "2025-09-28T13:47:24Z",
+    "primary_category": "cs.CL",
+    "comment": "Under review",
+    "pdf_path": "papers/visual_document_retrieval/DocPruner_A_Storage-Efficient_Framework_for_Multi-Vector_Visual_Document_Retrieval_via_Adaptive_Patch-Level_Embedding_Pruning/paper.pdf"
+}
+

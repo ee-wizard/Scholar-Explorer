@@ -1,0 +1,3 @@
+The fraud analysis is complete. All flagged invoices are saved in `/root/fraud_report.json`. Each entry includes the invoice page number, vendor name, IBAN, PO number, invoice amount, and the reason for being flagged (e.g., "Unknown Vendor"). 
+
+If you need to see more results or want a summary of the findings, let me know!

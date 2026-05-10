@@ -1,0 +1,27 @@
+{
+    "id": "9b9752ac-7994-46cb-8964-538cf3d6d8a8",
+    "started_at": "2026-05-10T11:27:09.550648",
+    "finished_at": "2026-05-10T11:28:22.879084",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 1,
+        "evals": {
+            "codex__gpt-4.1__tasks": {
+                "n_trials": 0,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "reward_stats": {},
+                "exception_stats": {
+                    "RewardFileNotFoundError": [
+                        "3d-scan-calc__e9HNDno"
+                    ]
+                }
+            }
+        }
+    }
+}

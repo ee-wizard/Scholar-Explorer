@@ -1,0 +1,44 @@
+{
+  "execution_timestamp": "2026-04-29T14:12:52.725663+08:00",
+  "paper_name": "Hybrid-Vector_Retrieval_for_Visually_Rich_Documents_Combining_Single-Vector_Efficiency_and_Multi-Vector_Accuracy",
+  "output_dir": "papers\\multi_vector_retrieval\\HEAVEN Hybrid-Vector Retrieval for Visually Rich Documents",
+  "source_file": "<arxiv-api>",
+  "selection": {
+    "mode": "id_direct",
+    "selection": "direct_id"
+  },
+  "source": {
+    "arxivId": "2510.22215",
+    "versionedId": "2510.22215v2",
+    "absUrl": "https://arxiv.org/abs/2510.22215v2",
+    "pdfUrl": "https://arxiv.org/pdf/2510.22215v2",
+    "doi": "",
+    "published": "2025-10-25T08:27:37Z",
+    "updated": "2026-04-20T11:25:42Z"
+  },
+  "paper": {
+    "title": "Hybrid-Vector Retrieval for Visually Rich Documents: Combining Single-Vector Efficiency and Multi-Vector Accuracy",
+    "authors": [
+      "Juyeon Kim",
+      "Geon Lee",
+      "Dongwon Choi",
+      "Taeuk Kim",
+      "Kijung Shin"
+    ],
+    "keywords": [
+      "cs.CV",
+      "cs.IR"
+    ],
+    "Abstract": "Retrieval over visually rich documents is essential for tasks such as legal discovery, scientific search, and enterprise knowledge management. Existing approaches fall into two paradigms: single-vector retrieval, which is efficient but coarse, and multi-vector retrieval, which is accurate but computationally expensive. To address this trade-off, we propose HEAVEN, a plug-and-play two-stage hybrid-vector framework. In the first stage, HEAVEN efficiently retrieves candidate pages using a single-vector method over Visually-Summarized Pages (VS-Pages), which assemble representative visual layouts from multiple pages. In the second stage, it reranks candidates with a multi-vector method while filtering query tokens by linguistic importance to reduce redundant computations. To evaluate retrieval systems under realistic conditions, we also introduce ViMDoc, a benchmark for visually rich, multi-document, and long-document retrieval. Across four benchmarks, HEAVEN attains 99.87% of the Recall@1 performance of multi-vector models on average while reducing per-query computation by 99.82%, achieving efficiency and accuracy. Our code and datasets are available at: https://github.com/juyeonnn/HEAVEN",
+    "primaryCategory": "cs.IR",
+    "journalRef": "",
+    "comment": "ACL 2026 Findings"
+  },
+  "download": {
+    "source_url": "https://arxiv.org/pdf/2510.22215v2",
+    "final_url": "https://arxiv.org/pdf/2510.22215v2",
+    "pdf_saved": true,
+    "pdf_file": "papers\\multi_vector_retrieval\\HEAVEN Hybrid-Vector Retrieval for Visually Rich Documents\\Hybrid-Vector_Retrieval_for_Visually_Rich_Documents_Combining_Single-Vector_Efficiency_and_Multi-Vector_Accuracy.pdf",
+    "download_errors": []
+  }
+}

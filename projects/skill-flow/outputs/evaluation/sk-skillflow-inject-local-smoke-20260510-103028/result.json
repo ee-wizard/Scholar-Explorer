@@ -1,0 +1,27 @@
+{
+    "id": "a2782e1f-d171-4241-a438-68bddb0f807d",
+    "started_at": "2026-05-10T10:31:06.892564",
+    "finished_at": "2026-05-10T10:34:30.185462",
+    "n_total_trials": 1,
+    "stats": {
+        "n_trials": 1,
+        "n_errors": 1,
+        "evals": {
+            "codex__gpt-5-mini-2025-08-07__tasks": {
+                "n_trials": 0,
+                "n_errors": 1,
+                "metrics": [
+                    {
+                        "mean": 0.0
+                    }
+                ],
+                "reward_stats": {},
+                "exception_stats": {
+                    "RuntimeError": [
+                        "3d-scan-calc__zQmxe29"
+                    ]
+                }
+            }
+        }
+    }
+}

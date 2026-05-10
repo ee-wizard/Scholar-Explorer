@@ -1,0 +1,17 @@
+{
+    "title": "Hybrid-Vector Retrieval for Visually Rich Documents: Combining Single-Vector Efficiency and Multi-Vector Accuracy",
+    "arxiv_id": "2510.22215",
+    "versioned_id": "2510.22215v2",
+    "authors": [
+        "Juyeon Kim",
+        "Geon Lee",
+        "Dongwon Choi",
+        "Taeuk Kim",
+        "Kijung Shin"
+    ],
+    "published": "2025-10-25T08:27:37Z",
+    "primary_category": "cs.IR",
+    "comment": "ACL 2026 Findings",
+    "pdf_path": "papers/visual_document_retrieval/Hybrid-Vector_Retrieval_for_Visually_Rich_Documents_Combining_Single-Vector_Efficiency_and_Multi-Vector_Accuracy/paper.pdf"
+}
+

@@ -1,0 +1,36 @@
+{
+    "job_name": "sk-skillflow-inject-local-smoke",
+    "jobs_dir": "outputs/evaluation",
+    "model": "github/gpt-4.1",
+    "reasoning_effort": "medium",
+    "selector_cache": "outputs/pipeline/skillsbench_external_full/result_cache.json",
+    "tasks_dir_for_skills": "integration/skillsbench/tasks",
+    "corpus_dir": "/mnt/d/LocalEnvironments/Datasets/skillflow/skills",
+    "tasks_path": "integration/skillsbench/tasks",
+    "num_runs": 1,
+    "environment": {
+        "use_daytona": false,
+        "n_concurrent": 1
+    },
+    "tasks": {
+        "include_tasks": [
+            "3d-scan-calc"
+        ],
+        "exclude_tasks": []
+    },
+    "retry": {
+        "resume": false,
+        "retry_errors": false,
+        "retry_tasks": [],
+        "retry_error_types": [
+            "AgentSetupTimeoutError",
+            "CancelledError",
+            "EnvironmentStartTimeoutError",
+            "RewardFileNotFoundError",
+            "VerifierTimeoutError",
+            "RuntimeError",
+            "DaytonaNotFoundError",
+            "AddTestsDirError"
+        ]
+    }
+}

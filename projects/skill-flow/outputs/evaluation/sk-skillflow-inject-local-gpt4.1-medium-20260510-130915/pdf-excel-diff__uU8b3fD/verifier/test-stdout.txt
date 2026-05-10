@@ -1,0 +1,21 @@
+/tests/test.sh: line 2: $'\r': command not found
+/tests/test.sh: line 5: $'\r': command not found
+E: Invalid operation update
+Reading package lists...
+Building dependency tree...
+Reading state information...
+E: Unable to locate package curl
+/tests/test.sh: line 8: $'\r': command not found
+/tests/test.sh: line 9: $'sh\r': command not found
+curl: (23) Failure writing output to destination
+/tests/test.sh: line 10: $'\r': command not found
+/tests/test.sh: line 11: /root/.local/bin/env: No such file or directory
+/tests/test.sh: line 12: $'\r': command not found
+/tests/test.sh: line 15: $'\r': command not found
+/tests/test.sh: line 17: uvx: command not found
+/tests/test.sh: line 18: --with: command not found
+/tests/test.sh: line 19: --with: command not found
+/tests/test.sh: line 20: pytest: command not found
+/tests/test.sh: line 21: $'\r': command not found
+/tests/test.sh: line 23: $'\r': command not found
+/tests/test.sh: line 29: syntax error: unexpected end of file

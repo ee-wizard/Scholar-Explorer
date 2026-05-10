@@ -1,0 +1,10 @@
+{
+  "model": "gpt-4.1",
+  "copilot_home": "/logs/agent/copilot-home",
+  "mcp_servers": null,
+  "reasoning_effort_fallback": true,
+  "error": {
+    "type": "TimeoutError",
+    "message": "Timeout after 300.0s waiting for session.idle"
+  }
+}

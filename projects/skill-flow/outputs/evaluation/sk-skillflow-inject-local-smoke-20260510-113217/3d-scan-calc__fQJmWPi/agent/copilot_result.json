@@ -1,0 +1,10 @@
+{
+  "model": "gpt-4.1",
+  "copilot_home": "/logs/agent/copilot-home",
+  "mcp_servers": null,
+  "reasoning_effort_fallback": true,
+  "error": {
+    "type": "Exception",
+    "message": "Session error: Execution failed: Error: Session was not created with authentication info or custom provider"
+  }
+}

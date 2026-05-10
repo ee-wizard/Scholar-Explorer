@@ -1,0 +1,42 @@
+{
+  "execution_timestamp": "2026-04-29T14:12:26.889624+08:00",
+  "paper_name": "SPLATE_Sparse_Late_Interaction_Retrieval",
+  "output_dir": "papers\\multi_vector_retrieval\\SPLATE Sparse Late Interaction Retrieval",
+  "source_file": "<arxiv-api>",
+  "selection": {
+    "mode": "id_direct",
+    "selection": "direct_id"
+  },
+  "source": {
+    "arxivId": "2404.13950",
+    "versionedId": "2404.13950v1",
+    "absUrl": "https://arxiv.org/abs/2404.13950v1",
+    "pdfUrl": "https://arxiv.org/pdf/2404.13950v1",
+    "doi": "",
+    "published": "2024-04-22T07:51:13Z",
+    "updated": "2024-04-22T07:51:13Z"
+  },
+  "paper": {
+    "title": "SPLATE: Sparse Late Interaction Retrieval",
+    "authors": [
+      "Thibault Formal",
+      "Stéphane Clinchant",
+      "Hervé Déjean",
+      "Carlos Lassance"
+    ],
+    "keywords": [
+      "cs.IR"
+    ],
+    "Abstract": "The late interaction paradigm introduced with ColBERT stands out in the neural Information Retrieval space, offering a compelling effectiveness-efficiency trade-off across many benchmarks. Efficient late interaction retrieval is based on an optimized multi-step strategy, where an approximate search first identifies a set of candidate documents to re-rank exactly. In this work, we introduce SPLATE, a simple and lightweight adaptation of the ColBERTv2 model which learns an ``MLM adapter'', mapping its frozen token embeddings to a sparse vocabulary space with a partially learned SPLADE module. This allows us to perform the candidate generation step in late interaction pipelines with traditional sparse retrieval techniques, making it particularly appealing for running ColBERT in CPU environments. Our SPLATE ColBERTv2 pipeline achieves the same effectiveness as the PLAID ColBERTv2 engine by re-ranking 50 documents that can be retrieved under 10ms.",
+    "primaryCategory": "cs.IR",
+    "journalRef": "",
+    "comment": "To appear at SIGIR'24 (short paper track)"
+  },
+  "download": {
+    "source_url": "https://arxiv.org/pdf/2404.13950v1",
+    "final_url": "https://arxiv.org/pdf/2404.13950v1",
+    "pdf_saved": true,
+    "pdf_file": "papers\\multi_vector_retrieval\\SPLATE Sparse Late Interaction Retrieval\\SPLATE_Sparse_Late_Interaction_Retrieval.pdf",
+    "download_errors": []
+  }
+}

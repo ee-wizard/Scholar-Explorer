@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/installed-agent/copilot_runner.py", line 132, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/installed-agent/copilot_runner.py", line 128, in main
+    return asyncio.run(_run(args))
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/base_events.py", line 687, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/installed-agent/copilot_runner.py", line 97, in _run
+    response = await session.send_and_wait(args.prompt)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/copilot-sdk-venv/lib/python3.12/site-packages/copilot/session.py", line 1204, in send_and_wait
+    raise error_event
+Exception: Session error: Execution failed: Error: Session was not created with authentication info or custom provider

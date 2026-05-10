@@ -1,0 +1,848 @@
+[
+    {
+        "type": "text",
+        "text": "Visual Late Chunking: An Empirical Study of Contextual Chunking for Efficient Visual Document Retrieval ",
+        "text_level": 1,
+        "bbox": [
+            138,
+            101,
+            859,
+            150
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Yibo $\\mathbf { Y a n } ^ { 1 , 2 , 3 }$ , Mingdong $\\mathbf { O u } ^ { 2 }$ , Yi Cao2, Jiahao $\\mathbf { H u o } ^ { 1 , 2 }$ , $\\mathbf { X } \\mathbf { i n } \\mathbf { Z o u } ^ { 1 , 3 }$ , Shuliang $\\mathbf { L i u } ^ { 1 , 3 }$ , James Kwok3, Xuming Hu1,3,∗ 1Hong Kong University of Science and Technology (Guangzhou), 2Alibaba Cloud Computing, 3Hong Kong University of Science and Technology ",
+        "bbox": [
+            158,
+            161,
+            843,
+            234
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract ",
+        "text_level": 1,
+        "bbox": [
+            86,
+            244,
+            155,
+            257
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Multi-vector models dominate Visual Document Retrieval (VDR) due to their fine-grained matching capabilities, but their high storage and computational costs present a major barrier to practical deployment. In this paper, we propose ColChunk, a plug-and-play framework that introduces multimodal late chunking to construct efficient, contextualized multi-vectors. Unlike existing pruning or fixed-token approaches, ColChunk employs hierarchical clustering on patch-level embeddings, fused with a 2D position prior to ensure spatial-semantic coherence. This adaptive grouping allows for a content-aware representation that preserves global context while drastically reducing the vector count. Evaluations across 24 VDR datasets demonstrate ColChunk achieves over a $9 0 \\%$ reduction in storage requirements while simultaneously delivering a 9-point average improvement in $\\scriptstyle \\mathrm { n D C G } ( { \\overline { { a } } } ) 5$ across representative single-vector models. ColChunk provides a practical solution for balancing retrieval accuracy and efficiency in visual document systems. ",
+        "bbox": [
+            86,
+            263,
+            480,
+            483
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Keywords ",
+        "text_level": 1,
+        "bbox": [
+            86,
+            497,
+            166,
+            512
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Visual Document Retrieval, Multi-Vector Retrieval, Efficiency ",
+        "bbox": [
+            84,
+            516,
+            452,
+            529
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "In Proceedings of Make sure to enter the correct conference title from your rights confirmation email (Conference acronym ’XX). https: //doi.org/XXXXXXX.XXXXXXX ",
+        "bbox": [
+            84,
+            530,
+            480,
+            569
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction ",
+        "text_level": 1,
+        "bbox": [
+            86,
+            587,
+            217,
+            602
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Visual Document Retrieval (VDR) has emerged as a critical task in information retrieval, aimed at identifying relevant documents from massive corpora based on both textual content and visual layout [4, 6, 40]. Currently, the state-of-the-art paradigm is dominated by multi-vector architectures, epitomized by ColPali [5]. These models represent each document page as a collection of patch-level embeddings, a strategy that perfectly aligns with the nature of visual documents where semantic information is densely packed and spatially distributed. By allowing “late interaction” between query terms and document patches, multi-vector models preserve fine-grained details that are often lost in coarse-grained singlevector representations [13, 16, 30, 31]. ",
+        "bbox": [
+            86,
+            606,
+            480,
+            770
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Despite their superior retrieval accuracy, multi-vector VDR models face a significant bottleneck: storage efficiency [15, 29, 32, 33]. Storing thousands of embeddings per page leads to prohibitive memory costs in large-scale applications. To mitigate this, several optimization routes have been explored. ❶ Merging-based schemes, such as Light-ColPali [20], group similar tokens to reduce count [1, 2, 22], yet often suffer from unstable performance due to oversimplified aggregation. ❷ Pruning-based methods, like DocPruner [43], discard “redundant” tokens [10, 14, 36, 41], but their performance degrades sharply under high compression ratios as critical context is lost. $\\otimes$ More recently, approaches like MetaEmbed [39] and CausalEmbed [11] introduce additional trainable “summary” tokens. However, these often require expensive re-training and lack the flexibility to adapt to varying document complexities, as they rely on a fixed number of learned latent representations. ",
+        "bbox": [
+            84,
+            772,
+            480,
+            827
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            517,
+            246,
+            913,
+            397
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "A potential solution lies in the concept of “late chunking,” proposed by Günther et al. [8] and recently popularized in text embedding research [3, 25, 37]. In the text domain, late chunking leverages long-context models to generate token-level embeddings first, applying pooling only at the final stage to ensure each chunk embedding is richly contextualized. Inspired by this, we argue that a similar “multimodal late chunking” is essential for VDR. However, while text chunking is inherently sequential, visual documents are non-linear and spatial. Our motivation is to move beyond rigid or learned tokens and instead construct contextualized multi-vectors that are content-aware, allowing the number of chunks to be dynamically set to balance efficiency and semantic richness. ",
+        "bbox": [
+            517,
+            398,
+            913,
+            563
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Therefore, we propose ColChunk, a novel paradigm for constructing contextualized multi-vectors specifically designed for visual documents. ColChunk overcomes the limitations of previous methods by performing hierarchical clustering on the semantic embeddings of the final transformer layer. By grouping tokens with similar semantic signatures into adaptive chunks and applying pooling, we generate a condensed set of multi-vectors for MaxSim-based retrieval. Crucially, to integrate the document’s spatial structure, we incorporate a position prior. By fusing 2D positional encodings with semantic embeddings during the clustering process, ColChunk ensures that the resulting chunks are both semantically coherent and spatially contiguous. This training-free approach retains global context while enabling a content-sensitive representation. ",
+        "bbox": [
+            517,
+            564,
+            913,
+            742
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "We conduct extensive experiments across 24 VDR datasets, adapting ColChunk to five representative single-vector models. The results are compelling: by using only 40 multi-vectors per page, a reduction of over $9 0 \\%$ compared to original multi-vector counts (e.g., avg 768 in ColQwen2.5 [5]), we achieve an average improvement of 9 points in $\\mathrm { n D C G } @ 5$ compared to the base single-vector models. This demonstrates that ColChunk serves as a flexible “plugand-play” enhancement, bridging the gap between efficient singlevector models and high-performance multi-vector mechanisms while deeply respecting the characteristics of visual documents. ",
+        "bbox": [
+            517,
+            744,
+            913,
+            881
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Our contributions are summarized as follows: ",
+        "bbox": [
+            532,
+            882,
+            808,
+            895
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "discarded",
+        "text": "Conference acronym ’XX, Woodstock, NY $\\circledcirc$ 2018 Copyright held by the owner/author(s). Publication rights licensed to ACM. ACM ISBN 978-1-4503-XXXX-X/2018/06 https://doi.org/XXXXXXX.XXXXXXX ",
+        "bbox": [
+            84,
+            852,
+            472,
+            893
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "discarded",
+        "text": "arXiv:2604.10167v1 [cs.CV] 11 Apr 2026 ",
+        "bbox": [
+            24,
+            270,
+            60,
+            722
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "❶ Novel Paradigm: We are the first to migrate the concept of late chunking to the visual document domain, addressing the critical storage bottleneck of current multi-vector VDR models. ",
+        "bbox": [
+            81,
+            107,
+            480,
+            147
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "$\\otimes$ Training-free Flexibility: We propose a clustering-based framework with a spatial-semantic position prior that can be seamlessly applied to various models without additional training. ",
+        "bbox": [
+            81,
+            148,
+            482,
+            189
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "$\\otimes$ Superior Trade-off: The extensive experiment demonstrate ColChunk achieves a superior trade-off between performance and efficiency, providing a foundation for real-world deployment. ",
+        "bbox": [
+            81,
+            190,
+            480,
+            232
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work ",
+        "text_level": 1,
+        "bbox": [
+            84,
+            250,
+            225,
+            265
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "VDR is essential for accessing information in visually rich documents where semantic meaning is derived from both textual content and spatial layout [40, 42]. Traditional pipelines rely on OCR to extract text, but they often struggle to preserve structural integrity and fail on non-textual elements like tables and charts [27, 45]. While the era of Large Vision-Language Models (LVLMs) has introduced end-to-end single-vector models to bypass OCR (e.g., DSE [19], GME [46], UniSE [18]), these models suffer from significant information loss by compressing complex, high-resolution pages into a single coarse-grained representation. Consequently, multi-vector architectures, pioneered by ColPali [5], have redefined the SOTA through late interaction [13], with subsequent research focusing on enhancing performance via model architecture (e.g., ModernVBERT [34]), data synthesis (e.g., Nemotron ColEmbed V2 [26]), and training objectives (e.g., jina-embeddings-v4 [9]). Despite their superior accuracy, these models face a severe efficiency bottleneck due to the prohibitive storage of maintaining thousands of patch-level embeddings per page. To mitigate this footprint, current research generally follows three paradigms: pruning redundant embeddings (e.g., DocPruner [43]), merging similar tokens via pooling or clustering (e.g., Light-ColPali [20]), or introducing learnable summary tokens (e.g., MetaEmbed [39]). In this context, ColChunk addresses these limitations by migrating the concept of late chunking to the visual domain through spatial-semantic aware clustering. ",
+        "bbox": [
+            84,
+            268,
+            482,
+            601
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3 Methodology ",
+        "text_level": 1,
+        "bbox": [
+            86,
+            619,
+            222,
+            635
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.1 Task Formulation ",
+        "text_level": 1,
+        "bbox": [
+            86,
+            638,
+            272,
+            654
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "The task of VDR is to identify the most relevant document page $d$ from a corpus $c$ for a given textual query $q$ . We follow the multivector retrieval paradigm, utilizing an LVLM-based encoder $\\Phi ( \\cdot )$ to map inputs into a continuous embedding space. ",
+        "bbox": [
+            84,
+            657,
+            480,
+            713
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Formally, a query $q$ is encoded into a set of $N _ { q }$ token-level embeddings Q = {q?? }??????=1 , where each $\\mathbf { q } _ { i } \\in \\mathbb { R } ^ { D }$ . Similarly, a document page $d$ , processed as an image, is represented by a set of $N _ { v }$ patch-level contextual embeddings $\\mathbf { V } = \\{ \\mathbf { v } _ { j } \\} _ { j = 1 } ^ { N _ { v } }$ , where ${ \\bf v } _ { j } \\in \\mathbb { R } ^ { D }$ . The relevance score $S ( q , d )$ is computed using the late interaction mechanism: ",
+        "bbox": [
+            84,
+            714,
+            482,
+            786
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "img_path": "images/ddd32701dc69a1c262c9b316b66547fb5cc5249d17f7a4bc5a3b254aac7e2fe4.jpg",
+        "text": "$$\nS ( q , d ) = \\sum _ { i = 1 } ^ { N _ { q } } \\frac { N _ { v } } { j = 1 } \\frac { \\mathbf { q } _ { i } ^ { \\top } \\mathbf { v } _ { j } } { \\| \\mathbf { q } _ { i } \\| \\| \\mathbf { v } _ { j } \\| } .\n$$",
+        "text_format": "latex",
+        "bbox": [
+            196,
+            796,
+            369,
+            837
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We aim to construct a condensed multi-vector set $\\mathbf { D } = \\{ \\mathbf { d } _ { k } \\} _ { k = 1 } ^ { K }$ with size $K \\ll N _ { v }$ (e.g., $K = 4 0$ ), minimizing storage overhead while preserving retrieval precision through spatial-semantic coherence. ",
+        "bbox": [
+            83,
+            853,
+            480,
+            896
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Algorithm 1: ColChunk Compression Workflow ",
+        "text_level": 1,
+        "bbox": [
+            526,
+            108,
+            820,
+            122
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "image",
+        "img_path": "images/2584882d791b6d9be0bf3eb57b978fc7605e9d06de7534f520965efcadb07c3b.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            531,
+            121,
+            893,
+            551
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.2 The ColChunk Framework ",
+        "text_level": 1,
+        "bbox": [
+            517,
+            580,
+            767,
+            597
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "ColChunk is an offline compression framework designed to transform patch-level embeddings into a streamlined yet semantically potent set of chunk embeddings. Given the set of $N _ { v }$ contextualized patch embeddings $\\mathbf { V } = \\{ \\mathbf { v } _ { j } \\} _ { j = 1 } ^ { N _ { v } }$ where ${ \\bf v } _ { j } \\in \\mathbb { R } ^ { D }$ , extracted from an LVLM encoder, ColChunk constructs a multi-vector representation via three sequential stages as shown in Algorithm 1. ",
+        "bbox": [
+            517,
+            601,
+            913,
+            684
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.2.1 Spatial-Semantic Feature Integration. The semantics of visual documents are intrinsically tied to their spatial layout. To ensure that the subsequent clustering process is layout-aware, we map the 2D coordinates of each patch into the embedding space. For each patch $j \\in \\{ 1 , \\ldots , N _ { v } \\}$ , its position in the normalized coordinate system is defined as $P _ { j } = ( x _ { j } , y _ { j } )$ . We apply a 2D sinusoidal encoding function $f _ { p o s } : \\mathbb { R } ^ { 2 }  \\mathbb { R } ^ { D }$ to derive the positional embedding $\\mathbf { p } _ { j } \\in \\mathbb { R } ^ { D }$ . The enhanced feature $\\mathbf { z } _ { j } \\in \\mathbb { R } ^ { D }$ is then formed by fusing the semantic embedding $\\mathbf { v } _ { j }$ with the positional embedding $\\mathbf { p } _ { j }$ via a weighting factor $\\omega \\in [ 0 , 1 ] \\colon \\mathbf { z } _ { j } = \\left( 1 - \\omega \\right) \\cdot \\mathbf { v } _ { j } + \\omega \\cdot \\mathbf { p } _ { j } ,$ where $\\omega$ serves as a hyperparameter to balance the influence of semantic similarity and spatial proximity during clustering. ",
+        "bbox": [
+            517,
+            693,
+            913,
+            859
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "3.2.2 Hierarchical Contextual Chunking. ColChunk implements content-aware partitioning through Hierarchical Agglomerative ",
+        "bbox": [
+            517,
+            867,
+            911,
+            896
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "discarded",
+        "text": "Conference acronym ’XX, June 03–05, 2018, Woodstock, NY ",
+        "bbox": [
+            88,
+            77,
+            364,
+            87
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "discarded",
+        "text": "Trovato et al. ",
+        "bbox": [
+            848,
+            77,
+            911,
+            85
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "image",
+        "img_path": "images/ea0d59c3214306333128bc5c3959aa5baf9c7a30b62cdce9322adb0dd07ad6c3.jpg",
+        "image_caption": [
+            "Figure 1: The performance comparison of ColChunk on five VDR benchmarks across five single-vector retrieval models. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            143,
+            104,
+            418,
+            391
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Clustering (HAC). we define an assignment function $\\mathcal { A } : \\{ 1 , \\ldots , N _ { v } \\} $ $\\left\\{ 1 , \\ldots , K \\right\\}$ that partitions the $N _ { v }$ patches into $K$ disjoint chunks $\\{ C _ { 1 } , C _ { 2 } , \\ldots , C _ { K } \\}$ , where $C _ { k } = \\{ j \\ | \\ \\mathcal { A } ( j ) = k \\}$ . ",
+        "bbox": [
+            86,
+            433,
+            500,
+            473
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "A key characteristic of ColChunk is that the number of tokens assigned to each chunk is adaptive, denoted as $n _ { k } = | C _ { k } |$ , satisfying $\\begin{array} { r } { \\bar { \\sum _ { k = 1 } ^ { K } n _ { k } } = N _ { v } } \\end{array}$ . This non-uniformity allows the framework to dynamically adapt to document elements of varying scales. For example, a small $n _ { k }$ (e.g., $n _ { k } \\approx 4$ ) may represent sparse elements such as a page number or an isolated icon; whereas a large $n _ { k }$ (e.g., $n _ { k } ~ \\approx ~ 1 2 0 )$ typically corresponds to a dense text paragraph or a complex graphical region. By utilizing Ward’s linkage criterion to minimize intra-cluster variance, ColChunk ensures that each chunk is both spatially contiguous and semantically coherent. ",
+        "bbox": [
+            86,
+            474,
+            482,
+            612
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.2.3 Representative Multi-Vector Generation. Following the cluster assignment, we generate the final document multi-vector set $\\mathbf { D } \\in \\mathbb { R } ^ { K \\times D }$ by aggregating the original semantic embeddings $\\mathbf { v } _ { j }$ (excluding the positional prior ${ \\bf p } _ { j }$ to avoid geometric bias in retrieval). For the $k$ -th chunk, the representative embedding $\\mathbf { d } _ { k } \\in \\mathbb { R } ^ { D }$ is calculated as: $\\begin{array} { r } { \\mathbf { d } _ { k } = \\mathrm { N o r m } \\left( \\frac { 1 } { n _ { k } } \\sum _ { j \\in C _ { k } } \\mathbf { v } _ { j } \\right) } \\end{array}$ , where $\\operatorname { N o r m } ( { \\cdot } )$ denotes $L _ { 2 }$ normalization operator. The resulting set $\\mathbf { D } = \\{ \\mathbf { d } _ { k } \\} _ { k = 1 } ^ { K }$ serves as final efficient index. Since each ${ \\bf d } _ { k }$ is derived from late hidden states that have already integrated global context, the representation preserves fine-grained details even at a high compression $\\%$ . ",
+        "bbox": [
+            84,
+            621,
+            482,
+            767
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3.3 Theoretical Foundation ",
+        "text_level": 1,
+        "bbox": [
+            86,
+            780,
+            318,
+            795
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The efficacy of ColChunk can be understood through the Information Bottleneck (IB) principle [35]. Given a document $d$ and query $q$ the information flow forms a Markov chain $q  d  \\mathbf { E } _ { \\mathrm { p a t c h } }  \\mathbf { C } .$ The Data Processing Inequality implies $I ( q ; \\mathbf { C } ) \\leq I ( q ; \\mathbf { E } _ { \\mathrm { p a t c h } } )$ , posing the challenge of minimizing information loss during compression. The IB objective is to find a compressed representation C by solving $\\mathrm { { m i n } } _ { \\mathrm { { C } } } [ I ( { \\bf C } ; { \\bf E } _ { \\mathrm { p a t c h } } ) - \\beta I ( { \\bf C } ; q ) ]$ . Since $q$ is unknown at indexing time, we use the document’s spatial-semantic structure $d _ { \\mathrm { s t r u c t } }$ as a tractable proxy for $q$ , reformulating the objective as $\\mathrm { m i n c } \\left[ I ( \\mathbf { C } ; \\mathbf { E } _ { \\mathrm { p a t c h } } ) - \\beta I ( \\mathbf { C } ; d _ { \\mathrm { s t r u c t } } ) \\right]$ . ColChunk approximates this optimization in a training-free manner. The clustering and pooling stage, $g : { \\mathbf { E } } _ { \\mathrm { p a t c h } } \\mapsto { \\mathbf { C } } ,$ , acts as a quantizer that minimizes $I ( { \\bf C } ; { \\bf E } _ { \\mathrm { p a t c h } } )$ by grouping $N$ patches into $k$ centroids. The spatial-semantic fusion stage maximizes the “relevance” term $I ( { \\bf C } ; d _ { \\mathrm { s t r u c t } } )$ by ensuring that the clustering operates on features F that encode both semantics and spatial layout. This forces the resulting chunks C to preserve the document’s salient structural information. ",
+        "bbox": [
+            86,
+            799,
+            482,
+            896
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/e39d7aed74576d9eb34499bfbdeb88f27dd501e385670556f93fbe532abbde6f.jpg",
+        "image_caption": [
+            "Figure 2: The comparison of the average performance of ColChunk across different chunk size. The dash lines refer to the base results. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            586,
+            104,
+            839,
+            247
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            517,
+            275,
+            913,
+            412
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4 Experiment ",
+        "text_level": 1,
+        "bbox": [
+            517,
+            425,
+            642,
+            440
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4.1 Experimental Setup ",
+        "text_level": 1,
+        "bbox": [
+            517,
+            445,
+            720,
+            460
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Benchmarks & Evaluation. We evaluate ColChunk across five prominent VDR benchmarks encompassing a total of 24 datasets: ViDoRe-V1 [5], ViDoRe-V2 [23], VisRAG [44], ViDoSeek [38], and MMLongBench [21]. To demonstrate the robustness of ColChunk, we conduct comprehensive verification on five representative singlevector models: VLM2Vec-2B/7B [12], LamRA-Ret [17], and UniME-V2-2B/7B [7]. We employ nDCG@5 as our primary metric. ",
+        "bbox": [
+            517,
+            464,
+            913,
+            560
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Baselines. We compare ColChunk against three categories of baselines: (I) Base, representing the original single-vector models without multi-vector expansion; (II) Multi-img, where all subimages extracted via parsing are simultaneously fed into the singlevector models, leveraging their native multi-image input support; and (III) Late-chunking-layout, which performs semantic chunking on the last-layer tokens based on explicit layout parsing boundaries. The layout-aware category is further split into two variants: late-chunking-layout-type, which merges tokens of the same content type (e.g., text blocks, tables), and late-chunking-layout-subimg, which aggregates tokens within each sub-image. While these baselines rely on explicit, parsing-heavy segmentations, ColChunk offers a more streamlined, implicit chunking paradigm that achieves context preservation without requiring rigid layout constraints. ",
+        "bbox": [
+            517,
+            561,
+            913,
+            753
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Implementation Details. To ensure a fair comparison, our entire evaluation pipeline is built upon MMEB framework [24]. For baselines requiring explicit document structure, we utilize MinerU2.5 [28] as the layout parsing engine to extract sub-images, bounding boxes, and content types. All experiments are conducted on a computing cluster equipped with NVIDIA A100 (80GB) GPUs. ",
+        "bbox": [
+            517,
+            755,
+            913,
+            838
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4.2 Experimental Analysis ",
+        "text_level": 1,
+        "bbox": [
+            519,
+            849,
+            745,
+            864
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4.2.1 Main Result. As illustrated in Figure 1, ColChunk significantly enhances the retrieval efficacy of existing single-vector models by introducing an efficient late interaction mechanism. For example, ColChunk achieves a substantial performance leap across all tested backbones, notably elevating the overall average score of VLM2Vec-7B from 32.74 to 51.32, a relative improvement of nearly $5 7 \\%$ . This gain is attributed to the contextualized multi-vector representation, which preserves fine-grained local semantic features that are typically collapsed in single-vector compression. Second, implicit semantic chunking within the embedding space proves superior to explicit layout-based partitioning that relies on external parsing engines. On ViDoRe-V1 benchmark with VLM2Vec-7B, ColChunk (55.89) significantly outperforms the layout-type (21.63) and layout-subimg (27.12) baselines. This suggests that explicit parsing often introduces noise or arbitrarily severs semantic continuity, whereas our hierarchical clustering adaptively identifies optimal semantic boundaries, ensuring higher representational integrity. Finally, ColChunk exhibits remarkable robustness and model-agnostic generalizability across diverse architectures. For instance, while LamRA-Ret-7B suffers a drastic performance drop when processing multi-image inputs (dropping to 14.28), ColChunk consistently recovers and boosts its overall performance to 34.21. ",
+        "bbox": [
+            517,
+            868,
+            913,
+            895
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "discarded",
+        "text": "Conference acronym ’XX, June 03–05, 2018, Woodstock, NY ",
+        "bbox": [
+            633,
+            77,
+            911,
+            87
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "discarded",
+        "text": "Visual Late Chunking: An Empirical Study of Contextual Chunking for Efficient Visual Document Retrieval ",
+        "bbox": [
+            83,
+            75,
+            588,
+            87
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/094888bcf9c93a6f6ffea863d834825feeb8b01ecca39bb1995934b56059fcd6.jpg",
+        "image_caption": [
+            "Figure 3: The comparison of the overall performance of ColChunk: (Left): with different weighting factors (different color indicates different chunk size, dash lines refer to average base results, and stars refer to the best results); (Middle): with different chunking positions (after vision encoder vs. after LLM backbone) across five models; (Right): with different clustering methods (k-means vs. hierarchical) across five models. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            86,
+            106,
+            911,
+            233
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            86,
+            285,
+            482,
+            563
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.2.2 Scaling Analysis. As depicted in Figure 2, increasing the number of chunks consistently improves retrieval performance, but the gains exhibit diminishing returns, suggesting a highly efficient performance-to-storage trade-off at moderate chunk sizes. For instance, on UniME-V2-7B, increasing the chunk size from 10 to 40 yields a significant 7.0-point gain in overall score (from 50.67 to 57.67), whereas doubling it again to 80 provides a smaller 2.03- point improvement. This pattern indicates while a larger number of chunks better preserves fine-grained document details, a moderate number (e.g., 40) is sufficient to capture the most salient semantic regions, with further increases yielding marginal benefits. Besides, using an overly small number of chunks can be detrimental, leading to performance degradation even below that of the original singlevector baseline. Specifically, when using only 5 chunks, VLM2Vec-2B’s overall score drops to 21.96, a significant 9.22-point decrease from its base performance of 31.18. This is likely because extreme compression forces the merging of semantically disparate regions, leading to over-generalized chunk embeddings that obscure critical information more than the original global embedding. ",
+        "bbox": [
+            86,
+            573,
+            482,
+            835
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.2.3 Ablation & Hyperparameter Study. ",
+        "text_level": 1,
+        "bbox": [
+            88,
+            845,
+            330,
+            858
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Effect of weighting factor. The weighting factor $\\omega$ plays a crucial role in balancing spatial contiguity and semantic coherence, with a moderate spatial constraint (typically around $\\omega = 0 . 2$ ) yielding the best retrieval performance. As illustrated in Figure 3 (Left), for UniME-V2-2B with $K = 8 0$ , introducing $\\omega = 0 . 2$ increases the overall score from 49.64 to 51.40; similarly, VLM2Vec-2B at $K = 4 0$ achieves its peak performance of 34.80 at $\\omega = 0 . 2$ , whereas a further increase to $\\omega = 0 . 6$ results in a decline to 34.37. This suggests that while 2D positional priors help maintain the structural integrity of chunks, an excessive weight may overshadow the semantic features. ",
+        "bbox": [
+            86,
+            868,
+            482,
+            895
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            517,
+            286,
+            913,
+            397
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Effect of chunking location. Performing ColChunk at the output of the LLM backbone is significantly more effective than at the vision encoder stage, as the former leverages the high-level semantic context essential for precise document retrieval. As illustrated in Figure 3 (Middle), for UniME-V2-7B, applying chunking after the LLM backbone achieves a peak overall score of 55.99, while performing it after vision encoder leads to a sharp decline to 40.66, even underperforming the single-vector base (48.41). Such results indicate LLM’s transformer layers are crucial for injecting global context into patch embeddings, and premature chunking at the vision encoder likely discards fine-grained information before its semantic relationship with the rest of document is fully established. ",
+        "bbox": [
+            517,
+            405,
+            913,
+            569
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Effect of clustering method. Hierarchical agglomerative clustering (HAC) proves more effective than k-means for generating contextual chunks, consistently yielding superior retrieval performance. As shown in Figure 3 (Right), this superiority is evident on UniME-V2-7B, where HAC achieves an overall score of 55.99, outperforming k-means (50.88) by a 5.11-point margin. This performance discrepancy likely arises because HAC’s ability to form clusters of arbitrary shapes and sizes is better suited for capturing the non-uniform structure of visual document elements, unlike $\\mathbf { k }$ -means which produces more uniformly sized, spherical clusters. ",
+        "bbox": [
+            517,
+            578,
+            913,
+            715
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "5 Conclusion ",
+        "text_level": 1,
+        "bbox": [
+            517,
+            720,
+            638,
+            736
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "In this paper, we introduced ColChunk, a novel paradigm for efficient VDR. By adapting the concept of late chunking to the multimodal domain, we effectively addressed the storage bottleneck inherent in multi-vector architectures. Specifically, ColChunk leverages HAC combined with a spatial position prior to generate contextualized representations. Extensive experiment across 24 VDR datasets confirm that our method significantly outperforms compression baselines, achieving a superior trade-off between retrieval quality and computational overhead. We believe ColChunk can establishe a solid foundation for deploying advanced multimodal retrieval models in large-scale, real-world environments. ",
+        "bbox": [
+            517,
+            739,
+            913,
+            891
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "discarded",
+        "text": "Conference acronym ’XX, June 03–05, 2018, Woodstock, NY ",
+        "bbox": [
+            88,
+            77,
+            364,
+            87
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "discarded",
+        "text": "Trovato et al. ",
+        "bbox": [
+            849,
+            77,
+            911,
+            85
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "References ",
+        "text_level": 1,
+        "bbox": [
+            86,
+            106,
+            176,
+            119
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "[1] Sungguk Cha, DongWook Kim, Mintae Kim, Youngsub Han, Byoung-Ki Jeon, and Sangyeob Lee. 2026. ReinPool: Reinforcement Learning Pooling Multi-Vector Embeddings for Retrieval System. arXiv preprint arXiv:2601.07125 (2026).   \n[2] Benjamin Clavié, Antoine Chaffin, and Griffin Adams. 2024. Reducing the footprint of multi-vector retrieval with minimal performance impact via token pooling. arXiv preprint arXiv:2409.14683 (2024).   \n[3] Max Conti, Manuel Faysse, Gautier Viaud, Antoine Bosselut, Céline Hudelot, and Pierre Colombo. 2025. Context is Gold to find the Gold Passage: Evaluating and Training Contextual Document Embeddings. arXiv preprint arXiv:2505.24782 (2025).   \n[4] Yihao Ding, Siwen Luo, Yue Dai, Yanbei Jiang, Zechuan Li, Geoffrey Martin, and Yifan Peng. 2025. A Survey on MLLM-based Visually Rich Document Understanding: Methods, Challenges, and Emerging Trends. arXiv preprint arXiv:2507.09861 (2025).   \n[5] Manuel Faysse, Hugues Sibille, Tony Wu, Bilel Omrani, Gautier Viaud, Céline Hudelot, and Pierre Colombo. 2024. Colpali: Efficient document retrieval with vision language models. arXiv preprint arXiv:2407.01449 (2024).   \n[6] Sensen Gao, Shanshan Zhao, Xu Jiang, Lunhao Duan, Yong Xien Chng, Qing-Guo Chen, Weihua Luo, Kaifu Zhang, Jia-Wang Bian, and Mingming Gong. 2025. Scaling Beyond Context: A Survey of Multimodal Retrieval-Augmented Generation for Document Understanding. arXiv preprint arXiv:2510.15253 (2025).   \n[7] Tiancheng Gu, Kaicheng Yang, Kaichen Zhang, Xiang An, Ziyong Feng, Yueyi Zhang, Weidong Cai, Jiankang Deng, and Lidong Bing. 2025. UniME-V2: MLLM-as-a-Judge for Universal Multimodal Embedding Learning. arXiv:2510.13515 [cs.CV] https://arxiv.org/abs/2510.13515   \n[8] Michael Günther, Isabelle Mohr, Daniel James Williams, Bo Wang, and Han Xiao. 2024. Late chunking: contextual chunk embeddings using long-context embedding models. arXiv preprint arXiv:2409.04701 (2024).   \n[9] Michael Günther, Saba Sturua, Mohammad Kalim Akram, Isabelle Mohr, Andrei Ungureanu, Bo Wang, Sedigheh Eslami, Scott Martens, Maximilian Werk, Nan Wang, et al. 2025. jina-embeddings-v4: Universal Embeddings for Multimodal Multilingual Retrieval. arXiv preprint arXiv:2506.18902 (2025).   \n[10] Shanxiu He, Mutasem Al-Darabsah, Suraj Nair, Jonathan May, Tarun Agarwal, Tao Yang, and Choon Hui Teo. 2025. Token pruning optimization for efficient multi-vector dense retrieval. In European Conference on Information Retrieval. Springer, 101–115.   \n[11] Jiahao Huo, Yu Huang, Yibo Yan, Ye Pan, Yi Cao, Mingdong Ou, Philip S Yu, and Xuming Hu. 2026. CausalEmbed: Auto-Regressive Multi-Vector Generation in Latent Space for Visual Document Embedding. arXiv preprint arXiv:2601.21262 (2026).   \n[12] Ziyan Jiang, Rui Meng, Xinyi Yang, Semih Yavuz, Yingbo Zhou, and Wenhu Chen. 2024. Vlm2vec: Training vision-language models for massive multimodal embedding tasks. arXiv preprint arXiv:2410.05160 (2024).   \n[13] Omar Khattab and Matei Zaharia. 2020. Colbert: Efficient and effective passage search via contextualized late interaction over bert. In Proceedings of the 43rd International ACM SIGIR conference on research and development in Information Retrieval. 39–48.   \n[14] Carlos Lassance, Maroua Maachou, Joohee Park, and Stéphane Clinchant. 2022. Learned token pruning in contextualized late interaction over BERT (ColBERT). In Proceedings of the 45th International ACM SIGIR Conference on Research and Development in Information Retrieval. 2232–2236.   \n[15] Jinhyuk Lee, Zhuyun Dai, Sai Meher Karthik Duddu, Tao Lei, Iftekhar Naim, Ming-Wei Chang, and Vincent Zhao. 2023. Rethinking the role of token retrieval in multi-vector retrieval. Advances in Neural Information Processing Systems 36 (2023), 15384–15405.   \n[16] Qi Liu and Jiaxin Mao. 2023. Understanding the Multi-vector Dense Retrieval Models. In Proceedings of the 32nd ACM International Conference on Information and Knowledge Management. 4110–4114.   \n[17] Yikun Liu, Yajie Zhang, Jiayin Cai, Xiaolong Jiang, Yao Hu, Jiangchao Yao, Yanfeng Wang, and Weidi Xie. 2025. Lamra: Large multimodal model as your advanced retrieval assistant. In Proceedings of the Computer Vision and Pattern Recognition Conference. 4015–4025.   \n[18] Zheng Liu, Ze Liu, Zhengyang Liang, Junjie Zhou, Shitao Xiao, Chao Gao, Chen Jason Zhang, and Defu Lian. 2025. Any information is just worth one single screenshot: Unifying search with visualized information retrieval. In Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers). 19238–19261.   \n[19] Xueguang Ma, Sheng-Chieh Lin, Minghan Li, Wenhu Chen, and Jimmy Lin. 2024. Unifying Multimodal Retrieval via Document Screenshot Embedding. In Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing, Yaser Al-Onaizan, Mohit Bansal, and Yun-Nung Chen (Eds.). Association for Computational Linguistics, Miami, Florida, USA, 6492–6505. doi:10.18653/v1/2024.emnlp-main.373   \n[20] Yubo Ma, Jinsong Li, Yuhang Zang, Xiaobao Wu, Xiaoyi Dong, Pan Zhang, Yuhang Cao, Haodong Duan, Jiaqi Wang, Yixin Cao, et al. 2025. Towards Storage Efficient Visual Document Retrieval: An Empirical Study on Reducing Patch-Level Embeddings. arXiv preprint arXiv:2506.04997 (2025).   \n[21] Yubo Ma, Yuhang Zang, Liangyu Chen, Meiqi Chen, Yizhu Jiao, Xinze Li, Xinyuan Lu, Ziyu Liu, Yan Ma, Xiaoyi Dong, et al. 2024. Mmlongbench-doc: Benchmarking long-context document understanding with visualizations. Advances in Neural Information Processing Systems 37 (2024), 95963–96010.   \n[22] Sean MacAvaney, Antonio Mallia, and Nicola Tonellotto. 2025. Efficient Constant-Space Multi-vector Retrieval. In European Conference on Information Retrieval. Springer, 237–245.   \n[23] Quentin Macé, António Loison, and Manuel Faysse. 2025. ViDoRe Benchmark V2: Raising the Bar for Visual Retrieval. arXiv preprint arXiv:2505.17166 (2025).   \n[24] Rui Meng, Ziyan Jiang, Ye Liu, Mingyi Su, Xinyi Yang, Yuepeng Fu, Can Qin, Zeyuan Chen, Ran Xu, Caiming Xiong, et al. 2025. Vlm2vec-v2: Advancing multimodal embedding for videos, images, and visual documents. arXiv preprint arXiv:2507.04590 (2025).   \n[25] Carlo Merola and Jaspinder Singh. 2025. Reconstructing context: Evaluating advanced chunking strategies for retrieval-augmented generation. In International Workshop on Knowledge-Enhanced Information Retrieval. Springer, 3–18.   \n[26] Gabriel de Souza P Moreira, Ronay Ak, Mengyao Xu, Oliver Holworthy, Benedikt Schifferer, Zhiding Yu, Yauhen Babakhin, Radek Osmulski, Jiarui Cai, Ryan Chesler, et al. 2026. Nemotron ColEmbed V2: Top-Performing Late Interaction embedding models for Visual Document Retrieval. arXiv preprint arXiv:2602.03992 (2026).   \n[27] Alexander Most, Joseph Winjum, Manish Bhattarai, Shawn Jones, Nishath Rajiv Ranasinghe, Ayan Biswas, and Dan O’Malley. 2025. Lost in ocr translation? vision-based approaches to robust document retrieval. In Proceedings of the 2025 ACM Symposium on Document Engineering. 1–10.   \n[28] Junbo Niu, Zheng Liu, Zhuangcheng Gu, Bin Wang, Linke Ouyang, Zhiyuan Zhao, Tao Chu, Tianyao He, Fan Wu, Qintong Zhang, et al. 2025. Mineru2. 5: A decoupled vision-language model for efficient high-resolution document parsing. arXiv preprint arXiv:2509.22186 (2025).   \n[29] Cheoneum Park, Seohyeong Jeong, Minsang Kim, KyungTae Lim, and Yong-Hun Lee. 2025. SCV: Light and Effective Multi-Vector Retrieval with Sequence Compressive Vectors. In Proceedings of the 31st International Conference on Computational Linguistics: Industry Track. 760–770.   \n[30] Yujie Qian, Jinhyuk Lee, Sai Meher Karthik Duddu, Zhuyun Dai, Siddhartha Brahma, Iftekhar Naim, Tao Lei, and Vincent Y Zhao. 2022. Multi-vector retrieval as sparse alignment. arXiv preprint arXiv:2211.01267 (2022).   \n[31] Keshav Santhanam, Omar Khattab, Jon Saad-Falcon, Christopher Potts, and Matei Zaharia. 2022. Colbertv2: Effective and efficient retrieval via lightweight late interaction. In Proceedings of the 2022 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies. 3715–3734.   \n[32] Jan Luca Scheerer, Matei Zaharia, Christopher Potts, Gustavo Alonso, and Omar Khattab. 2025. WARP: An efficient engine for multi-vector retrieval. In Proceedings of the 48th international ACM SIGIR conference on research and development in information retrieval. 2504–2512.   \n[33] Susav Shrestha, Narasimha Reddy, and Zongwang Li. 2024. Espn: Memoryefficient multi-vector information retrieval. In Proceedings of the 2024 ACM SIG-PLAN International Symposium on Memory Management. 95–107.   \n[34] Paul Teiletche, Quentin Macé, Max Conti, Antonio Loison, Gautier Viaud, Pierre Colombo, and Manuel Faysse. 2025. ModernVBERT: Towards Smaller Visual Document Retrievers. arXiv preprint arXiv:2510.01149 (2025).   \n[35] Naftali Tishby, Fernando C Pereira, and William Bialek. 2000. The information bottleneck method. arXiv preprint physics/0004057 (2000).   \n[36] João Veneroso, Rajesh Jayaram, Jinmeng Rao, Gustavo Hernández Ábrego, Majid Hadian, and Daniel Cer. 2025. CRISP: Clustering Multi-Vector Representations for Denoising and Pruning. arXiv preprint arXiv:2505.11471 (2025).   \n[37] Feng Wang, Yuqing Li, and Han Xiao. 2025. Jina-reranker-v3: Last but Not Late Interaction for Listwise Document Reranking. arXiv preprint arXiv:2509.25085 (2025).   \n[38] Qiuchen Wang, Ruixue Ding, Zehui Chen, Weiqi Wu, Shihang Wang, Pengjun Xie, and Feng Zhao. 2025. Vidorag: Visual document retrieval-augmented generation via dynamic iterative reasoning agents. arXiv preprint arXiv:2502.18017 (2025).   \n[39] Zilin Xiao, Qi Ma, Mengting Gu, Chun-cheng Jason Chen, Xintao Chen, Vicente Ordonez, and Vijai Mohan. 2025. Metaembed: Scaling multimodal retrieval at test-time with flexible late interaction. arXiv preprint arXiv:2509.18095 (2025).   \n[40] Yibo Yan, Jiahao Huo, Guanbo Feng, Mingdong Ou, Yi Cao, Xin Zou, Shuliang Liu, Yuanhuiyi Lyu, Yu Huang, Jungang Li, et al. 2026. Unlocking Multimodal Document Intelligence: From Current Triumphs to Future Frontiers of Visual Document Retrieval. arXiv preprint arXiv:2602.19961 (2026).   \n[41] Yibo Yan, Mingdong Ou, Yi Cao, Xin Zou, Jiahao Huo, Shuliang Liu, James Kwok, and Xuming Hu. 2026. Sculpting the Vector Space: Towards Efficient Multi-Vector Visual Document Retrieval via Prune-then-Merge Framework. arXiv preprint arXiv:2602.19549 (2026).   \n[42] Yibo Yan, Mingdong Ou, Yi Cao, Xin Zou, Shuliang Liu, Jiahao Huo, Yu Huang, James Kwok, and Xuming Hu. 2026. Beyond the Grid: Layout-Informed Multi-Vector Retrieval with Parsed Visual Document Representations. arXiv preprint arXiv:2603.01666 (2026).   \n[43] Yibo Yan, Guangwei Xu, Xin Zou, Shuliang Liu, James Kwok, and Xuming Hu. 2025. Docpruner: A storage-efficient framework for multi-vector visual document retrieval via adaptive patch-level embedding pruning. arXiv preprint arXiv:2509.23883 (2025).   \n[44] Shi Yu, Chaoyue Tang, Bokai Xu, Junbo Cui, Junhao Ran, Yukun Yan, Zhenghao Liu, Shuo Wang, Xu Han, Zhiyuan Liu, et al. 2024. Visrag: Vision-based retrieval-augmented generation on multi-modality documents. arXiv preprint arXiv:2410.10594 (2024).   \n[45] Junyuan Zhang, Qintong Zhang, Bin Wang, Linke Ouyang, Zichen Wen, Ying Li, Ka-Ho Chow, Conghui He, and Wentao Zhang. 2025. Ocr hinders rag: Evaluating the cascading impact of ocr on retrieval-augmented generation. In Proceedings of the IEEE/CVF International Conference on Computer Vision. 17443–17453.   \n[46] Xin Zhang, Yanzhao Zhang, Wen Xie, Mingxin Li, Ziqi Dai, Dingkun Long, Pengjun Xie, Meishan Zhang, Wenjie Li, and Min Zhang. 2024. GME: Improving Universal Multimodal Retrieval by Multimodal LLMs. arXiv preprint arXiv:2412.16855 (2024). ",
+        "bbox": [
+            84,
+            126,
+            480,
+            891
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            516,
+            103,
+            913,
+            882
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "discarded",
+        "text": "Conference acronym ’XX, June 03–05, 2018, Woodstock, NY ",
+        "bbox": [
+            633,
+            77,
+            911,
+            87
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "discarded",
+        "text": "Visual Late Chunking: An Empirical Study of Contextual Chunking for Efficient Visual Document Retrieval ",
+        "bbox": [
+            84,
+            75,
+            588,
+            87
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            84,
+            109,
+            482,
+            199
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            516,
+            109,
+            913,
+            190
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "discarded",
+        "text": "Conference acronym ’XX, June 03–05, 2018, Woodstock, NY ",
+        "bbox": [
+            88,
+            77,
+            364,
+            87
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "discarded",
+        "text": "Trovato et al. ",
+        "bbox": [
+            849,
+            77,
+            911,
+            85
+        ],
+        "page_idx": 5
+    }
+]

@@ -1,0 +1,19 @@
+{
+    "title": "ColPali: Efficient Document Retrieval with Vision Language Models",
+    "arxiv_id": "2407.01449",
+    "versioned_id": "2407.01449v6",
+    "authors": [
+        "Manuel Faysse",
+        "Hugues Sibille",
+        "Tony Wu",
+        "Bilel Omrani",
+        "Gautier Viaud",
+        "Céline Hudelot",
+        "Pierre Colombo"
+    ],
+    "published": "2024-06-27T15:45:29Z",
+    "primary_category": "cs.IR",
+    "comment": "Published as a conference paper at ICLR 2025",
+    "pdf_path": "papers/visual_document_retrieval/ColPali_Efficient_Document_Retrieval_with_Vision_Language_Models/paper.pdf"
+}
+

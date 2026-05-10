@@ -1,0 +1,1 @@
+The fraud analysis is complete. All flagged invoices are saved in /root/fraud_report.json, following your required structure. Each entry includes the page number, extracted fields, and the first matching fraud reason. Let me know if you want to review the full report or need further breakdowns.

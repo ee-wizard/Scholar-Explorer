@@ -1,0 +1,254 @@
+Traceback (most recent call last):
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py", line 358, in run
+    await self._setup_environment()
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py", line 204, in _setup_environment
+    await self._start_environment_with_retry()
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 193, in async_wrapped
+    return await copy(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 112, in __call__
+    do = await self.iter(retry_state=retry_state)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 157, in iter
+    result = await action(retry_state)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/_utils.py", line 111, in inner
+    return call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/__init__.py", line 394, in <lambda>
+    self._add_action_func(lambda rs: rs.outcome.result())
+                                     ^^^^^^^^^^^^^^^^^^^
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/tenacity/asyncio/__init__.py", line 116, in __call__
+    result = await fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py", line 216, in _start_environment_with_retry
+    await asyncio.wait_for(
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/environments/docker/docker.py", line 205, in start
+    await self._run_docker_compose_command(["build"])
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/environments/docker/docker.py", line 184, in _run_docker_compose_command
+    raise RuntimeError(
+RuntimeError: Docker compose command failed for environment lean4-proof. Command: docker compose -p lean4-proof__dut4aqs -f /mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/environments/docker/docker-compose-build.yaml build. Return code: 1. Stdout:  Image hb__lean4-proof Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 686B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 1.19kB 0.0s done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/ubuntu:24.04
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context:
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [1/5] FROM docker.io/library/ubuntu:24.04@sha256:d94c97dd9cacf183d0a6fd12a8e87b526e9e928307674ae9c94139139c0c6eae
+#5 resolve docker.io/library/ubuntu:24.04@sha256:d94c97dd9cacf183d0a6fd12a8e87b526e9e928307674ae9c94139139c0c6eae 0.1s done
+#5 CACHED
+
+#6 [internal] load build context
+#6 transferring context: 60.85kB 0.1s done
+#6 DONE 0.1s
+
+#7 [ 2/10] RUN apt-get update && apt-get install -y --no-install-recommends     git curl ca-certificates build-essential vim unzip  && rm -rf /var/lib/apt/lists/*
+#7 1.162 Get:1 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+#7 2.592 Get:2 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [2038 kB]
+#7 6.103 Get:3 http://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
+#7 6.437 Get:4 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [34.2 kB]
+#7 6.479 Get:5 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1502 kB]
+#7 7.974 Get:6 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+#7 8.691 Get:7 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+#7 9.139 Get:8 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [3610 kB]
+#7 9.261 Get:9 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+#7 9.957 Get:10 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+#7 11.07 Get:11 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1808 kB]
+#7 15.65 Get:12 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+#7 37.46 Get:13 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [3824 kB]
+#7 40.15 Get:14 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [2412 kB]
+#7 42.17 Get:15 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [54.1 kB]
+#7 42.41 Get:16 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [2145 kB]
+#7 44.16 Get:17 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [35.9 kB]
+#7 44.66 Get:18 http://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [671 B]
+#7 44.87 Get:19 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.0 kB]
+#7 45.17 Fetched 37.9 MB in 44s (857 kB/s)
+#7 45.17 Reading package lists...
+#7 46.12 Reading package lists...
+#7 47.23 Building dependency tree...
+#7 47.54 Reading state information...
+#7 47.91 git is already the newest version (1:2.43.0-1ubuntu7.3).
+#7 47.91 ca-certificates is already the newest version (20240203).
+#7 47.91 build-essential is already the newest version (12.10ubuntu1).
+#7 47.91 unzip is already the newest version (6.0-28ubuntu4.1).
+#7 47.91 The following additional packages will be installed:
+#7 47.91   libcurl3t64-gnutls libcurl4-openssl-dev libcurl4t64 libgpm2
+#7 47.92   libpython3.12-minimal libpython3.12-stdlib libpython3.12t64 libsodium23
+#7 47.92   media-types vim-common vim-runtime vim-tiny
+#7 47.92 Suggested packages:
+#7 47.92   libcurl4-doc libidn-dev libkrb5-dev libldap2-dev librtmp-dev libssh2-1-dev
+#7 47.92   pkg-config gpm ctags vim-doc vim-scripts indent
+#7 47.92 Recommended packages:
+#7 47.92   xxd
+#7 47.98 The following NEW packages will be installed:
+#7 47.98   libgpm2 libpython3.12-minimal libpython3.12-stdlib libpython3.12t64
+#7 47.98   libsodium23 media-types vim vim-runtime
+#7 47.98 The following packages will be upgraded:
+#7 47.99   curl libcurl3t64-gnutls libcurl4-openssl-dev libcurl4t64 vim-common vim-tiny
+#7 49.71 6 upgraded, 8 newly installed, 0 to remove and 84 not upgraded.
+#7 49.71 Need to get 17.2 MB of archives.
+#7 49.71 After this operation, 65.9 MB of additional disk space will be used.
+#7 49.71 Get:1 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpython3.12-minimal amd64 3.12.3-1ubuntu0.13 [837 kB]
+#7 56.66 Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 media-types all 10.1.0 [27.5 kB]
+#7 56.69 Get:3 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpython3.12-stdlib amd64 3.12.3-1ubuntu0.13 [2068 kB]
+#7 60.72 Get:4 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 vim-tiny amd64 2:9.1.0016-1ubuntu7.13 [805 kB]
+#7 62.05 Get:5 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 vim-common all 2:9.1.0016-1ubuntu7.13 [387 kB]
+#7 62.06 Get:6 http://archive.ubuntu.com/ubuntu noble/main amd64 libgpm2 amd64 1.20.7-11 [14.1 kB]
+#7 62.06 Get:7 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcurl4-openssl-dev amd64 8.5.0-2ubuntu10.9 [446 kB]
+#7 63.06 Get:8 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 curl amd64 8.5.0-2ubuntu10.9 [227 kB]
+#7 63.06 Get:9 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcurl4t64 amd64 8.5.0-2ubuntu10.9 [342 kB]
+#7 63.06 Get:10 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcurl3t64-gnutls amd64 8.5.0-2ubuntu10.9 [334 kB]
+#7 64.19 Get:11 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libpython3.12t64 amd64 3.12.3-1ubuntu0.13 [2338 kB]
+#7 66.73 Get:12 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libsodium23 amd64 1.0.18-1ubuntu0.24.04.1 [161 kB]
+#7 67.77 Get:13 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 vim-runtime all 2:9.1.0016-1ubuntu7.13 [7282 kB]
+#7 81.42 Get:14 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 vim amd64 2:9.1.0016-1ubuntu7.13 [1883 kB]
+#7 85.53 Fetched 17.2 MB in 36s (476 kB/s)
+#7 85.58 Selecting previously unselected package libpython3.12-minimal:amd64.
+#7 85.58 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 20530 files and directories currently installed.)
+#7 85.59 Preparing to unpack .../00-libpython3.12-minimal_3.12.3-1ubuntu0.13_amd64.deb ...
+#7 85.60 Unpacking libpython3.12-minimal:amd64 (3.12.3-1ubuntu0.13) ...
+#7 85.70 Selecting previously unselected package media-types.
+#7 85.70 Preparing to unpack .../01-media-types_10.1.0_all.deb ...
+#7 85.71 Unpacking media-types (10.1.0) ...
+#7 85.78 Selecting previously unselected package libpython3.12-stdlib:amd64.
+#7 85.78 Preparing to unpack .../02-libpython3.12-stdlib_3.12.3-1ubuntu0.13_amd64.deb ...
+#7 85.79 Unpacking libpython3.12-stdlib:amd64 (3.12.3-1ubuntu0.13) ...
+#7 85.93 Preparing to unpack .../03-vim-tiny_2%3a9.1.0016-1ubuntu7.13_amd64.deb ...
+#7 85.96 Unpacking vim-tiny (2:9.1.0016-1ubuntu7.13) over (2:9.1.0016-1ubuntu7.9) ...
+#7 86.10 Preparing to unpack .../04-vim-common_2%3a9.1.0016-1ubuntu7.13_all.deb ...
+#7 86.13 Unpacking vim-common (2:9.1.0016-1ubuntu7.13) over (2:9.1.0016-1ubuntu7.9) ...
+#7 86.32 Selecting previously unselected package libgpm2:amd64.
+#7 86.32 Preparing to unpack .../05-libgpm2_1.20.7-11_amd64.deb ...
+#7 86.34 Unpacking libgpm2:amd64 (1.20.7-11) ...
+#7 86.39 Preparing to unpack .../06-libcurl4-openssl-dev_8.5.0-2ubuntu10.9_amd64.deb ...
+#7 86.42 Unpacking libcurl4-openssl-dev:amd64 (8.5.0-2ubuntu10.9) over (8.5.0-2ubuntu10.6) ...
+#7 86.58 Preparing to unpack .../07-curl_8.5.0-2ubuntu10.9_amd64.deb ...
+#7 86.61 Unpacking curl (8.5.0-2ubuntu10.9) over (8.5.0-2ubuntu10.6) ...
+#7 86.71 Preparing to unpack .../08-libcurl4t64_8.5.0-2ubuntu10.9_amd64.deb ...
+#7 86.74 Unpacking libcurl4t64:amd64 (8.5.0-2ubuntu10.9) over (8.5.0-2ubuntu10.6) ...
+#7 86.84 Preparing to unpack .../09-libcurl3t64-gnutls_8.5.0-2ubuntu10.9_amd64.deb ...
+#7 86.87 Unpacking libcurl3t64-gnutls:amd64 (8.5.0-2ubuntu10.9) over (8.5.0-2ubuntu10.6) ...
+#7 86.98 Selecting previously unselected package libpython3.12t64:amd64.
+#7 86.98 Preparing to unpack .../10-libpython3.12t64_3.12.3-1ubuntu0.13_amd64.deb ...
+#7 86.99 Unpacking libpython3.12t64:amd64 (3.12.3-1ubuntu0.13) ...
+#7 87.09 Selecting previously unselected package libsodium23:amd64.
+#7 87.09 Preparing to unpack .../11-libsodium23_1.0.18-1ubuntu0.24.04.1_amd64.deb ...
+#7 87.10 Unpacking libsodium23:amd64 (1.0.18-1ubuntu0.24.04.1) ...
+#7 87.18 Selecting previously unselected package vim-runtime.
+#7 87.18 Preparing to unpack .../12-vim-runtime_2%3a9.1.0016-1ubuntu7.13_all.deb ...
+#7 87.19 Adding 'diversion of /usr/share/vim/vim91/doc/help.txt to /usr/share/vim/vim91/doc/help.txt.vim-tiny by vim-runtime'
+#7 87.21 Adding 'diversion of /usr/share/vim/vim91/doc/tags to /usr/share/vim/vim91/doc/tags.vim-tiny by vim-runtime'
+#7 87.21 Unpacking vim-runtime (2:9.1.0016-1ubuntu7.13) ...
+#7 87.57 Selecting previously unselected package vim.
+#7 87.57 Preparing to unpack .../13-vim_2%3a9.1.0016-1ubuntu7.13_amd64.deb ...
+#7 87.58 Unpacking vim (2:9.1.0016-1ubuntu7.13) ...
+#7 87.67 Setting up media-types (10.1.0) ...
+#7 87.70 Setting up libsodium23:amd64 (1.0.18-1ubuntu0.24.04.1) ...
+#7 87.74 Setting up libgpm2:amd64 (1.20.7-11) ...
+#7 87.77 Setting up libcurl4t64:amd64 (8.5.0-2ubuntu10.9) ...
+#7 87.80 Setting up libpython3.12-minimal:amd64 (3.12.3-1ubuntu0.13) ...
+#7 87.84 Setting up libcurl3t64-gnutls:amd64 (8.5.0-2ubuntu10.9) ...
+#7 87.87 Setting up vim-common (2:9.1.0016-1ubuntu7.13) ...
+#7 87.91 Setting up libcurl4-openssl-dev:amd64 (8.5.0-2ubuntu10.9) ...
+#7 87.94 Setting up curl (8.5.0-2ubuntu10.9) ...
+#7 87.97 Setting up vim-runtime (2:9.1.0016-1ubuntu7.13) ...
+#7 88.01 Setting up libpython3.12-stdlib:amd64 (3.12.3-1ubuntu0.13) ...
+#7 88.04 Setting up vim-tiny (2:9.1.0016-1ubuntu7.13) ...
+#7 88.11 Setting up libpython3.12t64:amd64 (3.12.3-1ubuntu0.13) ...
+#7 88.14 Setting up vim (2:9.1.0016-1ubuntu7.13) ...
+#7 88.17 update-alternatives: using /usr/bin/vim.basic to provide /usr/bin/ex (ex) in auto mode
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/man1/ex.1.gz because associated file /usr/share/man/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/da/man1/ex.1.gz because associated file /usr/share/man/da/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/de/man1/ex.1.gz because associated file /usr/share/man/de/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/fr/man1/ex.1.gz because associated file /usr/share/man/fr/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/it/man1/ex.1.gz because associated file /usr/share/man/it/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/ja/man1/ex.1.gz because associated file /usr/share/man/ja/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/pl/man1/ex.1.gz because associated file /usr/share/man/pl/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/ru/man1/ex.1.gz because associated file /usr/share/man/ru/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.17 update-alternatives: warning: skip creation of /usr/share/man/tr/man1/ex.1.gz because associated file /usr/share/man/tr/man1/vim.1.gz (of link group ex) doesn't exist
+#7 88.18 update-alternatives: using /usr/bin/vim.basic to provide /usr/bin/rview (rview) in auto mode
+#7 88.19 update-alternatives: using /usr/bin/vim.basic to provide /usr/bin/rvim (rvim) in auto mode
+#7 88.19 update-alternatives: using /usr/bin/vim.basic to provide /usr/bin/vi (vi) in auto mode
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/man1/vi.1.gz because associated file /usr/share/man/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/da/man1/vi.1.gz because associated file /usr/share/man/da/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/de/man1/vi.1.gz because associated file /usr/share/man/de/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/fr/man1/vi.1.gz because associated file /usr/share/man/fr/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/it/man1/vi.1.gz because associated file /usr/share/man/it/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/ja/man1/vi.1.gz because associated file /usr/share/man/ja/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/pl/man1/vi.1.gz because associated file /usr/share/man/pl/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/ru/man1/vi.1.gz because associated file /usr/share/man/ru/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.19 update-alternatives: warning: skip creation of /usr/share/man/tr/man1/vi.1.gz because associated file /usr/share/man/tr/man1/vim.1.gz (of link group vi) doesn't exist
+#7 88.20 update-alternatives: using /usr/bin/vim.basic to provide /usr/bin/view (view) in auto mode
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/man1/view.1.gz because associated file /usr/share/man/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/da/man1/view.1.gz because associated file /usr/share/man/da/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/de/man1/view.1.gz because associated file /usr/share/man/de/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/fr/man1/view.1.gz because associated file /usr/share/man/fr/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/it/man1/view.1.gz because associated file /usr/share/man/it/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/ja/man1/view.1.gz because associated file /usr/share/man/ja/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/pl/man1/view.1.gz because associated file /usr/share/man/pl/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/ru/man1/view.1.gz because associated file /usr/share/man/ru/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: warning: skip creation of /usr/share/man/tr/man1/view.1.gz because associated file /usr/share/man/tr/man1/vim.1.gz (of link group view) doesn't exist
+#7 88.20 update-alternatives: using /usr/bin/vim.basic to provide /usr/bin/vim (vim) in auto mode
+#7 88.21 update-alternatives: using /usr/bin/vim.basic to provide /usr/bin/vimdiff (vimdiff) in auto mode
+#7 88.22 Processing triggers for man-db (2.12.0-4build2) ...
+#7 88.47 Processing triggers for libc-bin (2.39-0ubuntu8.6) ...
+#7 DONE 88.6s
+
+#8 [ 3/10] RUN curl -L -o /tmp/elan-v3.1.1.zip https://github.com/leanprover/elan/archive/refs/tags/v3.1.1.zip  && cd /tmp && unzip -q elan-v3.1.1.zip  && sh /tmp/elan-3.1.1/elan-init.sh -y --default-toolchain none
+#8 0.537   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+#8 0.537                                  Dload  Upload   Total   Spent    Left  Speed
+#8 0.537   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+#8 1.328   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100  115k    0  115k    0     0  84391      0 --:--:--  0:00:01 --:--:--  192k
+#8 1.939 info: downloading installer
+#8 214.8 curl: (28) Failed to connect to github.com port 443 after 136752 ms: Couldn't connect to server
+#8 214.8 elan: command failed: curl -sSfL -o /dev/null -w %{url_effective} https://github.com/leanprover/elan/releases/latest
+#8 215.9 curl: (22) The requested URL returned error: 404
+#8 215.9 elan: command failed: curl -sSfL https://github.com/leanprover/elan/releases/download/latest/elan-x86_64-unknown-linux-gnu.tar.gz
+#8 ERROR: process "/bin/sh -c curl -L -o /tmp/elan-v3.1.1.zip https://github.com/leanprover/elan/archive/refs/tags/v3.1.1.zip  && cd /tmp && unzip -q elan-v3.1.1.zip  && sh /tmp/elan-3.1.1/elan-init.sh -y --default-toolchain none" did not complete successfully: exit code: 1
+------
+ > [ 3/10] RUN curl -L -o /tmp/elan-v3.1.1.zip https://github.com/leanprover/elan/archive/refs/tags/v3.1.1.zip  && cd /tmp && unzip -q elan-v3.1.1.zip  && sh /tmp/elan-3.1.1/elan-init.sh -y --default-toolchain none:
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100  115k    0  115k    0     0  84391      0 --:--:--  0:00:01 --:--:--  192k
+1.939 info: downloading installer
+214.8 curl: (28) Failed to connect to github.com port 443 after 136752 ms: Couldn't connect to server
+214.8 elan: command failed: curl -sSfL -o /dev/null -w %{url_effective} https://github.com/leanprover/elan/releases/latest
+215.9 curl: (22) The requested URL returned error: 404
+215.9 elan: command failed: curl -sSfL https://github.com/leanprover/elan/releases/download/latest/elan-x86_64-unknown-linux-gnu.tar.gz
+------
+Dockerfile:11
+
+--------------------
+
+  10 |     
+
+  11 | >>> RUN curl -L -o /tmp/elan-v3.1.1.zip https://github.com/leanprover/elan/archive/refs/tags/v3.1.1.zip \
+
+  12 | >>>  && cd /tmp && unzip -q elan-v3.1.1.zip \
+
+  13 | >>>  && sh /tmp/elan-3.1.1/elan-init.sh -y --default-toolchain none
+
+  14 |     ENV PATH="/root/.elan/bin:${PATH}"
+
+--------------------
+
+failed to solve: process "/bin/sh -c curl -L -o /tmp/elan-v3.1.1.zip https://github.com/leanprover/elan/archive/refs/tags/v3.1.1.zip  && cd /tmp && unzip -q elan-v3.1.1.zip  && sh /tmp/elan-3.1.1/elan-init.sh -y --default-toolchain none" did not complete successfully: exit code: 1
+
+. Stderr: None. 

@@ -1,0 +1,91 @@
+{
+    "id": "f6682fa2-b362-4678-a324-d74a5e2baa04",
+    "task_name": "xlsx-recover-data",
+    "trial_name": "xlsx-recover-data__dFqHtq6",
+    "trial_uri": "file:///mnt/d/Projects/Scholar/GeneralExplorer/projects/skill-flow/outputs/evaluation/sk-skillflow-inject-local-gpt4.1-medium-20260510-130915/xlsx-recover-data__dFqHtq6",
+    "task_id": {
+        "path": "integration/skillsbench/tasks/xlsx-recover-data"
+    },
+    "source": "tasks",
+    "task_checksum": "84174dd5e207ec3c1938304f41988b5345818a12e4778ae0c667f1de6cb78b5f",
+    "config": {
+        "task": {
+            "path": "integration/skillsbench/tasks/xlsx-recover-data",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": "tasks"
+        },
+        "trial_name": "xlsx-recover-data__dFqHtq6",
+        "trials_dir": "outputs/evaluation/sk-skillflow-inject-local-gpt4.1-medium-20260510-130915",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "benchmark.agents.skillflow_injection_agent:SkillFlowInjectionAgent",
+            "model_name": "github/gpt-4.1",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "version": "0.79",
+                "selector_cache": "outputs/pipeline/skillsbench_external_full/result_cache.json",
+                "tasks_dir": "integration/skillsbench/tasks",
+                "corpus_dir": "/mnt/d/LocalEnvironments/Datasets/skillflow/skills",
+                "reasoning_effort": "medium"
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "kwargs": {
+                "HTTPS_PROXY": "http://127.0.0.1:7897",
+                "https_proxy": "http://127.0.0.1:7897",
+                "HTTP_PROXY": "http://127.0.0.1:7897",
+                "http_proxy": "http://127.0.0.1:7897",
+                "NO_PROXY": "172.31.*,172.30.*,172.29.*,172.28.*,172.27.*,172.26.*,172.25.*,172.24.*,172.23.*,172.22.*,172.21.*,172.20.*,172.19.*,172.18.*,172.17.*,172.16.*,10.*,192.168.*,127.*,localhost,<local>",
+                "no_proxy": "172.31.*,172.30.*,172.29.*,172.28.*,172.27.*,172.26.*,172.25.*,172.24.*,172.23.*,172.22.*,172.21.*,172.20.*,172.19.*,172.18.*,172.17.*,172.16.*,10.*,192.168.*,127.*,localhost,<local>"
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "45d2704a-d2e4-43f9-922f-cf5643ac7332"
+    },
+    "agent_info": {
+        "name": "codex",
+        "version": "0.79",
+        "model_info": {
+            "name": "gpt-4.1",
+            "provider": "github"
+        }
+    },
+    "agent_result": null,
+    "verifier_result": null,
+    "exception_info": {
+        "exception_type": "FileExistsError",
+        "exception_message": "[Errno 17] File exists: '/tmp/tmp4x0ksl2k/skills/xlsx'",
+        "exception_traceback": "Traceback (most recent call last):\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py\", line 359, in run\n    await self._setup_agent()\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py\", line 232, in _setup_agent\n    await asyncio.wait_for(\n  File \"/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py\", line 520, in wait_for\n    return await fut\n           ^^^^^^^^^\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skillflow_injection_agent.py\", line 98, in setup\n    n_injected = await self._injector.inject(environment, folders, self.logs_dir)\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skills/injector.py\", line 68, in inject\n    self._stage_skill(folder, skills_staging, logs_dir)\n  File \"/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skills/injector.py\", line 105, in _stage_skill\n    shutil.copytree(skill_folder, staging_dir / skill_name)\n  File \"/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/shutil.py\", line 600, in copytree\n    return _copytree(entries=entries, src=src, dst=dst, symlinks=symlinks,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/shutil.py\", line 498, in _copytree\n    os.makedirs(dst, exist_ok=dirs_exist_ok)\n  File \"<frozen os>\", line 225, in makedirs\nFileExistsError: [Errno 17] File exists: '/tmp/tmp4x0ksl2k/skills/xlsx'\n",
+        "occurred_at": "2026-05-10T13:29:37.290617"
+    },
+    "started_at": "2026-05-10T05:25:37.722297Z",
+    "finished_at": "2026-05-10T05:29:48.799359Z",
+    "environment_setup": {
+        "started_at": "2026-05-10T05:25:37.856675Z",
+        "finished_at": "2026-05-10T05:27:26.084727Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-10T05:27:26.084739Z",
+        "finished_at": "2026-05-10T05:29:37.287114Z"
+    },
+    "agent_execution": null,
+    "verifier": null
+}

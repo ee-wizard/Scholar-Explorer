@@ -1,0 +1,105 @@
+{
+    "id": "ae5bebb8-1f0f-46da-8114-11f0fc7652d5",
+    "task_name": "adaptive-cruise-control",
+    "trial_name": "adaptive-cruise-control__TxSfMyv",
+    "trial_uri": "file:///mnt/d/Projects/Scholar/GeneralExplorer/projects/skill-flow/outputs/evaluation/sk-tmp.QERbK247g5-gpt4.1-medium-adaptive-cruise-control-20260510-135623/adaptive-cruise-control__TxSfMyv",
+    "task_id": {
+        "path": "integration/skillsbench/tasks/adaptive-cruise-control"
+    },
+    "source": "tasks",
+    "task_checksum": "ad72ca0caba462b9e588f2fc759f647997814ae185d45ad840bf1769089dc95b",
+    "config": {
+        "task": {
+            "path": "integration/skillsbench/tasks/adaptive-cruise-control",
+            "git_url": null,
+            "git_commit_id": null,
+            "overwrite": false,
+            "download_dir": null,
+            "source": "tasks"
+        },
+        "trial_name": "adaptive-cruise-control__TxSfMyv",
+        "trials_dir": "outputs/evaluation/sk-tmp.QERbK247g5-gpt4.1-medium-adaptive-cruise-control-20260510-135623",
+        "timeout_multiplier": 1.0,
+        "agent": {
+            "name": null,
+            "import_path": "benchmark.agents.skillflow_injection_agent:SkillFlowInjectionAgent",
+            "model_name": "github/gpt-4.1",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "version": "0.79",
+                "selector_cache": "outputs/pipeline/skillsbench_external_full/result_cache.json",
+                "tasks_dir": "integration/skillsbench/tasks",
+                "corpus_dir": "/mnt/d/LocalEnvironments/Datasets/skillflow/skills",
+                "reasoning_effort": "medium"
+            }
+        },
+        "environment": {
+            "type": "docker",
+            "import_path": null,
+            "force_build": false,
+            "delete": true,
+            "override_cpus": null,
+            "override_memory_mb": null,
+            "override_storage_mb": null,
+            "override_gpus": null,
+            "kwargs": {
+                "HTTPS_PROXY": "http://127.0.0.1:7897",
+                "https_proxy": "http://127.0.0.1:7897",
+                "HTTP_PROXY": "http://127.0.0.1:7897",
+                "http_proxy": "http://127.0.0.1:7897",
+                "NO_PROXY": "172.31.*,172.30.*,172.29.*,172.28.*,172.27.*,172.26.*,172.25.*,172.24.*,172.23.*,172.22.*,172.21.*,172.20.*,172.19.*,172.18.*,172.17.*,172.16.*,10.*,192.168.*,127.*,localhost,<local>",
+                "no_proxy": "172.31.*,172.30.*,172.29.*,172.28.*,172.27.*,172.26.*,172.25.*,172.24.*,172.23.*,172.22.*,172.21.*,172.20.*,172.19.*,172.18.*,172.17.*,172.16.*,10.*,192.168.*,127.*,localhost,<local>",
+                "NETWORK_MODE": "host",
+                "BUILD_NETWORK": "host"
+            }
+        },
+        "verifier": {
+            "override_timeout_sec": null,
+            "max_timeout_sec": null,
+            "disable": false
+        },
+        "job_id": "ac841340-ed1a-4494-90a9-0fce965f5d22"
+    },
+    "agent_info": {
+        "name": "codex",
+        "version": "0.79",
+        "model_info": {
+            "name": "gpt-4.1",
+            "provider": "github"
+        }
+    },
+    "agent_result": {
+        "n_input_tokens": null,
+        "n_cache_tokens": null,
+        "n_output_tokens": null,
+        "cost_usd": null,
+        "rollout_details": null,
+        "metadata": null
+    },
+    "verifier_result": {
+        "rewards": {
+            "reward": 0.0
+        }
+    },
+    "exception_info": null,
+    "started_at": "2026-05-10T05:57:04.116955Z",
+    "finished_at": "2026-05-10T06:00:26.564844Z",
+    "environment_setup": {
+        "started_at": "2026-05-10T05:57:04.186982Z",
+        "finished_at": "2026-05-10T05:58:08.345726Z"
+    },
+    "agent_setup": {
+        "started_at": "2026-05-10T05:58:08.345760Z",
+        "finished_at": "2026-05-10T05:59:41.570476Z"
+    },
+    "agent_execution": {
+        "started_at": "2026-05-10T05:59:41.570531Z",
+        "finished_at": "2026-05-10T06:00:00.543049Z"
+    },
+    "verifier": {
+        "started_at": "2026-05-10T06:00:00.548138Z",
+        "finished_at": "2026-05-10T06:00:15.553902Z"
+    }
+}

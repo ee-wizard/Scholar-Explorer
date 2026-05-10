@@ -1,0 +1,18 @@
+// User settings belong in settings.json.
+// This file is managed automatically.
+{
+  "firstLaunchAt": "2026-05-10T03:59:53.800Z",
+  "copilotTokens": {
+    "https://github.com:ee-wizard": "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"
+  },
+  "lastLoggedInUser": {
+    "host": "https://github.com",
+    "login": "ee-wizard"
+  },
+  "loggedInUsers": [
+    {
+      "host": "https://github.com",
+      "login": "ee-wizard"
+    }
+  ]
+}

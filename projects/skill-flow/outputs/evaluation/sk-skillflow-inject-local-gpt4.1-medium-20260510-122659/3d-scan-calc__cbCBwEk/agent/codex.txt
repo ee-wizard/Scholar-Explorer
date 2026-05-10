@@ -1,0 +1,1 @@
+The calculation is complete. The main part's mass is 34.65 g, with Material ID 42. The result is saved in /root/mass_report.json as requested. Task complete!

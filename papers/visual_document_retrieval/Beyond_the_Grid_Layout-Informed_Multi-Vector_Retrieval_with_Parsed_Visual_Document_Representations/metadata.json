@@ -1,0 +1,21 @@
+{
+    "title": "Beyond the Grid: Layout-Informed Multi-Vector Retrieval with Parsed Visual Document Representations",
+    "arxiv_id": "2603.01666",
+    "versioned_id": "2603.01666v1",
+    "authors": [
+        "Yibo Yan",
+        "Mingdong Ou",
+        "Yi Cao",
+        "Xin Zou",
+        "Shuliang Liu",
+        "Jiahao Huo",
+        "Yu Huang",
+        "James Kwok",
+        "Xuming Hu"
+    ],
+    "published": "2026-03-02T09:55:00Z",
+    "primary_category": "cs.CL",
+    "comment": "Under review",
+    "pdf_path": "papers/visual_document_retrieval/Beyond_the_Grid_Layout-Informed_Multi-Vector_Retrieval_with_Parsed_Visual_Document_Representations/paper.pdf"
+}
+

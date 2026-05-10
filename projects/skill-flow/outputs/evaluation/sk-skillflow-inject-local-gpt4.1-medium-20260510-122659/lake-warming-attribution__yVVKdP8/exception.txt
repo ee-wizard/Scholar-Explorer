@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py", line 359, in run
+    await self._setup_agent()
+  File "/mnt/d/Projects/scholar/GeneralExplorer/.venv-unix/lib/python3.12/site-packages/harbor/trial/trial.py", line 232, in _setup_agent
+    await asyncio.wait_for(
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skillflow_injection_agent.py", line 98, in setup
+    n_injected = await self._injector.inject(environment, folders, self.logs_dir)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skills/injector.py", line 68, in inject
+    self._stage_skill(folder, skills_staging, logs_dir)
+  File "/mnt/d/Projects/scholar/GeneralExplorer/projects/skill-flow/benchmark/agents/skills/injector.py", line 105, in _stage_skill
+    shutil.copytree(skill_folder, staging_dir / skill_name)
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/shutil.py", line 600, in copytree
+    return _copytree(entries=entries, src=src, dst=dst, symlinks=symlinks,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/wizard/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/shutil.py", line 498, in _copytree
+    os.makedirs(dst, exist_ok=dirs_exist_ok)
+  File "<frozen os>", line 225, in makedirs
+FileExistsError: [Errno 17] File exists: '/tmp/tmp1hg30scd/skills/usgs-data-download'

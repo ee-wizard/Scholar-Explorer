@@ -1,0 +1,93 @@
+{
+    "job_name": "sk-skillflow-inject-local-gpt5mini-medium-20260510-091531",
+    "jobs_dir": "outputs/evaluation",
+    "n_attempts": 1,
+    "timeout_multiplier": 1.0,
+    "debug": false,
+    "orchestrator": {
+        "type": "local",
+        "n_concurrent_trials": 15,
+        "quiet": false,
+        "retry": {
+            "max_retries": 0,
+            "include_exceptions": null,
+            "exclude_exceptions": [
+                "VerifierOutputParseError",
+                "RewardFileNotFoundError",
+                "VerifierTimeoutError",
+                "AgentTimeoutError",
+                "RewardFileEmptyError"
+            ],
+            "wait_multiplier": 1.0,
+            "min_wait_sec": 1.0,
+            "max_wait_sec": 60.0
+        },
+        "kwargs": {}
+    },
+    "environment": {
+        "type": "docker",
+        "import_path": null,
+        "force_build": false,
+        "delete": true,
+        "override_cpus": null,
+        "override_memory_mb": null,
+        "override_storage_mb": null,
+        "override_gpus": null,
+        "kwargs": {}
+    },
+    "verifier": {
+        "override_timeout_sec": null,
+        "max_timeout_sec": null,
+        "disable": false
+    },
+    "metrics": [],
+    "agents": [
+        {
+            "name": null,
+            "import_path": "benchmark.agents.skillflow_injection_agent:SkillFlowInjectionAgent",
+            "model_name": "openai/gpt-5-mini-2025-08-07",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "version": "0.79",
+                "selector_cache": "outputs/experiments/selector_cache_gpt-4o-mini-top10.json",
+                "tasks_dir": "integration/skillsbench/tasks",
+                "corpus_dir": "/mnt/d/LocalEnvironments/Datasets/skillflow/skills",
+                "reasoning_effort": "medium"
+            }
+        }
+    ],
+    "datasets": [
+        {
+            "task_names": null,
+            "exclude_task_names": [
+                "fix-druid-loophole-cve",
+                "latex-formula-extraction",
+                "setup-fuzzing-py",
+                "taxonomy-tree-merge",
+                "video-filler-word-remover",
+                "quantum-numerical-simulation",
+                "fix-erlang-ssh-cve",
+                "parallel-tfidf-search",
+                "earthquake-phase-association",
+                "video-tutorial-indexer",
+                "organize-messy-files",
+                "shock-analysis-demand",
+                "syzkaller-ppdev-syzlang",
+                "dynamic-object-aware-egomotion",
+                "fix-build-google-auto",
+                "reserves-at-risk-calc",
+                "simpo-code-reproduction",
+                "r2r-mpc-control",
+                "pedestrian-traffic-counting",
+                "multilingual-video-dubbing",
+                "speaker-diarization-subtitles",
+                "scheduling-email-assistant"
+            ],
+            "n_tasks": null,
+            "path": "integration/skillsbench/tasks"
+        }
+    ],
+    "tasks": []
+}

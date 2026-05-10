@@ -1,0 +1,13 @@
+{
+    "title": "Visual RAG Toolkit: Scaling Multi-Vector Visual Retrieval with Training-Free Pooling and Multi-Stage Search",
+    "arxiv_id": "2602.12510",
+    "versioned_id": "2602.12510v1",
+    "authors": [
+        "Ara Yeroyan"
+    ],
+    "published": "2026-02-13T01:27:39Z",
+    "primary_category": "cs.IR",
+    "comment": "Submitted to SIGIR 2026 Demonstrations Track",
+    "pdf_path": "papers/visual_document_retrieval/Visual_RAG_Toolkit_Scaling_Multi-Vector_Visual_Retrieval_with_Training-Free_Pooling_and_Multi-Stage_Search/paper.pdf"
+}
+

@@ -1,0 +1,100 @@
+{
+    "job_name": "sk-skillflow-inject-local-gpt4.1-medium-20260510-133325",
+    "jobs_dir": "outputs/evaluation",
+    "n_attempts": 1,
+    "timeout_multiplier": 1.0,
+    "debug": false,
+    "orchestrator": {
+        "type": "local",
+        "n_concurrent_trials": 15,
+        "quiet": false,
+        "retry": {
+            "max_retries": 0,
+            "include_exceptions": null,
+            "exclude_exceptions": [
+                "RewardFileNotFoundError",
+                "AgentTimeoutError",
+                "VerifierTimeoutError",
+                "RewardFileEmptyError",
+                "VerifierOutputParseError"
+            ],
+            "wait_multiplier": 1.0,
+            "min_wait_sec": 1.0,
+            "max_wait_sec": 60.0
+        },
+        "kwargs": {}
+    },
+    "environment": {
+        "type": "docker",
+        "import_path": null,
+        "force_build": false,
+        "delete": true,
+        "override_cpus": null,
+        "override_memory_mb": null,
+        "override_storage_mb": null,
+        "override_gpus": null,
+        "kwargs": {
+            "HTTPS_PROXY": "http://127.0.0.1:7897",
+            "https_proxy": "http://127.0.0.1:7897",
+            "HTTP_PROXY": "http://127.0.0.1:7897",
+            "http_proxy": "http://127.0.0.1:7897",
+            "NO_PROXY": "172.31.*,172.30.*,172.29.*,172.28.*,172.27.*,172.26.*,172.25.*,172.24.*,172.23.*,172.22.*,172.21.*,172.20.*,172.19.*,172.18.*,172.17.*,172.16.*,10.*,192.168.*,127.*,localhost,<local>",
+            "no_proxy": "172.31.*,172.30.*,172.29.*,172.28.*,172.27.*,172.26.*,172.25.*,172.24.*,172.23.*,172.22.*,172.21.*,172.20.*,172.19.*,172.18.*,172.17.*,172.16.*,10.*,192.168.*,127.*,localhost,<local>"
+        }
+    },
+    "verifier": {
+        "override_timeout_sec": null,
+        "max_timeout_sec": null,
+        "disable": false
+    },
+    "metrics": [],
+    "agents": [
+        {
+            "name": null,
+            "import_path": "benchmark.agents.skillflow_injection_agent:SkillFlowInjectionAgent",
+            "model_name": "github/gpt-4.1",
+            "override_timeout_sec": null,
+            "override_setup_timeout_sec": null,
+            "max_timeout_sec": null,
+            "kwargs": {
+                "version": "0.79",
+                "selector_cache": "outputs/pipeline/skillsbench_external_full/result_cache.json",
+                "tasks_dir": "integration/skillsbench/tasks",
+                "corpus_dir": "/mnt/d/LocalEnvironments/Datasets/skillflow/skills",
+                "reasoning_effort": "medium"
+            }
+        }
+    ],
+    "datasets": [
+        {
+            "task_names": null,
+            "exclude_task_names": [
+                "fix-druid-loophole-cve",
+                "latex-formula-extraction",
+                "setup-fuzzing-py",
+                "taxonomy-tree-merge",
+                "video-filler-word-remover",
+                "quantum-numerical-simulation",
+                "fix-erlang-ssh-cve",
+                "parallel-tfidf-search",
+                "earthquake-phase-association",
+                "video-tutorial-indexer",
+                "organize-messy-files",
+                "shock-analysis-demand",
+                "syzkaller-ppdev-syzlang",
+                "dynamic-object-aware-egomotion",
+                "fix-build-google-auto",
+                "reserves-at-risk-calc",
+                "simpo-code-reproduction",
+                "r2r-mpc-control",
+                "pedestrian-traffic-counting",
+                "multilingual-video-dubbing",
+                "speaker-diarization-subtitles",
+                "scheduling-email-assistant"
+            ],
+            "n_tasks": null,
+            "path": "integration/skillsbench/tasks"
+        }
+    ],
+    "tasks": []
+}

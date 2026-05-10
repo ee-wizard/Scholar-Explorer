@@ -1,0 +1,82 @@
+{
+  "execution_timestamp": "2026-04-28T16:06:09.521411+08:00",
+  "paper_name": "Sculpting_the_Vector_Space_Towards_Efficient_Multi-Vector_Visual_Document_Retrieval_via_Prune-then-Merge_Framework",
+  "output_dir": "papers\\visual_document_retrieval",
+  "source_file": "<title-llm-selection>",
+  "selection": {
+    "mode": "title_keyword_expand_llm_validation",
+    "query_title": "Sculpting the Vector Space: Towards Efficient Multi-Vector Visual Document Retrieval via PRUNE-THEN-MERGE Framework",
+    "query_plan": [
+      "Sculpting the Vector Space Towards Efficient Multi Vector Visual Document Retrieval via PRUNE THEN MERGE Framework",
+      "sculpting vector space efficient multi vector visual document"
+    ],
+    "query_hits": [
+      {
+        "query": "Sculpting the Vector Space Towards Efficient Multi Vector Visual Document Retrieval via PRUNE THEN MERGE Framework",
+        "field": "ti",
+        "hits": 10
+      },
+      {
+        "query": "Sculpting the Vector Space Towards Efficient Multi Vector Visual Document Retrieval via PRUNE THEN MERGE Framework",
+        "field": "all",
+        "hits": 10
+      },
+      {
+        "query": "sculpting vector space efficient multi vector visual document",
+        "field": "ti",
+        "hits": 10
+      },
+      {
+        "query": "sculpting vector space efficient multi vector visual document",
+        "field": "all",
+        "hits": 10
+      }
+    ],
+    "candidate_count": 16,
+    "selected_index": 0,
+    "selected_arxiv_id": "2602.19549",
+    "selected_title": "Sculpting the Vector Space: Towards Efficient Multi-Vector Visual Document Retrieval via Prune-then-Merge Framework",
+    "confidence": 1.0,
+    "reason": "selected by copilot title matcher",
+    "llm_backend": "copilot",
+    "llm_model": "local-title-matcher"
+  },
+  "source": {
+    "arxivId": "2602.19549",
+    "versionedId": "2602.19549v2",
+    "absUrl": "https://arxiv.org/abs/2602.19549v2",
+    "pdfUrl": "https://arxiv.org/pdf/2602.19549v2",
+    "doi": "",
+    "published": "2026-02-23T06:45:19Z",
+    "updated": "2026-04-20T01:43:08Z"
+  },
+  "paper": {
+    "title": "Sculpting the Vector Space: Towards Efficient Multi-Vector Visual Document Retrieval via Prune-then-Merge Framework",
+    "authors": [
+      "Yibo Yan",
+      "Mingdong Ou",
+      "Yi Cao",
+      "Xin Zou",
+      "Jiahao Huo",
+      "Shuliang Liu",
+      "James Kwok",
+      "Xuming Hu"
+    ],
+    "keywords": [
+      "cs.CL",
+      "cs.CV",
+      "cs.IR"
+    ],
+    "Abstract": "Visual Document Retrieval (VDR), which aims to retrieve relevant pages within vast corpora of visually-rich documents, is of significance in current multimodal retrieval applications. The state-of-the-art multi-vector paradigm excels in performance but suffers from prohibitive overhead, a problem that current efficiency methods like pruning and merging address imperfectly, creating a difficult trade-off between compression rate and feature fidelity. To overcome this dilemma, we introduce Prune-then-Merge, a novel two-stage framework that synergizes these complementary approaches. Our method first employs an adaptive pruning stage to filter out low-information patches, creating a refined, high-signal set of embeddings. Subsequently, a hierarchical merging stage compresses this pre-filtered set, effectively summarizing semantic content without the noise-induced feature dilution seen in single-stage methods. Extensive experiments on 29 VDR datasets demonstrate that our framework consistently outperforms existing methods, significantly extending the near-lossless compression range and providing robust performance at high compression ratios.",
+    "primaryCategory": "cs.CL",
+    "journalRef": "",
+    "comment": "Accepted by The 64th Annual Meeting of the Association for Computational Linguistics (ACL 2026, Findings)"
+  },
+  "download": {
+    "source_url": "https://arxiv.org/pdf/2602.19549v2",
+    "final_url": "https://arxiv.org/pdf/2602.19549v2",
+    "pdf_saved": true,
+    "pdf_file": "papers\\visual_document_retrieval\\Sculpting_the_Vector_Space_Towards_Efficient_Multi-Vector_Visual_Document_Retrieval_via_Prune-then-Merge_Framework.pdf",
+    "download_errors": []
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "stages": {
+    "retriever": {
+      "per_task_ms": {
+        "3d-scan-calc": 174.09370001405478,
+        "ada-bathroom-plan-repair": 233.9843998197466,
+        "adaptive-cruise-control": 240.75399991124868
+      },
+      "aggregate": {
+        "median_ms": 233.98,
+        "mean_ms": 216.28,
+        "p95_ms": 240.75
+      }
+    },
+    "reranker": {
+      "per_task_ms": {
+        "3d-scan-calc": 5934.439399978146,
+        "ada-bathroom-plan-repair": 60615.37429993041,
+        "adaptive-cruise-control": 16229.95280008763
+      },
+      "aggregate": {
+        "median_ms": 16229.95,
+        "mean_ms": 27593.26,
+        "p95_ms": 60615.37
+      }
+    }
+  }
+}

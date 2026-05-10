@@ -1,0 +1,1707 @@
+[
+    {
+        "type": "text",
+        "text": "Towards Storage-Efficient Visual Document Retrieval: An Empirical Study on Reducing Patch-Level Embeddings ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            90,
+            880,
+            129
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Yubo $\\mathbf { M } \\mathbf { a } ^ { 1 }$ , Jinsong $\\mathbf { L i } ^ { 2 }$ , Yuhang $\\mathbf { Z } \\mathbf { a n g } ^ { 2 * }$ , Xiaobao $\\mathbf { W } \\mathbf { u } ^ { 1 }$ , Xiaoyi $\\mathbf { D o n g ^ { 2 } }$ , Pan Zhang2, Yuhang $\\mathbf { C a o ^ { 2 } }$ , Haodong Duan2, Jiaqi Wang2, Yixin $\\mathbf { C a o ^ { 3 } }$ , Aixin $\\mathbf { S u n ^ { 1 } }$ 1 Nanyang Technological University 2 Shanghai Artificial Intelligence Laboratory 3 Institute of Trustworthy Embodied AI, Fudan University yubo001@e.ntu.edu.sg ",
+        "bbox": [
+            146,
+            146,
+            852,
+            230
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract ",
+        "text_level": 1,
+        "bbox": [
+            263,
+            261,
+            339,
+            277
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Despite the strong performance of ColPali/- ColQwen2 in Visualized Document Retrieval (VDR), it encodes each page into multiple patch-level embeddings and leads to excessive memory usage. This empirical study investigates methods to reduce patch embeddings per page at minimum performance degradation. We evaluate two token-reduction strategies: token pruning and token merging. Regarding token pruning, we surprisingly observe that a simple random strategy outperforms other sophisticated pruning methods, though still far from satisfactory. Further analysis reveals that pruning is inherently unsuitable for VDR as it requires removing certain page embeddings without query-specific information. Turning to token merging (more suitable for VDR), we search for the optimal combinations of merging strategy across three dimensions and develop Light-ColPali/ColQwen2. It maintains $9 8 . 2 \\%$ of retrieval performance with only $1 1 . 8 \\%$ of original memory usage, and preserves $9 4 . 6 \\%$ effectiveness at $2 . 8 \\%$ memory footprint. We expect our empirical findings and resulting Light-ColPali/ColQwen2 offer valuable insights and establish a competitive baseline for future research towards efficient VDR. ",
+        "bbox": [
+            146,
+            294,
+            458,
+            676
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1 Introduction ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            693,
+            257,
+            708
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Visualized Document Retrieval (VDR) matches queries to relevant documents by leveraging their visual representations. Unlike conventional retrieval systems, where raw text must be parsed before indexing, VDR captures documents as images (screenshots) and encodes them into embeddings using Large Vision-Language Models (LVLMs). This approach preserves layout structures and visual elements, enabling retrieval in a what-you-seeis-what-you-get manner. As a result, VDR achieves superior retrieval accuracy and demonstrates strong potential across various applications (Cho et al., 2024; Chen et al., 2025). ",
+        "bbox": [
+            117,
+            720,
+            487,
+            896
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "image",
+        "img_path": "images/2793b68e4ddc21fddce00a10b9e8024effab70f63a4c14786209c7ced6d7dd7b.jpg",
+        "image_caption": [
+            "Figure 1: Top: The relative memory consumptions for embedding storage of different VDRs. Our simple yet effective approach, Light-ColPali/ColQwen2, retains most of the performance but with significantly reduced memory cost. Bottom: The diagram of VDR equipped with ColPali/ColQwen2 retriever. It encodes each page into $N _ { p }$ patch-level embeddings and thus incurs prohibitive memory cost. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            547,
+            260,
+            843,
+            585
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            510,
+            743,
+            882,
+            774
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "The state-of-the-art visualized document retriever, ColPali/ColQwen2 (Faysse et al., 2025), represents a significant advancement in this field. As shown in Figure 1, ColPali/ColQwen2 encodes each document page as $N _ { p }$ patch-level embeddings during the offline stage and saves them for online computation. While the excessive number of patch embeddings enables the perceiving of finegrained details (which is particularly important for document-related images), it introduces substantial memory footprints and computational overhead in both offline indexing storage and online similarity computation. For example, a medium-sized document with 50 pages requires about $1 0 \\mathrm { { M B } }$ memory for embedding storage \\*. This substantial memory footprint presents a bottleneck for scalability and practical deployment of VDR systems under real-world scenarios. ",
+        "bbox": [
+            512,
+            778,
+            884,
+            921
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "discarded",
+        "text": "\\*Corresponding Author ",
+        "bbox": [
+            139,
+            909,
+            282,
+            921
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "discarded",
+        "text": "arXiv:2506.04997v1 [cs.IR] 5 Jun 2025 ",
+        "bbox": [
+            23,
+            300,
+            63,
+            695
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            117,
+            85,
+            485,
+            228
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In this work, we present an in-depth analysis of the storage-efficient visualized document retriever, exploring how to reduce each page’s patch embedding number with minimal performance degradation. We consider two common token-reduction approaches, i.e., token pruning (Chen et al., 2024) and token merging (Clavié et al., 2024), respectively. In terms of token pruning, we investigate multiple pruning strategies in Section 4 and aim to retain only the high-informative patch embeddings. Even though token pruning works to some extent, it can not reduce the embedding numbers by orders of magnitude without significant performance drops. More embarrassingly, we observe that the most simple strategy, i.e., random pruning, performs better than other carefully designed strategies. A deeper analysis of this observation reveals that (1) the informativeness of patch embedding is highly conditioned on the queries, which are unknown and unpredictable during the offline indexing stage. (2) the patch embeddings can be grouped and, accordingly, are prone to be dropped by the group under some specific criteria. The above two reasons make it impractical to decide which embeddings should be pruned without access to the queries. Therefore, we claim that pruning-related strategies are inappropriate under VDR settings. ",
+        "bbox": [
+            117,
+            228,
+            487,
+            664
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "In Section 5, we investigate token merging strategies across three critical dimensions: (1) merging approaches, (2) fine-tuning applicability, and (3) merging locations. Our analysis reveals that similarity-based clustering marginally surpasses spatial-oriented pooling in effectiveness, and resource-efficient fine-tuning (about 72 A100- GPU hours) significantly mitigates the performance gap between retrievers with and without merging. Additionally, we observe that late-stage merging (i.e., at the final layer of ColPali/ColQwen2) optimally preserves information and minimizes performance degradation. Building upon these insights, we establish a simple yet effective baseline, named Light-ColPali/ColQwen2, for patch-level embedding reduction in VDR systems. Comprehensive evaluations across three benchmarks (Faysse et al., 2025; Yu et al., 2024; Ma et al., 2024b) demonstrate that Light-ColPali/ColQwen2 approach maintains comparable performance while achieving orders-ofmagnitude reduction in patch storage requirements. Notably, as illustrated in Figure 1, it retains $9 8 . 2 \\%$ of ${ \\mathrm { N D C G } } @ 5$ scores with only $1 1 . 8 \\%$ of original memory footprint and maintains $9 4 . 6 \\%$ effectiveness at just $2 . 8 \\%$ memory footprint. ",
+        "bbox": [
+            115,
+            667,
+            487,
+            875
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            512,
+            85,
+            882,
+            277
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2 Related Work ",
+        "text_level": 1,
+        "bbox": [
+            512,
+            294,
+            663,
+            311
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Visualized Document Retriever shares a similar architecture with text-based dense retrievers (Karpukhin et al., 2020; Khattab and Zaharia, 2020), but leverages LVLMs (Wang et al., 2024; Beyer et al., 2024) for OCR-free document understanding. It primarily divides into two approaches: (1) Page-level embedding retrievers (DSE; Ma et al., 2024a) encode entire pages and queries into single embeddings; (2) Patch-level embedding retrievers (ColPali/ColQwen2; Faysse et al., 2025) generate multiple patch-level embeddings per page and token-level embeddings per query. While patch-level retrievers offer finer granularity and superior performance, they demand prohibitive computational resources for both offline indexing and online retrieval. This work addresses this limitation by developing methods to reduce embedding numbers in patch-level retrievers. ",
+        "bbox": [
+            510,
+            325,
+            882,
+            613
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Token-reduction about LVLM has been intensively explored to improve LVLMs’ generation (i.e., next-token prediction) efficiency. Current approaches fall into three categories: (1) Pruning strategies (Liang et al., 2022; Chen et al., 2024; Xing et al., 2024; Zhang et al., 2025) eliminate low-information tokens based on importance ranking; (2) Merging strategies (Kong et al., 2022; Bolya et al., 2023; Li et al., 2024b) combine similar tokens into compressed embeddings; (3) Hybrid strategies (Shang et al., 2024; Yang et al., 2024; Wu, 2025) integrate pruning and merging, usually by preserving high-informative tokens while merging redundant ones. In LVLM generation, the focus is on minimizing response latency and FLOPs given specific instructions. In document retrieval, the goal is to reduce the memory footprint of embeddings, without query access but with less concern for latency or FLOPs during indexing. These distinctions relax constraints on token merging, enabling late-stage compression and more computationally-intensive merging strategies. However, the absence of queries precludes queryconditioned pruning or merging approaches. ",
+        "bbox": [
+            510,
+            617,
+            882,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "discarded",
+        "text": "\\*ColQwen2 divides each page into 768 tokens, each represented by a 128-dimensional vector. Stored as 16-bit floats, it requires $5 0 ^ { * } 7 6 8 ^ { * } 1 2 8 ^ { * } 1 6$ bits $= 9 . 6$ MB per document. ",
+        "bbox": [
+            115,
+            884,
+            487,
+            921
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            115,
+            85,
+            489,
+            165
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Lightweight Document Retriever has been explored to address the challenge of large-scale embeddings with two orthogonal approaches: (1) Dimension Reduction. ColBERTv2 (Santhanam et al., 2022) employs product quantization (Jégou et al., 2011) to reduce the size of each embedding from 768 to 128 dimensions. This design is inherited by ColPali (Faysse et al., 2025) with a simpler projection layer. (2) Token Reduction: Clavié et al. (2024) introduces the concept of TokenPooling and explores merging strategies for text-based retrievers. A recent blog by ColPali’s author (Wu, 2024) further extends this to visualized document retrievers. Following their work, our Light-ColPali/ColQwen2 shares very similar merging approaches from the posterior perspectives. However, our work advances this field by conducting a systematic empirical study both on pruning and merging strategies. Beyond simply proposing a merging strategy, our analysis reveals the limitations of pruning (under retrieval settings) and identifies the optimal combination for merging. Moreover, our experiments demonstrate the effectiveness of fine-tuning. Compared to the results reported in $\\mathrm { { W u } }$ (2024), our fine-tuned Light-ColPali/ColQwen2 presents stronger performance with significantly higher reduction ratios. ",
+        "bbox": [
+            115,
+            165,
+            487,
+            599
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "In practice, a corpus $C$ of documents is collected and encoded as $E _ { C } \\in R ^ { N _ { C } \\times N _ { p } \\times d }$ during the offline stage. During the online retrieval stage, when a query $q$ is received and encoded, the top- $\\mathbf { \\nabla } \\cdot \\mathbf { k }$ most relevant documents are retrieved. ",
+        "bbox": [
+            512,
+            85,
+            882,
+            164
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Task Definition. We notice that each query or page corresponds to multiple token- or patch-level embeddings. In original ColPali/ColQwen2, $N _ { p }$ approximately equals to number of patches determined by the visual encoder in LVLMs, which are 1024 for ColPali and 768 for Qwen2-VL in default. In this work, we investigates various token reduction strategies and produce compressed embeddings $E _ { p } ^ { \\prime } \\in \\mathsf { \\bar { \\boldsymbol { R } } } ^ { N _ { p } ^ { \\prime } \\times d }$ for each page, where $N _ { p } ^ { \\prime } \\ll N _ { p }$ . To this end, we explore two tokenreduction strategies, pruning and merging, in the following sections. ",
+        "bbox": [
+            512,
+            166,
+            882,
+            357
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4 Token Pruning: An Ineffective Strategy ",
+        "text_level": 1,
+        "bbox": [
+            512,
+            373,
+            880,
+            390
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "ColPali/ColQwen2. We briefly review the mechanism of ColPali/ColQwen2 (Faysse et al., 2025) in Figure 1. Given query $q$ with $N _ { q }$ tokens and imageformatted document $p$ with $N _ { p }$ patches, ColPali/ColQwen2 encodes them as token-level embeddings $\\mathbf { \\dot { \\cal E } } _ { q } = [ e _ { q } ^ { 1 } , . . . , e _ { q } ^ { N _ { q } } ] \\in { \\cal R } ^ { N _ { q } \\times d }$ and patch-level ${ \\cal E } _ { p } = [ e _ { p } ^ { 1 } , . . . , e _ { p } ^ { N _ { p } } ] \\in R ^ { N _ { p } \\times d }$ into unified embedding space using the LVLM backbone. The relevance score between $q$ and $p$ , denoted as $s ( q , p )$ , is computed by (1) identifying the most similar patch embedding in $p$ for each token in $q$ and (2) summing the similarity scores across all tokens: ",
+        "bbox": [
+            115,
+            637,
+            487,
+            832
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Given patch embeddings $E _ { p }$ for each document page, a natural approach is to retain $N _ { p } ^ { \\prime }$ embeddings and prune the remaining $( N _ { p } - N _ { p } ^ { \\acute { \\prime } } )$ . In this section, we explore three pruning strategies and observe that their performance collapses when reducing embeddings by orders of magnitude. More embarrassingly, the simplest random pruning outperforms other carefully-designed strategies. Further analysis reveals that ColPali’s embeddings cluster in groups, while their relevance to different queries is highly unpredictable. These findings highlight the limitations of pruning strategies and underscore the feasibility and necessity of merging strategies under VDR settings. ",
+        "bbox": [
+            512,
+            401,
+            882,
+            625
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3 The Research Problem ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            611,
+            344,
+            627
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/1e3a95f131d35c603ae10b80900cfee9dc4c442ada4720f415fc82673dc7de0f.jpg",
+        "text": "$$\n\\begin{array} { l l l } { { } } & { { } } & { { s _ { j } = \\displaystyle \\mathsf { m a x s i m } ( q _ { j } , p ) = \\operatorname* { m a x } _ { i } e _ { p } ^ { i ^ { T } } e _ { q } ^ { j } } } \\\\ { { } } & { { } } & { { s ( q , p ) = \\displaystyle \\sum _ { j } s _ { j } } } \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            174,
+            852,
+            428,
+            920
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "4.1 Three Pruning Strategies ",
+        "text_level": 1,
+        "bbox": [
+            512,
+            639,
+            752,
+            655
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "We evaluate three pruning strategies as follows: ",
+        "bbox": [
+            512,
+            662,
+            862,
+            677
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Random: For each $E _ { p }$ , we randomly drop $( N _ { p } -$ $N _ { p } ^ { \\prime } )$ embeddings. ",
+        "bbox": [
+            510,
+            678,
+            880,
+            709
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Score-oriented: Recall that ColPali/ColQwen2 measures the query-page relevance by maximumsimilarity approach, i.e., considering the most similar patch embeddings $e _ { p } ^ { i } \\in E _ { p }$ with $e _ { q } ^ { j } \\in E _ { q }$ for each token in $q$ . Accordingly, we denote the $r e$ - sponse potential of each patch $p _ { i } \\in p$ on query $q$ as its maximum similarities with any token $q _ { i } \\in q$ , i.e., $\\begin{array} { r } { r _ { p } ^ { i } ( q ) = \\operatorname* { m a x } _ { j } { e _ { p } ^ { i } } ^ { T } e _ { q } ^ { j } } \\end{array}$ . However, the key bottleneck for token-reduction in VDR is exactly that the query $q$ , and the associated $r _ { p } ^ { i } ( q )$ , is unknown when we prune $E _ { p }$ at the offline stage. To ensure the performance preservation on any potential $q$ , we prompt LVLMs to generate a set of possible queries $Q _ { p }$ given each document page as detailed in Appendix A.1. Then we approximate the response potential on any queries as the maximum values on this sampled set $Q _ { q }$ : $r _ { i } ^ { p } = \\operatorname* { m a x } _ { q \\in Q _ { p } } r _ { p } ^ { i } ( q )$ . We view patches with low $r _ { i } ^ { p }$ values as unimportant for any queries and prune them at priority. ",
+        "bbox": [
+            512,
+            712,
+            884,
+            921
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "image",
+        "img_path": "images/661c1dd27e26fb2bcc0239e7babb3ad9d972a3106a2406954d00542dcc705911.jpg",
+        "image_caption": [
+            "Figure 2: Retrieval performance v.s. pruning ratio across three different pruning strategies. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            152,
+            86,
+            448,
+            337
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            115,
+            403,
+            485,
+            498
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Attention-oriented: Recall that the common pruning strategies in LVLM’s generation (Chen et al., 2024; Yang et al., 2024) measure the token’s importance by their received attentions from other tokens in Transformer layers. We employ this strategy and rank the patch embeddings in $E _ { p }$ by the received attentions (of corresponding tokens in last LVLM layer) from the [EOS] token. We prune embeddings with less attentions at priority. ",
+        "bbox": [
+            115,
+            500,
+            487,
+            643
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.2 Random Dropping: A Strong SOTA ",
+        "text_level": 1,
+        "bbox": [
+            119,
+            655,
+            440,
+            670
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We evaluate the pruning strategies above on two representative datasets, DocVQA (Mathew et al., 2020) and InfoVQA (Mathew et al., 2021), from the ViDoRE (Faysse et al., 2025) benchmark. The embeddings $E _ { p }$ are generated using the official ColQwen2 checkpoints † and pruned with varying pruning ratios $( 1 - N _ { p } ^ { \\prime } / N _ { p } )$ . As illustrated in Figure 2, all three strategies maintain their NDCG $\\textcircled { a } 5$ scores when the pruning ratio is below 0.2, and present slight drop $( < 2 \\%$ absolute score) for ratios below 0.5. However, more aggressive pruning ratios result in significant performance drop. The best-performing strategy retains only $7 8 . 3 \\%$ $/ 8 8 . 5 \\%$ of its original score at 0.9 pruning ratio (a) The activated patches overlap of two queries under different pruning ratios. ",
+        "bbox": [
+            115,
+            675,
+            487,
+            900
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/d8923af9421dce674be637314932918b661a27f6e69390638714d8c4052e2671.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            549,
+            86,
+            843,
+            222
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            541,
+            233,
+            850,
+            256
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/07e6d1b1651d9f2ac2a0ceb16eb5b40e3bcd3dc66338062b23e5a30b7e771527.jpg",
+        "image_caption": [
+            "Figure 3: The triggered patches of the identical page vary with the queries. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            544,
+            259,
+            850,
+            454
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "(b) A representative case. The activated patches given different queries are colored in red and blue, respectively. The only shared patch is hatched. ",
+        "bbox": [
+            542,
+            461,
+            852,
+            498
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "and $5 8 . 3 \\% / 8 4 . 9 \\%$ at 0.95 ratio, which is far from satisfactory. These results demonstrate that none of the three pruning strategies achieve effective token reduction by orders of magnitude. Moreover, we surprisingly observe that the simplest random pruning outperforms the other two strategies, especially when the pruning ratio is above 0.5. At 0.95 pruning ratio, it surpasses the score-oriented strategy by $3 . 9 \\%$ and the attention-oriented strategy by $1 9 . 6 \\%$ in absolute score on InfoVQA dataset. ",
+        "bbox": [
+            512,
+            564,
+            882,
+            724
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4.3 Analysis ",
+        "text_level": 1,
+        "bbox": [
+            512,
+            739,
+            621,
+            753
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We investigate the mechanism behind the counterintuitive observation that random pruning performs best. We attribute it to two key reasons: ",
+        "bbox": [
+            512,
+            760,
+            882,
+            808
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "The triggered patches of the identical page vary with the queries. For a document page $p$ , an ideal property in the VDR setting is that the distribution $\\bar { r } _ { p } ( q ) \\in R ^ { N _ { p } }$ remains consistent across different queries $q \\in Q$ (i.e., small $E _ { q } [ \\mathrm { K L } ( r _ { p } ( q ) | | E _ { q } ( r _ { p } ) ) ]$ value). In other words, we expect significant overlap in the patches activated (having high $r _ { p } ^ { i }$ values) by different queries. Being the foundation of pruning strategy, this consistency allows us to accurately predict and retain informative patches with the help of sampled/simulated queries during the offline stage. To quantitatively evaluate the consistency, we use the synthesized queries $Q _ { q }$ given each page $p$ in Section 4.1 to compute $r _ { p } ( q )$ . Then we define the patches in $p$ activated by $q$ as those with top- $K \\%$ highest $r _ { p } ^ { i } ( q )$ values, and pairwise compute the overlap of activated patches by two different queries. We show the overlap at different prune ratios (i.e., $1 { - } K \\% )$ ) in Figure 3(a). It reveals that the shared activated patches of two queries are only marginally higher than what would occur by random chance (in dashed diagonal). A case shown in Figure 3(b) further support this result. Given two different queries, the activated patches on the same page are almost exclusive. Only one patch (out of 736; hatched) responds to both queries. ",
+        "bbox": [
+            512,
+            810,
+            882,
+            922
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "discarded",
+        "text": "†https://huggingface.co/vidore/colqwen2-v1.0 ",
+        "bbox": [
+            137,
+            909,
+            472,
+            921
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            115,
+            84,
+            487,
+            390
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The patch embeddings are redundant. We define patches as redundant if a group of patches on the page respond to the query to a similar extent. We randomly sample 1000 pages from ViDoRE benchmark and compute their normalized values of response potentials as below. ",
+        "bbox": [
+            115,
+            391,
+            487,
+            487
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "equation",
+        "img_path": "images/70201b8fa8a629a8b39f081d8ba4c589711c06ab480d96dd47bd6fd924f37a74.jpg",
+        "text": "$$\nr _ { p } ^ { \\mathrm { n o r m } } ( q ) = \\frac { r _ { p } ( q ) - \\mathrm { m i n } _ { j } r _ { p } ^ { j } ( q ) } { \\mathrm { m a x } _ { j } r _ { p } ^ { j } ( q ) - \\mathrm { m i n } _ { j } r _ { p } ^ { j } ( q ) }\n$$",
+        "text_format": "latex",
+        "bbox": [
+            161,
+            504,
+            443,
+            545
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The distributions of $r _ { p } ^ { \\mathrm { n o r m } } ( q )$ shown in Appendix A.2 reveal that 14.2 patches have normalized values above 0.95 and 36.9 patches above 0.9 on average. It demonstrates that the image patches are highly redundant and can be grouped. ",
+        "bbox": [
+            117,
+            549,
+            487,
+            629
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "The above two reasons inherently limit the effectiveness of pruning strategy under VDR setting where the page embeddings should be pruned offline without access to the queries. Since activated patches are unpredictable but their representations are grouped, key patches regarding some query are prone to be dropped by group according to some specific criterion (like attention- or score-oriented). In such case, they even perform worse than random drop because a group of patches are unlikely to be completely dropped by random. Therefore, we claim that pruning strategy is not appropriate for retrieval scenarios and turn to exploring token merging strategies. ",
+        "bbox": [
+            115,
+            631,
+            487,
+            853
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5 Token Merging: The Choices ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            865,
+            398,
+            882
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We turn into another token-reduction strategy, merging, towards an efficient document visual retriever. Unlike pruning which directly drops some tokens, merging consolidates the multiple embeddings into one. This approach is particularly suitable for VDR, where the importance of each embedding is highly undetermined (if not conditioned on specific query). We systematically evaluate the merging astrategy through three key aspects towards the recipe for the optimal merging strategy as detailed below. ",
+        "bbox": [
+            115,
+            891,
+            487,
+            921
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "image",
+        "img_path": "images/31d95f2bcd5d88a16ecaf2d822ad14cd3dd48c9d334e5a81b611d8e78bec1dcc.jpg",
+        "image_caption": [
+            "Figure 4: Retrieval performance v.s. merging factor across different merging approaches. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            517,
+            87,
+            872,
+            208
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            512,
+            279,
+            882,
+            422
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "5.1 Merging Approach ",
+        "text_level": 1,
+        "bbox": [
+            512,
+            435,
+            704,
+            450
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We follow Clavié et al. (2024) and consider three merging approaches as illustrated in Figure 5(a). ",
+        "bbox": [
+            512,
+            455,
+            882,
+            486
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "1D Spatial-pooling. In LVLM, images are divided into patches and flattened sequentially. Then their output embeddings are as $R ^ { \\bar { N } _ { p } \\times d }$ . To reduce the embeddings from $N _ { p }$ to $N _ { p } ^ { \\prime }$ , the simplest method is to averagely pool every $\\dot { N } _ { p } / N _ { p } ^ { \\prime }$ embeddings. ",
+        "bbox": [
+            512,
+            487,
+            882,
+            568
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "2D Spatial-pooling. This approach takes into account the spatial structure and semantics of visualized documents. Building on the intuition that adjacent patches often share semantic relationships, 2D-pooling averagely pools embeddings based on their spatial proximity. ",
+        "bbox": [
+            512,
+            568,
+            882,
+            664
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Semantic-clustering. This approach focuses on representation (rather than spatial) proximity. By computing the cosine similarities among the $N _ { p }$ embeddings from ColPali/ColQwen2, we group them into $N _ { p } ^ { \\prime }$ clusters. Each cluster is then represented by the average of the embeddings within it. Then we conduct hierarchical clustering (Murtagh and Contreras, 2012) to merge the $N _ { p }$ patch embeddings into $N _ { p } ^ { \\prime }$ cluster embeddings. ",
+        "bbox": [
+            512,
+            665,
+            882,
+            809
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "We evaluate the three merging strategies on six datasets from ViDoRE (Faysse et al., 2025) benchmark. We report their average ${ \\mathrm { N D C G } } @ 5$ scores under varying merging factors $N _ { p } / N _ { p } ^ { \\prime }$ in Figure 4. All three merging approaches outperform pruning strategies, with the clustering approach showing particularly strong results. It maintains $9 7 . 5 \\%$ and ",
+        "bbox": [
+            512,
+            810,
+            882,
+            922
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "image",
+        "img_path": "images/1d0eebb756fe26b870ad11666eff2a29a0e72ef1762af8ed2da4dd39c3001b13.jpg",
+        "image_caption": [
+            "Figure 5: (a): Three merging approaches. The patches with the same colors are merged into the same embedding. (b): Three merging locations. Blue blocks represent the original modules in ColPali/ColQwen2. Orange blocks represent the added merging modules. (c): The architecture diagram of Light-Colpali/ColQwen2. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            136,
+            82,
+            862,
+            404
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "$9 2 . 6 \\%$ relative performance at merging factor 9 and 25, respectively. Such results highlight its effectiveness in maintaining retrieval accuracy even under token reduction by orders of magnitude. ",
+        "bbox": [
+            115,
+            483,
+            487,
+            546
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.2 Fine-tuning Applicability ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            561,
+            356,
+            577
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Above approaches are training-free and serve as plug-and-play modules for the output patch embeddings. While they achieve promising merging ratios without significant performance degradation, we further investigate whether fine-tuning can enhance the performance maintenance. To this end, we compute the relevance score $s ( q , p )$ using the merged document embeddings $E _ { p } ^ { \\prime } \\in \\dot { R } ^ { N _ { p } ^ { \\prime } \\times d }$ during BOTH the training and the inference stage. Results shown in Figure 6 show that fine-tuning retrievers with merged embeddings enhances their perceiving on blurred representations and reduces their performance gaps with the original retrievers. This benefit is particularly pronounced at extremely large merging factors. Specifically, at merging factors of 25 and 49 (retaining only $4 . 6 \\%$ and $2 . 8 \\%$ memory cost), fine-tuning recovers $61 \\%$ and $67 \\%$ of the performance drop $3 . 6 \\%$ and $8 . 4 \\%$ absolutely score gains) caused by training-free. These findings underscore the necessity and effectiveness of fine-tuning in maintaining retrieval performance under aggressive token reduction strategies. ",
+        "bbox": [
+            115,
+            585,
+            487,
+            921
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            514,
+            483,
+            833,
+            498
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "5.3 Merging Location ",
+        "text_level": 1,
+        "bbox": [
+            512,
+            513,
+            695,
+            527
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We further explore the optimal location of merging operations within ColPali/ColQwen2. While prior work for efficiency generation (Bolya et al., 2023; Chen et al., 2024; Yang et al., 2024) typically merges tokens in the early layers of LVLMs to reduce FLOPs and response latency, our focus in VDR setting is primarily on the memory footprint of the offline-stored embeddings. This allows us to consider merging operations at later stages, even if FLOPs and latency remain unchanged or increase slightly. Therefore, we explore inserting merging modules at various locations within Col-Pali/ColQwen2’s architecture. As illustrated in Figure 5(b), the four options are: (1) Pre-Encoder, (2) Post-Encoder, (3) Post-LLM and (4) Post-projector. ",
+        "bbox": [
+            512,
+            536,
+            882,
+            776
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We compare the performance of different merging locations at merging factor 9 in Table 1. We observe that (1) performance significantly improves when the merging operation occurs after LLM module. It demonstrates that token reduction should be performed as late as possible when FLOPs and latency are not the concern, as feeding more visual tokens to the LLM allows for finer-grained perception and more accurate information integration. (2) ",
+        "bbox": [
+            512,
+            778,
+            884,
+            921
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "image",
+        "img_path": "images/9c0975b6f37a8b7ea0b05b6e2b3e5983c3e36ad93994ea31dd4420f0008e23ac.jpg",
+        "image_caption": [
+            "Figure 6: Training-free v.s. fine-tuning retriever with the same merging (clustering) approach. The performance of original ColQwen2 is highlighted in red dash. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            136,
+            86,
+            465,
+            259
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/e3eec3294c98795fc0468231ac039e95589fc773097e1d27c4f506b1a4b198e6.jpg",
+        "table_caption": [
+            "Table 1: Retrieval performance of different merging locations at merging factor 9. "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td>Pre- Encoder</td><td>Post- Encoder</td><td>Post- LLM</td><td>Post- Projector</td></tr><tr><td>Info</td><td>70.2</td><td>79.5</td><td>89.7</td><td>90.4</td></tr><tr><td>Doc</td><td>29.8</td><td>41.7</td><td>55.2</td><td>56.1</td></tr><tr><td>Arxiv</td><td>80.0</td><td>81.9</td><td>87.6</td><td>86.7</td></tr><tr><td>TabF</td><td>74.1</td><td>80.8</td><td>88.6</td><td>88.8</td></tr><tr><td>TAT</td><td>50.5</td><td>54.1</td><td>79.5</td><td>79.1</td></tr><tr><td>Shift</td><td>49.7</td><td>54.4</td><td>85.7</td><td>87.3</td></tr><tr><td>Avg.</td><td>59.1</td><td>65.4</td><td>81.0</td><td>81.4</td></tr></table>",
+        "bbox": [
+            119,
+            366,
+            482,
+            504
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "merging after the final projector yields slightly better performance ( $0 . 4 \\%$ absolute score) than before it. Since the projector is designed for dimension reduction (e.g., from 1536 to 128 for ColQwen2), we hypothesize that clustering algorithms are more effective in low-dimension spaces and thus enable more targeted feature aggregation. ",
+        "bbox": [
+            115,
+            530,
+            485,
+            642
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "6 Light-ColQwen2: Effective Storage Reduction on Patch-level Embeddings ",
+        "text_level": 1,
+        "bbox": [
+            115,
+            653,
+            475,
+            687
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "We conduct extensive experiments to identify the optimal merging strategy in Section 5. The key findings are as follows: (1) Merging Approach: Merging upon representation similarity (semantic clustering) outperforms spatial proximity (1D- / 2D-spatial pooling). (2) Merging Location: Merging at the last stage of retrievers fully leverages the powerful perception capabilities of LVLMs and thus achieves minimal performance drop. (3) Finetuning Applicability: Incorporating the merging module during training stage significantly reduces the gap compared to the original retrievers, particularly at high reduction ratios. ",
+        "bbox": [
+            115,
+            697,
+            487,
+            904
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Based on these insights, we propose a simple yet effective token-reduction approach for ColPali/ColQwen2, named Light-ColPali/ColQwen2. As illustrated in Figure 5(c), it is a token merging strategy which integrates semantic clustering at the latest stage of the pipeline, combined with fine-tuning, to achieve efficient and accurate visualized document retrieval. The simplicity and effectiveness of Light-ColPali/ColQwen2 make it a practical solution for balancing performance and efficiency in visual document retrieval tasks. ",
+        "bbox": [
+            134,
+            907,
+            485,
+            922
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            512,
+            85,
+            882,
+            243
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Baseline We evaluate Light-ColPali/ColQwen2 against three primary baselines. (1) The original ColPali/ColQwen2 (Faysse et al., 2025) which encodes each patch in the page as one embedding. (2) DSE-Pali/-Qwen2 (Ma et al., 2024a) which encodes each page into one embedding. (3) The most effective pruning strategy, random pruning, as introduced in Section 4.1. Toward a fair comparison, all above baselines and our ColPali/ColQwen2 are fine-tuned under the same settings detailed in Appendix B.2, and are compared in terms of both retrieval performance and memory cost. ",
+        "bbox": [
+            512,
+            246,
+            884,
+            438
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Experiment Setup We conduct experiments on nine datasets from three benchmarks: Vi-DoRE (Faysse et al., 2025), VisRAG (Yu et al., 2024) and MMLongBench-Doc (Ma et al., 2024b) as detailed in Appendix B.1. We follow previous work to use ${ \\mathrm { N D C G } } @ 5$ as the evaluation metric on performance and relative memory cost (compared with DSE) as the metric on efficiency. ",
+        "bbox": [
+            512,
+            439,
+            882,
+            567
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "Result Based on Qwen2-VL-2B (Wang et al., 2024) and PaliGemma-3B (Beyer et al., 2024), we show results of different visualized document retrievers on Figure 1 and Table 2. The results about Qwen2-VL-7B are supplemented in Appendix B.3. We observe that (1) ColPali/ColQwen2 achieves superior performance but at the cost of a significantly larger memory footprint compared to DSE. Specifically, ColPali/Qwen2 outperforms DSE by $7 . 3 \\%$ absolute scores on Qwen2-VL-2B and $6 . 5 \\%$ absolute scores on PaliGemma-3B. However, this performance gain comes with a substantial memory overhead requiring 64.4 times and 36.7 times more memory, respectively. This high memory cost imposes significant burdens on both offline indexing and online retrieval and highlights the necessity for a performance-cost balance. (2) Light-ColPali/ColQwen2 achieves a significant reduction in memory footprint while largely preserving performance. For Light-ColQwen2, it maintains $9 9 . 0 \\%$ of ${ \\mathrm { N D C G } } @ 5$ scores (80.6 out of 81.4) at a merging factor of 4 (i.e., retaining only $2 5 . 5 \\%$ of the memory cost) and $9 8 . 2 \\%$ of ${ \\mathrm { N D C G } } @ 5$ scores at a merging factor of 9. Even at an extremely large merging ratio, where its memory cost is comparable to DSE (1.8x), Light-ColQwen2 retains $9 4 . 5 \\%$ relative performance and outperforms DSE by $2 . 9 \\%$ in absolute score gains. Similarly, Light-ColPali maintains $9 8 . 4 \\%$ and $9 7 . 8 \\%$ of ${ \\mathrm { N D C G } } @ 5 $ scores at merging factors of 4 and 9, respectively. Furthermore, at an extreme reduction ratio of 49 (even lower memory cost than DSE), Light-ColPali retains $9 3 . 6 \\%$ relative performance and surpasses DSE by $1 . 6 \\%$ in absolute score gains. These results demonstrate that Light-ColPali/ColQwen2 effectively balances memory efficiency and retrieval performance, offering a practical solution for less memory cost without sacrificing significant accuracy. (3) Light-ColPali/ColQwen2 exhibits varying levels of performance preservation across different datasets. For InfoVQA, ArxivQA, TabFQuAD and SlideVQA where documents typically have lower information densities (e.g., posters, diagrams), the performance retention is notably higher. In contrast, for datasets like DocVQA, TAT-DQA, and ChartQA where documents are more text-rich and incorporates more information, the performance drop is slightly more obvious. We speculate that the optimal merging factor for each document page highly correlates with its information density. However, how to adaptively adjust the merging factor, both during training and inference stage, remains an open challenge. We leave this as future work. ",
+        "bbox": [
+            510,
+            569,
+            882,
+            921
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "table",
+        "img_path": "images/82a2a50271042d696380929eff4a48857ef40e617869db2a11880c0dc9f3e35e.jpg",
+        "table_caption": [
+            "Table 2: The NDCG $\\textcircled { a } 5$ scores of different visualized document retrievers on three benchmarks. We report their average scores at the most right column, with their relative performance compared with the original ColPali/ColQwen2. We also report their relative memory costs (# Mem) compared with DSE-Pali/Qwen2. "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td colspan=\"3\"></td><td colspan=\"5\">ViDoRE</td><td colspan=\"2\">VisRAG</td><td rowspan=\"2\">MM-LB</td><td rowspan=\"2\">Average</td></tr><tr><td></td><td>Merging # Mem Factor</td><td></td><td></td><td>Info Doc Arxiv TabF TAT Shift</td><td></td><td></td><td></td><td>Slide Chart</td><td></td></tr><tr><td colspan=\"10\">Base model: Qwen2-VL-2B (original patch number: 768)</td></tr><tr><td>DSE-Qwen2</td><td>-</td><td>1.0</td><td>84.7 50.0</td><td>84.6</td><td></td><td>89.2</td><td>67.1</td><td>78.5 86.8</td><td>57.6</td><td>68.0</td><td>74.191.0%</td></tr><tr><td>ColQwen2</td><td>-</td><td>64.4</td><td>91.5 55.4</td><td></td><td>88.0</td><td>90.5</td><td>81.1</td><td>88.5</td><td>93.4 65.8</td><td>78.6</td><td>81.4100.0%</td></tr><tr><td>ColQwen2+Pruning</td><td>9</td><td>7.6</td><td>85.6 48.3</td><td></td><td>84.0</td><td>88.3</td><td>68.6</td><td>72.5</td><td>89.3 60.3</td><td>69.0</td><td>74.090.9%</td></tr><tr><td>Light-ColQwen2</td><td>49</td><td>1.8</td><td>74.7</td><td>36.3</td><td>77.1</td><td>80.5</td><td>46.7</td><td>55.9</td><td>77.3 52.8</td><td>62.3</td><td>62.676.9%</td></tr><tr><td></td><td>4</td><td>16.4</td><td>89.5 56.6</td><td></td><td>88.6</td><td>90.2</td><td>80.5</td><td>87.1</td><td>92.9 62.9</td><td>77.0</td><td>80.699.0%</td></tr><tr><td></td><td>9</td><td>7.6</td><td>90.4 56.1</td><td></td><td>86.7</td><td>88.8</td><td>79.1</td><td>87.3</td><td>92.2 62.0</td><td>76.2</td><td>79.98.2%</td></tr><tr><td></td><td>25</td><td>3.0</td><td>88.9 54.6</td><td></td><td>86.4</td><td>89.3</td><td>78.7</td><td>84.4</td><td>91.0 60.4</td><td>71.9</td><td>78.496.3%</td></tr><tr><td></td><td>49</td><td>1.8</td><td>86.9 52.6</td><td></td><td>86.5</td><td>86.8</td><td>73.5</td><td>84.5</td><td>89.7 59.6</td><td>72.8</td><td>77.094.6%</td></tr><tr><td colspan=\"10\">Base model: PaliGemma-3B (original patch number: 1024)</td><td></td><td></td></tr><tr><td>DSE-Pali</td><td>-</td><td>1.0</td><td>80.1 46.0</td><td></td><td>82.0</td><td>84.1</td><td>61.1</td><td>70.2</td><td>84.8 54.7</td><td>67.0</td><td>70.091.5%</td></tr><tr><td>ColPali</td><td>-</td><td>36.7</td><td>84.4 54.8</td><td></td><td>85.1</td><td>85.3</td><td>72.3</td><td>75.5</td><td>92.2 62.0</td><td>77.1</td><td>76.5100.0%</td></tr><tr><td>ColPali+Pruning</td><td>9</td><td>4.2</td><td>81.5 50.5</td><td></td><td>82.0</td><td>84.4</td><td>61.1</td><td>67.0</td><td>90.2 59.0</td><td>69.1</td><td>71.693.6%</td></tr><tr><td></td><td>49</td><td>0.9</td><td>72.5 35.8</td><td></td><td>70.3</td><td>72.6</td><td>40.3</td><td>44.1</td><td>79.1 50.3</td><td>61.9</td><td>58.676.6%</td></tr><tr><td>Light-ColPali</td><td>4</td><td>9.3</td><td>82.8</td><td>53.4</td><td>84.1</td><td>86.5</td><td>72.8</td><td>72.5</td><td>91.7 60.6</td><td>73.3</td><td>75.398.4%</td></tr><tr><td></td><td>9</td><td>4.2</td><td>82.1</td><td>54.8</td><td>83.5</td><td>84.5</td><td>70.9</td><td>72.8</td><td>91.2 61.0</td><td>72.6</td><td>74.897.8%</td></tr><tr><td></td><td>25</td><td>1.6</td><td>81.2</td><td>50.5</td><td>82.6</td><td>82.7</td><td>67.2</td><td>70.7</td><td>90.8 57.3</td><td>71.9</td><td>72.895.2%</td></tr><tr><td></td><td>49</td><td>0.9</td><td>79.9</td><td>49.6</td><td>82.7</td><td>81.9</td><td>67.4</td><td>69.0</td><td>88.9 57.5</td><td>68.8</td><td>71.693.6%</td></tr></table>",
+        "bbox": [
+            137,
+            136,
+            858,
+            485
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            115,
+            508,
+            487,
+            910
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "table",
+        "img_path": "images/3376cc44a4089b68a68d67a019419c1d61d0d7d173e7207aa8a27e876b4263f5.jpg",
+        "table_caption": [
+            "Table 3: Time cost of ColQwen2 v.s. Light-ColQwen2 during offline stage. Training: 5 epochs (2310 steps with batch size 128) on 8 A100 GPUs. Embed Gen: 500 page embeddings on single A100 GPU. "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td>Model</td><td colspan=\"2\">ColQwen2 2B</td><td colspan=\"2\">Light-ColQwen2 7B</td></tr><tr><td>Training</td><td>5.6 h</td><td>7B 7.5 h</td><td>2B 9.0 h</td><td>10.5 h</td></tr><tr><td>Embed Gen</td><td>1.7 min</td><td>2.1 min</td><td>2.6 min</td><td>3.0 min</td></tr></table>",
+        "bbox": [
+            510,
+            574,
+            877,
+            639
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            510,
+            664,
+            882,
+            759
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "Time Cost (Offline Stage) The clustering operation in Light-ColPali/ColQwen2 incurs a modest additional time cost during both model training and embedding generation in the offline stage. As shown in Table 3, it adds 3-3.5 hours to the training time and 0.9 minute to the document embedding generation time. We consider this slight increase in offline latency acceptable given the substantial reduction in memory footprint and the resulting acceleration during the online retrieval stage. ",
+        "bbox": [
+            512,
+            762,
+            882,
+            921
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "7 Conclusion ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            84,
+            243,
+            99
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "This work conducts an empirical study into developing efficient visualized document retrievers with minimal memory footprints and performance loss. Through comprehensive experiments, we demonstrate the superior suitability of merging for VDR tasks. Our proposed Light-ColPali/ColQwen2, a simple yet effective merging strategy, achieves significant memory reduction while maintaining promising performance. These findings and the established baseline provide valuable insights for advancing efficient VDR research. ",
+        "bbox": [
+            115,
+            112,
+            487,
+            288
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Limitations ",
+        "text_level": 1,
+        "bbox": [
+            115,
+            305,
+            216,
+            321
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "The primary limitation of this work is the focused scope. We exclusively concentrate on token reduction for minimizing document embedding storage. Alternative aspects for efficient VDR such as dimension reduction, vector quantization, data cleaning and model distillation, remain unexplored in our work. However, we emphasize that these techniques are orthogonal to our work and could potentially complement our findings. Future research could integrate these methods with our token reduction explorations to achieve greater efficiency with less performance degradation. ",
+        "bbox": [
+            117,
+            334,
+            487,
+            525
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Acknowledgement ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            542,
+            277,
+            557
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "This work is supported under the RIE2020 Industry Alignment Fund – Industry Collaboration Projects (IAF-ICP) Funding Initiative, as well as cash and in-kind contribution from the industry partner(s). This work is also supported by National Key R&D Program of China 2022ZD0161600, Shanghai Artificial lntelligence Laboratory. ",
+        "bbox": [
+            115,
+            570,
+            487,
+            681
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "References ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            713,
+            211,
+            728
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Lucas Beyer, Andreas Steiner, André Susano Pinto, Alexander Kolesnikov, Xiao Wang, Daniel Salz, Maxim Neumann, Ibrahim Alabdulmohsin, Michael Tschannen, Emanuele Bugliarello, Thomas Unterthiner, Daniel Keysers, Skanda Koppula, Fangyu Liu, Adam Grycner, Alexey Gritsenko, Neil Houlsby, Manoj Kumar, Keran Rong, Julian Eisenschlos, Rishabh Kabra, Matthias Bauer, Matko Bošnjak, Xi Chen, Matthias Minderer, Paul Voigtlaender, Ioana Bica, Ivana Balazevic, Joan Puigcerver, Pinelopi Papalampidi, Olivier Henaff, Xi Xiong, Radu Soricut, Jeremiah Harmsen, and Xiaohua Zhai. 2024. Paligemma: A versatile 3b vlm for transfer. Preprint, arXiv:2407.07726. ",
+        "bbox": [
+            121,
+            738,
+            485,
+            920
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Daniel Bolya, Cheng-Yang Fu, Xiaoliang Dai, Peizhao Zhang, Christoph Feichtenhofer, and Judy Hoffman. 2023. Token merging: Your vit but faster. In The Eleventh International Conference on Learning Representations. ",
+        "bbox": [
+            510,
+            86,
+            882,
+            151
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Jian Chen, Ruiyi Zhang, Yufan Zhou, Tong Yu, Franck Dernoncourt, Jiuxiang Gu, Ryan A. Rossi, Changyou Chen, and Tong Sun. 2025. LoRA-contextualizing adaptation of large multimodal models for multi-page document understanding. In The Thirteenth International Conference on Learning Representations. ",
+        "bbox": [
+            510,
+            164,
+            880,
+            242
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Liang Chen, Haozhe Zhao, Tianyu Liu, Shuai Bai, Junyang Lin, Chang Zhou, and Baobao Chang. 2024. An image is worth 1/2 tokens after layer 2: Plug-andplay inference acceleration for large vision-language models. In European Conference on Computer Vision. ",
+        "bbox": [
+            510,
+            256,
+            882,
+            334
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Jaemin Cho, Debanjan Mahata, Ozan Irsoy, Yujie He, and Mohit Bansal. 2024. M3docrag: Multi-modal retrieval is what you need for multipage multi-document understanding. Preprint, arXiv:2411.04952. ",
+        "bbox": [
+            510,
+            347,
+            882,
+            412
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Benjamin Clavié, Antoine Chaffin, and Griffin Adams. 2024. Reducing the footprint of multi-vector retrieval with minimal performance impact via token pooling. Preprint, arXiv:2409.14683. ",
+        "bbox": [
+            510,
+            425,
+            882,
+            476
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Manuel Faysse, Hugues Sibille, Tony Wu, Bilel Omrani, Gautier Viaud, CELINE HUDELOT, and Pierre Colombo. 2025. Colpali: Efficient document retrieval with vision language models. In The Thirteenth International Conference on Learning Representations. ",
+        "bbox": [
+            510,
+            489,
+            882,
+            568
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Edward J Hu, yelong shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, and Weizhu Chen. 2022. LoRA: Low-rank adaptation of large language models. In International Conference on Learning Representations. ",
+        "bbox": [
+            510,
+            581,
+            882,
+            648
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Herve Jégou, Matthijs Douze, and Cordelia Schmid. 2011. Product quantization for nearest neighbor search. IEEE Transactions on Pattern Analysis and Machine Intelligence, 33(1):117–128. ",
+        "bbox": [
+            510,
+            659,
+            882,
+            712
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Vladimir Karpukhin, Barlas Oguz, Sewon Min, Patrick Lewis, Ledell Wu, Sergey Edunov, Danqi Chen, and Wen-tau Yih. 2020. Dense passage retrieval for opendomain question answering. In Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), pages 6769–6781, Online. Association for Computational Linguistics. ",
+        "bbox": [
+            512,
+            725,
+            882,
+            816
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Omar Khattab and Matei Zaharia. 2020. Colbert: Efficient and effective passage search via contextualized late interaction over bert. In Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval, SIGIR ’20, page 39–48, New York, NY, USA. Association for Computing Machinery. ",
+        "bbox": [
+            512,
+            829,
+            882,
+            921
+        ],
+        "page_idx": 8
+    },
+    {
+        "type": "text",
+        "text": "Zhenglun Kong, Peiyan Dong, Xiaolong Ma, Xin Meng, Wei Niu, Mengshu Sun, Xuan Shen, Geng Yuan, Bin Ren, Hao Tang, et al. 2022. Spvit: Enabling faster vision transformers via latency-aware soft token pruning. In Computer Vision–ECCV 2022: 17th European Conference, Tel Aviv, Israel, October 23–27, 2022, Proceedings, Part XI, pages 620–640. Springer. ",
+        "bbox": [
+            117,
+            86,
+            487,
+            178
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Lei Li, Yuqi Wang, Runxin Xu, Peiyi Wang, Xiachong Feng, Lingpeng Kong, and Qi Liu. 2024a. Multimodal ArXiv: A dataset for improving scientific comprehension of large vision-language models. In Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers), pages 14369–14387, Bangkok, Thailand. Association for Computational Linguistics. ",
+        "bbox": [
+            115,
+            187,
+            485,
+            291
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Wentong Li, Yuqian Yuan, Jian Liu, Dongqi Tang, Song Wang, Jianke Zhu, and Lei Zhang. 2024b. Tokenpacker: Efficient visual projector for multimodal llm. Preprint, arXiv:2407.02392. ",
+        "bbox": [
+            115,
+            302,
+            487,
+            354
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Youwei Liang, Chongjian Ge, Zhan Tong, Yibing Song, Jue Wang, and Pengtao Xie. 2022. Not all patches are what you need: Expediting vision transformers via token reorganizations. ArXiv, abs/2202.07800. ",
+        "bbox": [
+            117,
+            365,
+            487,
+            417
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Xueguang Ma, Sheng-Chieh Lin, Minghan Li, Wenhu Chen, and Jimmy Lin. 2024a. Unifying multimodal retrieval via document screenshot embedding. In Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing, pages 6492– 6505, Miami, Florida, USA. Association for Computational Linguistics. ",
+        "bbox": [
+            117,
+            426,
+            487,
+            517
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Yubo Ma, Yuhang Zang, Liangyu Chen, Meiqi Chen, Yizhu Jiao, Xinze Li, Xinyuan Lu, Ziyu Liu, Yan Ma, Xiaoyi Dong, Pan Zhang, Liangming Pan, Yu-Gang Jiang, Jiaqi Wang, Yixin Cao, and Aixin Sun. 2024b. MMLONGBENCH-DOC: Benchmarking long-context document understanding with visualizations. In The Thirty-eight Conference on Neural Information Processing Systems Datasets and Benchmarks Track. ",
+        "bbox": [
+            117,
+            527,
+            487,
+            645
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Ahmed Masry, Do Xuan Long, Jia Qing Tan, Shafiq Joty, and Enamul Hoque. 2022. Chartqa: A benchmark for question answering about charts with visual and logical reasoning. Preprint, arXiv:2203.10244. ",
+        "bbox": [
+            115,
+            656,
+            485,
+            708
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Minesh Mathew, Viraj Bagal, Rubèn Pérez Tito, Dimosthenis Karatzas, Ernest Valveny, and C.V. Jawahar. 2021. Infographicvqa. 2022 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV), pages 2582–2591. ",
+        "bbox": [
+            115,
+            718,
+            487,
+            783
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Minesh Mathew, Dimosthenis Karatzas, R. Manmatha, and C. V. Jawahar. 2020. Docvqa: A dataset for vqa on document images. 2021 IEEE Winter Conference on Applications of Computer Vision (WACV), pages 2199–2208. ",
+        "bbox": [
+            115,
+            794,
+            487,
+            858
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Fionn Murtagh and Pedro Contreras. 2012. Algorithms for hierarchical clustering: an overview. Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2. ",
+        "bbox": [
+            115,
+            869,
+            487,
+            921
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Keshav Santhanam, Omar Khattab, Jon Saad-Falcon, Christopher Potts, and Matei Zaharia. 2022. Col-BERTv2: Effective and efficient retrieval via lightweight late interaction. In Proceedings of the 2022 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, pages 3715–3734, Seattle, United States. Association for Computational Linguistics. ",
+        "bbox": [
+            512,
+            86,
+            882,
+            203
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Yuzhang Shang, Mu Cai, Bingxin Xu, Yong Jae Lee, and Yan Yan. 2024. Llava-prumerge: Adaptive token reduction for efficient large multimodal models. Preprint, arXiv:2403.15388. ",
+        "bbox": [
+            512,
+            214,
+            882,
+            266
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Ryota Tanaka, Kyosuke Nishida, Kosuke Nishida, Taku Hasegawa, Itsumi Saito, and Kuniko Saito. 2023. Slidevqa: A dataset for document visual question answering on multiple images. In AAAI. ",
+        "bbox": [
+            510,
+            277,
+            882,
+            329
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Peng Wang, Shuai Bai, Sinan Tan, Shijie Wang, Zhihao Fan, Jinze Bai, Keqin Chen, Xuejing Liu, Jialin Wang, Wenbin Ge, Yang Fan, Kai Dang, Mengfei Du, Xuancheng Ren, Rui Men, Dayiheng Liu, Chang Zhou, Jingren Zhou, and Junyang Lin. 2024. Qwen2-vl: Enhancing vision-language model’s perception of the world at any resolution. Preprint, arXiv:2409.12191. ",
+        "bbox": [
+            510,
+            338,
+            882,
+            443
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Tony Wu. 2024. Token Pooling for Colpali. ",
+        "bbox": [
+            514,
+            455,
+            805,
+            467
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Xiaobao Wu. 2025. Sailing ai by the stars: A survey of learning from rewards in post-training and test-time scaling of large language models. arXiv preprint arXiv:2505.02686. ",
+        "bbox": [
+            510,
+            478,
+            880,
+            529
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Xiaobao Wu, Liangming Pan, William Yang Wang, and Anh Tuan Luu. 2024a. AKEW: Assessing knowledge editing in the wild. In Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing, pages 15118–15133, Miami, Florida, USA. Association for Computational Linguistics. ",
+        "bbox": [
+            510,
+            541,
+            882,
+            631
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Xiaobao Wu, Liangming Pan, Yuxi Xie, Ruiwen Zhou, Shuai Zhao, Yubo Ma, Mingzhe Du, Rui Mao, Anh Tuan Luu, and William Yang Wang. 2024b. AntiLeak-Bench: Preventing data contamination by automatically constructing benchmarks with updated real-world knowledge. arXiv preprint arXiv:2412.13670. ",
+        "bbox": [
+            510,
+            642,
+            882,
+            732
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Long Xing, Qidong Huang, Xiaoyi Dong, Jiajie Lu, Pan Zhang, Yuhang Zang, Yuhang Cao, Conghui He, Jiaqi Wang, Feng Wu, and Dahua Lin. 2024. Pyramiddrop: Accelerating your large vision-language models via pyramid visual redundancy reduction. Preprint, arXiv:2410.17247. ",
+        "bbox": [
+            510,
+            743,
+            882,
+            821
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Senqiao Yang, Yukang Chen, Zhuotao Tian, Chengyao Wang, Jingyao Li, Bei Yu, and Jiaya Jia. 2024. Visionzip: Longer is better but not necessary in vision language models. Preprint, arXiv:2412.04467. ",
+        "bbox": [
+            510,
+            832,
+            882,
+            884
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Shi Yu, Chaoyue Tang, Bokai Xu, Junbo Cui, Junhao Ran, Yukun Yan, Zhenghao Liu, Shuo Wang, ",
+        "bbox": [
+            512,
+            895,
+            884,
+            921
+        ],
+        "page_idx": 9
+    },
+    {
+        "type": "text",
+        "text": "Xu Han, Zhiyuan Liu, and Maosong Sun. 2024. Visrag: Vision-based retrieval-augmented generation on multi-modality documents. Preprint, arXiv:2410.10594. ",
+        "bbox": [
+            134,
+            86,
+            487,
+            137
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Yuan Zhang, Chun-Kai Fan, Junpeng Ma, Wenzhao Zheng, Tao Huang, Kuan Cheng, Denis Gudovskiy, Tomoyuki Okuno, Yohei Nakata, Kurt Keutzer, and Shanghang Zhang. 2025. Sparsevlm: Visual token sparsification for efficient vision-language model inference. Preprint, arXiv:2410.04417. ",
+        "bbox": [
+            117,
+            148,
+            487,
+            227
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "Fengbin Zhu, Wenqiang Lei, Fuli Feng, Chao Wang, Haozhou Zhang, and Tat-Seng Chua. 2022. Towards complex document understanding by discrete reasoning. In Proceedings of the 30th ACM International Conference on Multimedia, pages 4857–4866. ",
+        "bbox": [
+            115,
+            237,
+            487,
+            303
+        ],
+        "page_idx": 10
+    },
+    {
+        "type": "text",
+        "text": "A Details for Token Pruning Experiments ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            83,
+            487,
+            99
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "A.1 Synthesized Queries ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            111,
+            322,
+            126
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Given a document page, we synthesize multiple queries to explore the possibility to estimate its patch-level potential responses in Section 4.1. Specifically, we prompt Qwen2-VL-7B (Wang et al., 2024) to generate five more queries as below. ",
+        "bbox": [
+            115,
+            133,
+            487,
+            211
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Listing 1: The used prompt. ",
+        "bbox": [
+            206,
+            227,
+            393,
+            241
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Image: <Image> ",
+        "bbox": [
+            117,
+            246,
+            225,
+            258
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Given the screenshot of a document/poster, you are asked to generate five question that can be answered by looking at the image. The questions should be relevant to the content of the image. The questions should be unique and be of varying question types. The output should be formatted as: ",
+        "bbox": [
+            115,
+            268,
+            484,
+            350
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "1. [Question 1]   \n2. [Question 2]   \n3. [Question 3]   \n4. [Question 4]   \n5. [Question 5] ",
+        "bbox": [
+            115,
+            353,
+            231,
+            412
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "Answer: <Answer> ",
+        "bbox": [
+            117,
+            424,
+            238,
+            435
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "A.2 Distribution of Normalized Scores for Response Potential ",
+        "text_level": 1,
+        "bbox": [
+            115,
+            461,
+            458,
+            492
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "image",
+        "img_path": "images/b3bc16716163fb98de58be9b421902b1e5f41daa6474433dc3841e4fb0f21822.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            139,
+            514,
+            457,
+            640
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "B Details for Token Merging Experiments ",
+        "text_level": 1,
+        "bbox": [
+            115,
+            648,
+            487,
+            664
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "B.1 Benchmarks ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            675,
+            262,
+            689
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "We evaluate Light-ColPali/ColQwen2 on nine datasets from three benchmarks as detailed below. All of these three benchmarks are licensed under the Creative Commons license (CC-BY) or other open-source licenses (Wu et al., 2024a,b). ",
+        "bbox": [
+            115,
+            696,
+            487,
+            776
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "ViDoRE (Faysse et al., 2025). We select six datasets from ViDoRE: InfoVQA (Mathew et al., 2021), DocVQA (Mathew et al., 2020), ArxivQA (Li et al., 2024a), TAT-DQA (Zhu et al., 2022), TabFQuAD and Shift Project. Except Shift Project, we remove another four synthesized datasets in ViDoRE because current visualized document retriever has achieved saturated performance on these oversimple datasets. ",
+        "bbox": [
+            117,
+            778,
+            487,
+            921
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "VisRAG (Yu et al., 2024). To enhance the evaluation coverage, we additionally select two datasets, ChartQA (Masry et al., 2022) and Slide-VQA (Tanaka et al., 2023) from VisRAG. The other datasets in it are not included since they have large overlaps with datasets in ViDoRE. ",
+        "bbox": [
+            510,
+            84,
+            882,
+            180
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "MMLongBench-Doc (Ma et al., 2024b). We also incorporate this long-context document understanding dataset in our evaluation. We select the 485 single-page questions as the queries and the screenshots of all PDF pages as document pages. Given a query, note that the retrieved candidate pages are constrained on the ground-truth PDFs. ",
+        "bbox": [
+            512,
+            181,
+            882,
+            292
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "B.2 Training Details ",
+        "text_level": 1,
+        "bbox": [
+            512,
+            304,
+            685,
+            319
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "We fine-tune PaliGemma (Beyer et al., 2024) and Qwen2-VL (Wang et al., 2024) to reproduce the ColPali/ColQwen2 and DSE-Pali/DSE-Qwen2, respectively. All experiments (including the Light-ColPali/ColQwen2) are based on the ColPali’s codebase ‡. For a fair comparison, we train the models on the same training dataset used by the original ColPali which incorporates over $1 3 0 \\mathrm { k }$ queries. The training process lasts for 5 epochs. The batch size is 256 and the learning rate is 5e-4. And we use LoRA (Hu et al., 2022) with $\\alpha = 3 2$ and $r = 3 2$ on the transformer layers within the language models to reduce the training parameters. We set the temperature coefficient of the InfoNCE loss in DSE as 0.07 and observe a significant performance improvement. ",
+        "bbox": [
+            510,
+            326,
+            884,
+            581
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "B.3 More Results on Qwen2-VL-7B ",
+        "text_level": 1,
+        "bbox": [
+            512,
+            594,
+            805,
+            609
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "text",
+        "text": "The results about different document visualized retrievers, with base model Qwen2-VL-7B, are shown in Table 4. ",
+        "bbox": [
+            512,
+            614,
+            882,
+            661
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "discarded",
+        "text": "‡https://github.com/illuin-tech/colpali ",
+        "bbox": [
+            534,
+            909,
+            826,
+            921
+        ],
+        "page_idx": 11
+    },
+    {
+        "type": "table",
+        "img_path": "images/f3c0b645ac328c0749759d7751fb78dcf2c8330584b98e72d983e3b924892849.jpg",
+        "table_caption": [
+            "Table 4: The NDCG $\\textcircled { a } 5$ scores of different visualized document retrievers on base model: Qwen2-VL-7B. "
+        ],
+        "table_footnote": [],
+        "table_body": "<table><tr><td></td><td></td><td></td><td colspan=\"5\">ViDoRE</td><td rowspan=\"2\">VisRAG</td><td rowspan=\"2\"></td><td rowspan=\"2\">MM-LB</td><td rowspan=\"2\">Average</td></tr><tr><td></td><td>Pooling Factor</td><td># Mem</td><td></td><td>Info Doc Arxiv TabF TAT Shift</td><td></td><td></td><td></td><td>Slide Chart</td></tr><tr><td>Base model: Qwen2-VL-7B</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr><tr><td>DSE-Qwen2</td><td>-</td><td>1.0</td><td>87.3 52.3</td><td></td><td>87.9</td><td>92.3</td><td>73.0</td><td>84.8</td><td>89.6</td><td>61.8</td><td>69.6</td><td>77.695.0%</td></tr><tr><td>ColQwen2</td><td>-</td><td>36.7</td><td>91.9 56.2</td><td></td><td>89.8</td><td>90.3</td><td>86.9</td><td>82.2</td><td>93.5</td><td>65.7</td><td>79.2</td><td>81.7100.0%</td></tr><tr><td>Light-ColQwen2</td><td>4</td><td>9.3</td><td>91.1</td><td>55.5</td><td>90.0</td><td>91.8</td><td>81.1</td><td>85.7</td><td>93.4</td><td>64.2</td><td>78.1</td><td>81.299.4%</td></tr><tr><td></td><td>9</td><td>4.2</td><td>91.5 56.8</td><td></td><td>88.5</td><td>92.4</td><td>80.9</td><td>87.3</td><td>93.2</td><td>63.3</td><td>76.8</td><td>81.299.4%</td></tr><tr><td></td><td>25</td><td>1.6</td><td>90.5 54.6</td><td></td><td>89.0</td><td>91.8</td><td>79.8</td><td>84.6</td><td>91.6</td><td>61.1</td><td>77.0</td><td>80.098.0%</td></tr><tr><td></td><td>49</td><td>0.9</td><td>89.6</td><td>52.6</td><td>88.2</td><td>89.5</td><td>76.5</td><td>81.2</td><td>90.8</td><td>58.8</td><td>72.7</td><td>77.895.2%</td></tr></table>",
+        "bbox": [
+            141,
+            431,
+            855,
+            595
+        ],
+        "page_idx": 12
+    }
+]

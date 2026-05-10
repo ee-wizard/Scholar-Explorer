@@ -1,0 +1,1159 @@
+[
+    {
+        "type": "text",
+        "text": "Spike Hijacking in Late-Interaction Retrieval ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            73,
+            710,
+            96
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Karthik Suresh $\\jmath$ , Tushar Vatsa2, Tracy King3, Asim Kadav3 and Michael Friedrich3 ",
+        "bbox": [
+            119,
+            109,
+            805,
+            126
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1Adobe, 345 Park Ave, San Jose, CA 95110, USA ",
+        "bbox": [
+            122,
+            139,
+            401,
+            152
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Abstract ",
+        "text_level": 1,
+        "bbox": [
+            194,
+            174,
+            267,
+            187
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Late-interaction retrieval models rely on hard maximum similarity (MaxSim) to aggregate token-level similarities. Although effective, this winner-take-all pooling rule may structurally bias training dynamics. We provide a mechanistic study of gradient routing and robustness in MaxSim-based retrieval. In a controlled synthetic environment with in-batch contrastive training, we demonstrate that MaxSim induces significantly higher patchlevel gradient concentration than smoother alternatives such as Top-k pooling and softmax aggregation. While sparse routing can improve early discrimination, it also increases sensitivity to document length: as the number of document patches grows, MaxSim degrades more sharply than mild smoothing variants. ",
+        "bbox": [
+            194,
+            189,
+            880,
+            279
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "We corroborate these findings on a real-world multi-vector retrieval benchmark, where controlled documentlength sweeps reveal similar brittleness under hard max pooling. Together, our results isolate pooling-induced gradient concentration as a structural property of late-interaction retrieval and highlight a sparsity–robustness tradeoff. These findings motivate principled alternatives to hard max pooling in multi-vector retrieval systems. ",
+        "bbox": [
+            194,
+            280,
+            880,
+            331
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Keywords ",
+        "text_level": 1,
+        "bbox": [
+            194,
+            340,
+            280,
+            353
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Late-Interaction Retrieval, MaxSim Pooling, Contrastive Learning, Gradient Concentration, Robustness to Document Length ",
+        "bbox": [
+            191,
+            354,
+            880,
+            379
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1. Introduction ",
+        "text_level": 1,
+        "bbox": [
+            121,
+            420,
+            289,
+            439
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Late-interaction retrieval models [1] have emerged as a powerful alternative to single-vector embedding methods [2, 3]. Instead of compressing a query and document into single representations, late-interaction approaches retain token or patch-level embeddings and compute relevance by aggregating fine-grained similarity scores. A widely adopted aggregation rule in such models is hard maximum similarity (MaxSim), where each query token contributes the maximum similarity it achieves over document patches. This winner-take-all formulation has been shown to be both effective and computationally attractive in multi-vector retrieval systems [1, 4, 5]. ",
+        "bbox": [
+            117,
+            453,
+            880,
+            564
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Despite its empirical success, the structural implications of MaxSim remain underexplored. MaxSim introduces a non-smooth routing mechanism: for each query token, only the highest-scoring document patch contributes to the final score. Under contrastive training with in-batch negatives [6], this induces a highly selective gradient pathway. While sparsity can enhance discrimination, it can concentrate learning signal on a small subset of document patches, affecting robustness and generalization. ",
+        "bbox": [
+            119,
+            565,
+            880,
+            645
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "We provide a mechanistic analysis of pooling in late-interaction retrieval, answering questions: ",
+        "bbox": [
+            132,
+            646,
+            852,
+            662
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "1. How does MaxSim based pooling shape gradient routing under contrastive learning?   \n2. Does this structural property affect robustness, particularly as document length increases? ",
+        "bbox": [
+            142,
+            670,
+            838,
+            703
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "To isolate the effect of pooling, we construct a controlled synthetic retrieval environment in which queries and documents are generated from a shared concept dictionary. Within this setting, we train a small encoder using in-batch InfoNCE [6] and compare three aggregation strategies: MaxSim, Top- $k$ averaging, and temperature-controlled softmax pooling. This controlled setup allows us to measure patch-level gradient concentration and retrieval behavior as document length varies. ",
+        "bbox": [
+            119,
+            712,
+            882,
+            791
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "Our synthetic experiments reveal three findings. First, MaxSim induces significantly higher patchlevel gradient concentration than smoother alternatives. Second, although MaxSim achieves competitive retrieval quality in moderate-length documents, it exhibits greater sensitivity to increasing document length. Third, mild smoothing (e.g., Top- $k$ pooling) preserves retrieval performance while reducing gradient concentration and improving length robustness. These results expose a sparsity–robustness tradeoff inherent in pooling design. To validate that this is not confined to the synthetic regime, we conduct controlled document-length sweeps in a real-world multi-vector retrieval benchmark. The empirical trends mirror those observed in the synthetic environment, providing corroborating evidence that hard max pooling induces increased brittleness with respect to document length. ",
+        "bbox": [
+            117,
+            793,
+            878,
+            824
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "discarded",
+        "text": "The 1st Late Interaction Workshop (LIR) @ECIR 2026 \\$ karsures@adobe.com (K. Suresh); tvatsa@adobe.com (T. Vatsa); tking@adobe.com (T. King); akadav@adobe.com (A. Kadav); mifriedr@adobe.com (M. Friedrich) \u001a 0000-0002-0877-7063 (K. Suresh); 0000-0001-7116-9338 (T. Vatsa) $\\circledcirc$ 2026 Copyright for this paper by its authors. Use permitted under Creative Commons License Attribution 4.0 International (CC BY 4.0). ",
+        "bbox": [
+            119,
+            847,
+            840,
+            919
+        ],
+        "page_idx": 0
+    },
+    {
+        "type": "text",
+        "text": "",
+        "bbox": [
+            117,
+            77,
+            882,
+            191
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Our contributions are as follows: ",
+        "bbox": [
+            119,
+            192,
+            368,
+            206
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "• A mechanistic study of gradient routing under hard max pooling in late-interaction retrieval.   \n• Introduction of patch-level gradient concentration metrics to quantify pooling-induced sparsity.   \n• Demonstration, in a controlled synthetic setting, that MaxSim leads to increased sensitivity to document length compared to mild smoothing alternatives.   \n• Empirical validation on a real-world benchmark showing that the sparsity-smoothness tradeoff governs pooling robustness across both adversarial and non-adversarial document-length increases. ",
+        "bbox": [
+            147,
+            217,
+            884,
+            335
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2. Background and Problem Formulation ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            356,
+            574,
+            376
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2.1. Late-Interaction Retrieval ",
+        "text_level": 1,
+        "bbox": [
+            119,
+            388,
+            398,
+            405
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Let a query $q$ consist of $T$ token embeddings ",
+        "bbox": [
+            119,
+            414,
+            455,
+            430
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "img_path": "images/3c72afc6f6220ae6e744d1f27c04967d023469fdeb370d4855b28cd8211bb3da.jpg",
+        "text": "$$\nq = \\{ \\mathbf q _ { 1 } , \\dots , \\mathbf q _ { T } \\} , \\quad \\mathbf q _ { i } \\in \\mathbb { R } ^ { d } ,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            383,
+            439,
+            613,
+            461
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "and let a document $d$ consist of $M$ patch embeddings ",
+        "bbox": [
+            117,
+            472,
+            521,
+            488
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "img_path": "images/903392fd8b89d8f4ae86b8dec96bd3e9fd253aedcd21f2e17aabf7e59da453d7.jpg",
+        "text": "$$\nd = \\{ \\mathbf { d } _ { 1 } , \\hdots , \\mathbf { d } _ { M } \\} , \\quad \\mathbf { d } _ { j } \\in \\mathbb { R } ^ { d } .\n$$",
+        "text_format": "latex",
+        "bbox": [
+            379,
+            498,
+            620,
+            519
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Late-interaction retrieval models [1] compute a similarity matrix ",
+        "bbox": [
+            117,
+            530,
+            608,
+            546
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "img_path": "images/996a46b5457e225c47be49ca71c9c844005951bda7de48701e4db5d18439ad2b.jpg",
+        "text": "$$\nS _ { i j } = { \\bf q } _ { i } ^ { \\top } { \\bf d } _ { j } ,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            448,
+            556,
+            547,
+            577
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "and aggregate these fine-grained similarities into a scalar relevance score ",
+        "bbox": [
+            117,
+            588,
+            670,
+            605
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "img_path": "images/e1b837ec8cea79058042fe7bd282c4c7c8d047cfa69eb8620de69aa1af72acb5.jpg",
+        "text": "$$\n\\operatorname { s c o r e } ( q , d ) = \\sum _ { i = 1 } ^ { T } \\phi { \\bigl ( } S _ { i 1 } , \\ldots , S _ { i M } { \\bigr ) } ,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            364,
+            615,
+            631,
+            661
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "where $\\phi ( \\cdot )$ is a pooling operator applied independently for each query token. ",
+        "bbox": [
+            115,
+            670,
+            697,
+            688
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "2.2. Pooling Operators ",
+        "text_level": 1,
+        "bbox": [
+            119,
+            705,
+            331,
+            722
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "We consider three commonly used pooling strategies. ",
+        "bbox": [
+            117,
+            730,
+            521,
+            746
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Hard Max (MaxSim). Each query token contributes only its highest similarity over document patches [1]. ",
+        "bbox": [
+            114,
+            763,
+            877,
+            796
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "img_path": "images/f6b99063a07ded104e6f2f3a56de8acbc5a83e3d393cdab8ce86e1d253eb622c.jpg",
+        "text": "$$\n\\phi _ { \\operatorname* { m a x } } ( S _ { i 1 } , \\ldots , S _ { i M } ) = \\operatorname* { m a x } _ { 1 \\leq j \\leq M } S _ { i j } .\n$$",
+        "text_format": "latex",
+        "bbox": [
+            368,
+            795,
+            630,
+            821
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Top- $k$ Averaging. Top- $k ( i )$ denotes the indices of the $k$ largest values in $\\{ S _ { i j } \\} _ { j = 1 } ^ { M }$ . ",
+        "bbox": [
+            117,
+            837,
+            761,
+            856
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "equation",
+        "img_path": "images/473622c68fda95ee31a0404e5ec444f00862de7cc5659a962a3cd6ec5350db38.jpg",
+        "text": "$$\n\\phi _ { k } ( S _ { i 1 } , \\ldots , S _ { i M } ) = \\frac { 1 } { k } \\sum _ { j \\in \\mathrm { { T o p } } \\cdot k ( i ) } S _ { i j } ,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            363,
+            866,
+            635,
+            909
+        ],
+        "page_idx": 1
+    },
+    {
+        "type": "text",
+        "text": "Softmax Pooling. $\\tau > 0$ controls smoothness. As $\\tau  0$ , softmax pooling approaches hard max. ",
+        "bbox": [
+            115,
+            78,
+            865,
+            95
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/654b287c00070244b799c0bda739a54bfa490fdfc24d7d59c6032b7d245d02f3.jpg",
+        "text": "$$\n\\phi _ { \\tau } ( S _ { i 1 } , \\dots , S _ { i M } ) = \\sum _ { j = 1 } ^ { M } w _ { i j } S _ { i j } , \\quad w _ { i j } = { \\frac { \\exp ( S _ { i j } / \\tau ) } { \\sum _ { m = 1 } ^ { M } \\exp ( S _ { i m } / \\tau ) } } ,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            263,
+            99,
+            732,
+            146
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2.3. Contrastive Training Objective ",
+        "text_level": 1,
+        "bbox": [
+            119,
+            160,
+            447,
+            178
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "We train models using in-batch InfoNCE [6]. For a batch of $B$ query-document pairs $\\{ ( q _ { i } , d _ { i } ^ { + } ) \\} _ { i = 1 } ^ { B }$ , the score matrix is defined as ",
+        "bbox": [
+            114,
+            185,
+            880,
+            217
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/4ced0d9bc1d37a5d22a323bd82cf886d61018bbac24cd3456ff0f9c08a011abe.jpg",
+        "text": "$$\n{ \\bf Z } _ { i j } = \\mathrm { s c o r e } ( q _ { i } , d _ { j } ^ { + } ) .\n$$",
+        "text_format": "latex",
+        "bbox": [
+            420,
+            216,
+            578,
+            237
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "The objective is ",
+        "bbox": [
+            137,
+            240,
+            258,
+            255
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/3f71e3a50ce1618726cf2b64dce6d8fd24777f2a6790f7ee42676a17a8986930.jpg",
+        "text": "$$\n\\mathcal { L } = \\frac { 1 } { B } \\sum _ { i = 1 } ^ { B } - \\log \\frac { \\exp ( \\mathbf { Z } _ { i i } ) } { \\sum _ { j = 1 } ^ { B } \\exp ( \\mathbf { Z } _ { i j } ) } .\n$$",
+        "text_format": "latex",
+        "bbox": [
+            368,
+            253,
+            630,
+            298
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Each query is trained to assign higher score to its positive document relative to in-batch negatives. ",
+        "bbox": [
+            117,
+            300,
+            857,
+            316
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2.4. Patch-Level Gradient Concentration ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            332,
+            494,
+            350
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "To quantify pooling-induced sparsity, we analyze how gradient mass is distributed across document patches. For a fixed query-document pair $( q , d )$ and loss $\\mathcal { L }$ , let ",
+        "bbox": [
+            119,
+            359,
+            877,
+            391
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/bf5539b730a732fa73e10e16d6db0bf2bff4b4c12fbb9dd14d06814ad4579c08.jpg",
+        "text": "$$\ng _ { j } = { \\left\\| \\frac { \\partial { \\mathcal { L } } } { \\partial \\mathbf { d } _ { j } } \\right\\| }\n$$",
+        "text_format": "latex",
+        "bbox": [
+            448,
+            395,
+            551,
+            432
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "denote the gradient norm for patch $j$ . ",
+        "bbox": [
+            121,
+            437,
+            401,
+            453
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "We define patch-level gradient concentration using the Gini coefficient [7] over $\\{ g _ { j } \\} _ { j = 1 } ^ { M }$ : ",
+        "bbox": [
+            122,
+            453,
+            805,
+            469
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/c0b2eb548081fe33a5039109025cafee7ed7ed692c0873cd8d98038a9f1a7a25.jpg",
+        "text": "$$\n\\mathrm { G i n i } ( g ) = 1 - { \\frac { 2 } { M \\sum _ { j = 1 } ^ { M } g _ { j } } } \\sum _ { j = 1 } ^ { M } \\left( \\sum _ { m = 1 } ^ { j } g _ { ( m ) } \\right) ,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            326,
+            476,
+            670,
+            524
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "where $g _ { ( m ) }$ denotes the sorted gradient norms in ascending order. A higher Gini value indicates that gradient mass is concentrated on fewer patches. This metric directly compares how different pooling operators route learning signal during contrastive training. ",
+        "bbox": [
+            117,
+            530,
+            880,
+            577
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "2.5. Problem Statement ",
+        "text_level": 1,
+        "bbox": [
+            119,
+            594,
+            337,
+            612
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Our goal is to understand how the choice of pooling operator $\\phi$ affects: (1) Patch-level gradient concentration under contrastive training, and (2) Retrieval robustness as document length $M$ increases. By isolating pooling within a controlled setting, we aim to characterize the structural tradeoffs between selectivity and smoothness in late-interaction retrieval. ",
+        "bbox": [
+            117,
+            620,
+            882,
+            684
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "3. Synthetic Experimental Setup ",
+        "text_level": 1,
+        "bbox": [
+            117,
+            705,
+            478,
+            725
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "To isolate the structural effect of pooling, we construct a controlled synthetic retrieval environment. The design allows precise control over query–document alignment, document length, and negative hardness while keeping the training objective fixed. ",
+        "bbox": [
+            117,
+            738,
+            882,
+            785
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Concept Dictionary and Embedding Space We generate a fixed dictionary of $C$ concept vectors ",
+        "bbox": [
+            115,
+            802,
+            878,
+            820
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/5dbb8be1498d99a3218d5dbcd97d9586cb102e3ddf3caed7f02dc8e3b6519df2.jpg",
+        "text": "$$\n\\{ \\mathbf { c } _ { 1 } , \\hdots , \\mathbf { c } _ { C } \\} \\subset \\mathbb { R } ^ { d } ,\n$$",
+        "text_format": "latex",
+        "bbox": [
+            421,
+            825,
+            574,
+            845
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "sampled from a standard Gaussian distribution and $\\ell _ { 2 }$ -normalized. Each query consists of $T$ token embeddings. A query is generated by sampling $T$ concept indices uniformly at random and adding Gaussian noise: ",
+        "bbox": [
+            117,
+            851,
+            880,
+            898
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "equation",
+        "img_path": "images/50848e8c9f17ad115c8cf88cc27ffeafa00f4f54b7b94540bf2f8e1926a3e1e5.jpg",
+        "text": "$$\n\\begin{array} { r } { \\mathbf q _ { i } = \\mathrm { n o r m a l i z e } ( \\mathbf c _ { k _ { i } } + \\epsilon ) , \\quad \\epsilon \\sim \\mathcal N ( 0 , \\sigma _ { q } ^ { 2 } \\mathbf I ) . } \\end{array}\n$$",
+        "text_format": "latex",
+        "bbox": [
+            334,
+            897,
+            663,
+            917
+        ],
+        "page_idx": 2
+    },
+    {
+        "type": "text",
+        "text": "Positive Documents A positive document of length $M$ consists of $M$ patch embeddings. To control task difficulty, only $K \\leq T$ patches correspond to query concepts (distributed support), while the remaining patches are sampled from random concepts: ",
+        "bbox": [
+            117,
+            77,
+            880,
+            126
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/8ff66e131cce175a1cd67bba4650da4ad25f1ac0830d4b6a976f8b9854df6f0e.jpg",
+        "text": "$$\n\\mathbf { d } _ { j } ^ { + } = \\left\\{ \\begin{array} { l l } { \\mathrm { n o r m a l i z e } ( \\mathbf { c } _ { k _ { i } } + \\epsilon ) , } & { \\mathrm { i f ~ } j \\leq K , } \\\\ { \\mathrm { n o r m a l i z e } ( \\mathbf { c } _ { r } + \\epsilon ) , } & { \\mathrm { o t h e r w i s e , } } \\end{array} \\right.\n$$",
+        "text_format": "latex",
+        "bbox": [
+            341,
+            136,
+            652,
+            180
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "where $\\epsilon \\sim \\mathcal { N } ( 0 , \\sigma _ { d } ^ { 2 } \\mathbf { I } )$ and $r$ is a random concept index. This design ensures that positive relevance is distributed across multiple patches rather than concentrated in a single location. ",
+        "bbox": [
+            119,
+            191,
+            880,
+            224
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Hard Negatives To simulate realistic confusers, we construct hard negative documents that: Share a small number of query concepts (partial overlap) and contain a “spike” patch formed by averaging several query concepts. The spike patch increases similarity across multiple query tokens and creates a potential winner-take-all scenario under hard max pooling. The remaining patches are sampled from random concepts. While synthetic by construction, spike patches model a practically relevant scenario: in retrieval-augmented generation, adversarially crafted or SEO-optimized passages may aggregate multiple query-relevant terms into a short span, creating a similar winner-take-all vulnerability. Our setup isolates this mechanism as a controlled stress test rather than a claim about attack frequency. ",
+        "bbox": [
+            117,
+            241,
+            882,
+            370
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Training Protocol We train a small three-layer feed-forward encoder $f _ { \\theta }$ that maps raw embeddings to normalized representations: ",
+        "bbox": [
+            114,
+            388,
+            877,
+            419
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "equation",
+        "img_path": "images/3bf1b963d230b7d3a24da727d35b693fa3777b8b76483d18a80985e95025085d.jpg",
+        "text": "$$\n\\tilde { \\mathbf { q } } _ { i } = f _ { \\theta } ( \\mathbf { q } _ { i } ) , \\quad \\tilde { \\mathbf { d } } _ { j } = f _ { \\theta } ( \\mathbf { d } _ { j } ) .\n$$",
+        "text_format": "latex",
+        "bbox": [
+            389,
+            418,
+            608,
+            438
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Training uses in-batch InfoNCE [6] with batch size $B = 6 4$ , where each query competes against $B - 1$ in-batch negatives. The dataset is fixed across epochs to ensure learnability. Unless otherwise stated, we train for 100 epochs with Adam [8] and evaluate every 5 epochs. ",
+        "bbox": [
+            119,
+            444,
+            880,
+            493
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Evaluation Metrics We report: ",
+        "text_level": 1,
+        "bbox": [
+            119,
+            511,
+            376,
+            527
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• Recall $@ k$ : fraction of queries whose positive document is ranked in the top- $k$ .   \n• Patch-level Gradient Gini: inequality of gradient mass across document patches (Section 2). ",
+        "bbox": [
+            146,
+            542,
+            872,
+            576
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Document Length Sweep To study robustness, we vary the number of document patches $M \\in$ $\\{ 3 2 , 6 4 , 1 2 8 , 2 5 6 \\}$ while keeping: Query tokens fixed; Concept assignments fixed; Training procedure unchanged. Only the number of document patches changes. This controlled sweep isolates the effect of document length on retrieval quality under different pooling operators. ",
+        "bbox": [
+            119,
+            594,
+            880,
+            658
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "Compared Pooling Variants We compare three variants. This setup enables controlled comparison of gradient routing behavior and retrieval robustness across pooling strategies. ",
+        "bbox": [
+            117,
+            676,
+            878,
+            708
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "• MaxSim, • Top- $k$ averaging (with fixed $k$ ), • Softmax pooling with temperature $\\tau = 1 . 0$ . ",
+        "bbox": [
+            147,
+            724,
+            492,
+            775
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "4. Results ",
+        "text_level": 1,
+        "bbox": [
+            119,
+            796,
+            231,
+            815
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "text",
+        "text": "We evaluate how pooling choice affects (i) gradient routing during training, (ii) retrieval performance, and (iii) robustness to document length. All synthetic results are summarized in Figure 1. ",
+        "bbox": [
+            117,
+            828,
+            882,
+            860
+        ],
+        "page_idx": 3
+    },
+    {
+        "type": "image",
+        "img_path": "images/0c1c401c6f08c87a194a40c339f1d762df62b707489d90b64de88359381389cc.jpg",
+        "image_caption": [
+            "Figure 1: Synthetic training dynamics and document-length sweep. (A) Patch-level gradient concentration (Gini) vs. training. (B) Retrieval quality (Recal $\\begin{array} { r } { \\left. \\left( \\overline { { \\omega } } \\right. ^ { \\cdot } \\right. } \\end{array}$ ) vs. training. (C) Retrieval quality vs. document length $M$ under fixed queries. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            122,
+            97,
+            877,
+            247
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "4.1. Synthetic Analysis ",
+        "text_level": 1,
+        "bbox": [
+            119,
+            326,
+            329,
+            343
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Experimental Setup. We generate a fixed synthetic dataset of queries and positive documents built from $C = 1 0 0$ latent concepts in $\\mathbb { R } ^ { d }$ b $( d = 1 6 )$ . Each query contains $T = 1 6$ concept tokens sampled with Gaussian noise $\\sigma _ { q } = 0 . 1$ , and each positive document contains $M$ patches with noise $\\sigma _ { d } = 0 . 1$ , of which a subset correspond to query concepts and the remainder are distractors. Training is performed with in-batch negatives (batch size $B = 6 4$ ) under three pooling strategies: hard MaxSim, Top- $k$ averaging $( k = 4 )$ , and softmax aggregation $\\mathit { \\check { \\tau } } = 1 . 0 $ ). ",
+        "bbox": [
+            117,
+            351,
+            880,
+            448
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "To study robustness under adversarial length expansion, we inject $K \\in \\{ 0 , 2 5 , 5 0 , 1 0 0 , 2 0 0 , 4 0 0 \\}$ token-targeted hard-negative patches into non-gold documents only. We measure (i) patch-level gradient concentration using the Gini coefficient and (ii) retrieval quality using Recall $@ 1$ . ",
+        "bbox": [
+            119,
+            449,
+            878,
+            497
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Gradient Concentration During Training. Figure 1A shows the patch-level gradient Gini coefficient over training epochs. MaxSim produces substantially higher gradient concentration than the alternatives. Throughout training, MaxSim maintains a Gini coefficient near 0.78, indicating that gradient mass is concentrated on a small subset of document patches. Top-4 pooling yields moderate concentration $( \\sim ~ 0 . 4 5 )$ , while softmax pooling distributes gradients far more uniformly $( \\sim \\ 0 . 1 8 )$ . Importantly, this separation emerges early and remains stable across epochs, suggesting that gradient concentration is a structural property of the pooling operator, not a transient optimization artifact. ",
+        "bbox": [
+            117,
+            516,
+            882,
+            629
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Retrieval Performance During Training. Figure 1B reports Recall $@ 1$ over training. MaxSim and Top-4 pooling achieve comparable retrieval performance $( \\sim 0 . 3 3 - 0 . 3 8 \\mathrm { R e c a l l } @ 1 )$ , while softmax pooling performs substantially worse. Thus, sparse routing appears beneficial for discrimination, but extreme sparsity (hard max) is not uniquely necessary for strong retrieval performance. ",
+        "bbox": [
+            117,
+            646,
+            880,
+            711
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Robustness to Document Length. To evaluate brittleness, we conduct a controlled document-length sweep. Queries and concept assignments are fixed, while only the number of document patches $M$ varies. Figure 1C shows Recall@1 as a function of $M$ . All pooling strategies degrade as document length increases, reflecting increased opportunities for spurious matches. However, MaxSim exhibits sharper degradation compared to Top-4 pooling. While MaxSim performs strongly at small $M$ , its performance drops more rapidly as $M$ grows. Top-4 pooling degrades more smoothly and outperforms MaxSim at larger document lengths. ",
+        "bbox": [
+            117,
+            728,
+            882,
+            841
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "Summary of Synthetic Findings. The synthetic results reveal a consistent pattern: ",
+        "bbox": [
+            119,
+            859,
+            769,
+            876
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "• Hard MaxSim induces the highest gradient concentration. ",
+        "bbox": [
+            146,
+            890,
+            600,
+            906
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "discarded",
+        "text": "Pooling-Induced Gradient Concentration vs Document Length ",
+        "bbox": [
+            354,
+            78,
+            643,
+            86
+        ],
+        "page_idx": 4
+    },
+    {
+        "type": "text",
+        "text": "• Moderate sparsity (Top- $k$ pooling) achieves similar retrieval quality with lower concentration.   \n• Higher concentration correlates with increased sensitivity to document length. ",
+        "bbox": [
+            146,
+            78,
+            870,
+            111
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Together, these results isolate pooling-induced gradient routing as a key structural factor influencing robustness in late-interaction retrieval. These results do not imply that lower concentration is uniformly desirable. In our synthetic setting, softmax pooling distributes gradients most evenly but yields the lowest retrieval quality (Figure 1B), suggesting that some degree of selective routing is necessary for discrimination. The practical tradeoff is regime-dependent: MaxSim excels on short, well-targeted documents, while moderate smoothing (e.g., Top- $k$ ) offers a better sparsity–robustness balance when document length is variable or adversarial content is a concern. ",
+        "bbox": [
+            119,
+            126,
+            882,
+            239
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "4.2. Real-World Corroboration on ColQwen ${ \\bf 2 . 5 + }$ ViDoRe ",
+        "text_level": 1,
+        "bbox": [
+            121,
+            256,
+            638,
+            273
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "We validate our synthetic findings using ColQwen2.5 [9] on the ViDoRe biomedical benchmark [10, 11]. Our goal is to test whether pooling-induced gradient concentration and spike hijacking manifest in practice. ",
+        "bbox": [
+            117,
+            281,
+            880,
+            329
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Without retraining, we measure doc-patch gradient concentration (Gini) across 160 queries. MaxSim produces the highest concentration (0.983), followed by Top-5 (0.951) and Softmax (0.883), with paired $t$ -tests confirming significant differences $( p < 1 0 ^ { - 8 0 } )$ ). This ordering matches the synthetic results, indicating that concentration is structurally induced by pooling rather than an artifact of the training regime. ",
+        "bbox": [
+            117,
+            331,
+            882,
+            410
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "To test robustness, we inject $K \\in \\{ 0 , 2 5 , 5 0 , 1 0 0 , 2 0 0 , 4 0 0 \\}$ token-targeted hard-negative patches into non-gold documents. Even at moderate injection levels ( $K = 1 0 0 ,$ , MaxSim and Top-4 retain only $2 7 . 8 \\%$ and $2 9 . 3 \\%$ of baseline recall respectively, while Softmax retains $6 7 . 6 \\%$ . Spike hijack rates reach approximately 0.70 for both MaxSim and Top- $k$ , meaning most query tokens select injected distractors. Notably, increasing $k$ (Top-1, Top-4, Top-16) does not restore robustness: all spike-based operators retain only ${ \\approx } 2 8 { - } 3 0 \\%$ recall, because even at higher $k$ the injected patches dominate the top- $k$ set and poison the average. ",
+        "bbox": [
+            117,
+            411,
+            882,
+            524
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "A Gaussian control experiment confirms this degradation is semantic rather than length-driven: replacing hard negatives with random Gaussian patches preserves recall ${ \\approx } 9 7 \\%$ retained, hijack $< 0 . 1 5$ ). We note that these experiments swap pooling operators at inference time on a MaxSim-trained model; end-to-end retraining with each pooling objective may further amplify the benefit of smoother operators and is an important direction for future work. ",
+        "bbox": [
+            117,
+            524,
+            882,
+            604
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Figure 2 illustrates this mechanism at the token level: under hard-negative injection, ${ \\sim } 8 3 \\%$ of tokenwise argmax selections shift to injected patches, whereas Gaussian injection produces minimal routing disruption. ",
+        "bbox": [
+            119,
+            605,
+            880,
+            652
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "Summary. Real-world experiments confirm that (i) gradient concentration is structural, (ii) semantic distractors induce spike hijacking and recall collapse, and (iii) larger $k$ does not mitigate brittleness, closely mirroring synthetic findings. ",
+        "bbox": [
+            119,
+            671,
+            880,
+            719
+        ],
+        "page_idx": 5
+    },
+    {
+        "type": "text",
+        "text": "References ",
+        "text_level": 1,
+        "bbox": [
+            121,
+            76,
+            242,
+            93
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "text",
+        "text": "[1] O. Khattab, M. Zaharia, ColBERT: Efficient and effective passage search via contextualized late interaction over BERT, in: Proceedings of the 43rd International ACM SIGIR Conference on Research and Development in Information Retrieval, 2020, pp. 39–48. doi:10.1145/3397271. 3401075.   \n[2] V. Karpukhin, B. Oğuz, S. Min, P. Lewis, L. Wu, S. Edunov, D. Chen, W. tau Yih, Dense passage retrieval for open-domain question answering, in: Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP), 2020, pp. 6769–6781. doi:10.18653/v1/2020. emnlp-main.550.   \n[3] N. Reimers, I. Gurevych, Sentence-BERT: Sentence embeddings using siamese BERT-networks, in: Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP), 2019, pp. 3982–3992. doi:10.18653/v1/D19-1410.   \n[4] K. Santhanam, O. Khattab, J. Saad-Falcon, C. Potts, M. Zaharia, ColBERTv2: Effective and efficient retrieval via lightweight late interaction, in: Proceedings of the 2022 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (NAACL), 2022, pp. 3715–3734. doi:10.18653/v1/2022.naacl-main.272.   \n[5] K. Santhanam, O. Khattab, C. Potts, M. Zaharia, PLAID: An efficient engine for late interaction retrieval, in: Proceedings of the 31st ACM International Conference on Information & Knowledge Management (CIKM), 2022, pp. 1747–1756. doi:10.1145/3511808.3557325.   \n[6] A. van den Oord, Y. Li, O. Vinyals, Representation learning with contrastive predictive coding, arXiv preprint arXiv:1807.03748 (2018).   \n[7] C. Gini, Variabilità e mutabilità: contributo allo studio delle distribuzioni e delle relazioni statistiche. [Fasc. I.], Tipogr. di P. Cuppini, Bologna, 1912.   \n[8] D. P. Kingma, J. Ba, Adam: A method for stochastic optimization, in: International Conference on Learning Representations (ICLR), 2015. URL: https://arxiv.org/abs/1412.6980.   \n[9] M. Faysse, H. Sibille, T. Wu, ColQwen2.5-v0.2: A Qwen2.5-VL-based late-interaction retriever, https://huggingface.co/vidore/colqwen2.5-v0.2, 2024.   \n[10] M. Faysse, H. Sibille, T. Wu, B. Omrani, G. Viaud, C. Hudelot, P. Colombo, ColPali: Efficient document retrieval with vision language models, in: International Conference on Learning Representations (ICLR), 2025.   \n[11] Q. Macé, A. Loison, M. Faysse, ViDoRe benchmark V2: Raising the bar for visual retrieval, arXiv preprint arXiv:2505.17166 (2025). ",
+        "bbox": [
+            126,
+            102,
+            884,
+            629
+        ],
+        "page_idx": 6
+    },
+    {
+        "type": "image",
+        "img_path": "images/2372c9d2ec28df5842cee35780c83c8a4c880f7a7cc364967d2819ff7ed0f46a.jpg",
+        "image_caption": [],
+        "image_footnote": [],
+        "bbox": [
+            122,
+            112,
+            816,
+            412
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "image",
+        "img_path": "images/7a20f97bbd88d146efa3b6b80414d060f18511a389c72c772bafad82012bfae2.jpg",
+        "image_caption": [
+            "Figure 2: Token–patch similarity heatmaps for a representative ColQwen2.5 example from ViDoRe biomedical retrieval. Left (Baseline, $K = 0$ ): Token maxima align with semantically relevant document patches. Middle (Hard-negative injection, $K = 1 0 0 \\mathrm { { } } _ { , }$ ): Injected distractor patches redirect the majority of token-wise argmax selections into the injected region, resulting in ${ \\sim } 8 3 \\%$ token hijacking. Right (Gaussian control, $K = 1 0 0 _ { \\cdot }$ ): Random noise produces minimal routing changes and low hijack rates. Black dots denote argmax positions on original patches; red dots denote argmax positions on injected distractor patches. The injected region is highlighted. "
+        ],
+        "image_footnote": [],
+        "bbox": [
+            121,
+            434,
+            875,
+            543
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "A. Mechanistic Visualization of Spike Hijacking ",
+        "text_level": 1,
+        "bbox": [
+            122,
+            678,
+            648,
+            699
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "To complement aggregate retrieval metrics, we provide a qualitative token–patch similarity visualization illustrating the spike hijacking mechanism observed in real-world experiments. ",
+        "bbox": [
+            121,
+            712,
+            880,
+            743
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "text",
+        "text": "This visualization provides direct mechanistic evidence for the phenomenon quantified in Section 4.2: spike-based pooling routes token attention to high-similarity distractor patches, causing retrieval degradation, while soft aggregation avoids catastrophic token rerouting. ",
+        "bbox": [
+            117,
+            744,
+            882,
+            791
+        ],
+        "page_idx": 7
+    },
+    {
+        "type": "discarded",
+        "text": "Token→Patch Similarity Heatmap: Argmax Hijacking Mechanism Query: 57 | Doc: 243 ",
+        "bbox": [
+            317,
+            78,
+            684,
+            96
+        ],
+        "page_idx": 7
+    }
+]

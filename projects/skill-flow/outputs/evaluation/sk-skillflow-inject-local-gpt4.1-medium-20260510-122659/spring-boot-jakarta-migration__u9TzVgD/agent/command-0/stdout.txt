@@ -1,0 +1,6 @@
+Migration complete!  
+- Java upgraded to 21, Spring Boot to 3.2, Hibernate to 6, Spring Security to 6, and JWT to 0.12.5.
+- All Jakarta namespace changes and security config refactoring are done.
+- `mvn clean compile` and `mvn test` both succeeded with all tests passing.
+
+If you need the RestTemplate-to-RestClient migration or further refactoring, let me know!
