@@ -1,1 +1,0 @@
-The offer letter has been generated as /root/offer_letter_filled.docx. All placeholders were filled with the employee data, and the conditional relocation section was handled according to the RELOCATION_PACKAGE value. Let me know if you need to review or send the file!

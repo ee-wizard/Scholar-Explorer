@@ -1,9 +1,0 @@
-Migration complete and successful!
-
-- Java upgraded to 21, Spring Boot to 3.2.x, Hibernate 6, Spring Security 6.
-- All javax.* imports migrated to jakarta.*.
-- Security configuration refactored for Spring Security 6.
-- Validation and JPA annotations updated.
-- `mvn clean compile` and `mvn test` both succeed with all tests passing.
-
-If you need to migrate RestTemplate to RestClient or further refactor, let me know!

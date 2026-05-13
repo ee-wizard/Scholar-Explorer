@@ -165,7 +165,9 @@ CV中通常丢弃 projection head；但Pylon发现保留后推断效果更好，
 5. BERT/ALBERT — Pylon-LM的基础语言模型。
 
 **后续扩展推荐**：
-1. Fan et al., "Starmie" (VLDB 2023) — 同时期，面向HNSW的对比学习TUS；两者设计哲学相似但索引选择不同，值得横向对比。
+1. Fan et al., "Starmie" (VLDB 2021) — 同时期，面向HNSW的对比学习TUS；两者设计哲学相似但索引选择不同，值得横向对比。**补充（Starmie 深度分析后）**：Starmie 在 SANTOS Small 上对 SANTOS 提升 6.3% MAP（0.930→0.993），但在 TUS Small 对 Sherlock 仅提升 0.7%（0.984→0.991）——"6.8% improvement over SOTA"存在基准选择性；HNSW 变体引入 MAP -4.8% 精度损失（0.993→0.945），Pylon 的 LSH 对齐对比目标正是针对此局限的改进方向。[papers/table_vector_search/Starmie.../paper.report.md]
+
+> 补丁来源：Starmie Semantics-aware Dataset Discovery...，分析日期 2026-05-12
 2. Dong et al., "DeepJoin" (VLDB 2023) — 将对比学习+PLM扩展到Joinable Table Search。
 3. Khatiwada et al., "TabSketchFM" (arXiv 2024) — 进一步统一多任务（union/join/subset）的预训练方案。
 

@@ -2,101 +2,12 @@
 
 from __future__ import annotations
 
-import os
-import sys
 from typing import TYPE_CHECKING
 
 from benchmark.core.config import EvalConfig, EvalMode
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-
-def _harbor_base_command() -> list[str]:
-    """Return the best available command prefix for Harbor CLI."""
-    harbor_exe = os.path.join(os.path.dirname(sys.executable), "harbor")
-    if os.path.exists(harbor_exe):
-        return [harbor_exe]
-    return [sys.executable, "-m", "harbor.cli"]
-
-
-def _build_environment_kwargs() -> list[str]:
-    """Build Harbor environment kwargs for proxy/network passthrough.
-
-    Harbor accepts repeated "--environment-kwarg key=value" arguments.
-    We forward common proxy variables from the host so the runtime container
-    sees the same outbound network configuration.
-    """
-    env = os.environ
-
-    def _pick(*names: str) -> str | None:
-        for name in names:
-            value = env.get(name)
-            if value:
-                return value
-        return None
-
-    https_proxy = _pick("HTTPS_PROXY", "https_proxy")
-    http_proxy = _pick("HTTP_PROXY", "http_proxy")
-    no_proxy = _pick("NO_PROXY", "no_proxy")
-    all_proxy = _pick("ALL_PROXY", "all_proxy")
-    openai_api_key = _pick("OPENAI_API_KEY")
-    openai_base_url = _pick("OPENAI_BASE_URL", "OPENAI_API_BASE")
-    github_token = _pick("GITHUB_TOKEN", "GH_TOKEN", "GITHUB_COPILOT_TOKEN")
-    github_models_endpoint = _pick("GITHUB_MODELS_ENDPOINT", "COPILOT_OPENAI_BASE_URL")
-    copilot_cli_url = _pick("COPILOT_CLI_URL")
-
-    pairs: list[tuple[str, str]] = []
-    if https_proxy:
-        pairs.extend([
-            ("HTTPS_PROXY", https_proxy),
-            ("https_proxy", https_proxy),
-        ])
-    if http_proxy:
-        pairs.extend([
-            ("HTTP_PROXY", http_proxy),
-            ("http_proxy", http_proxy),
-        ])
-    if no_proxy:
-        pairs.extend([
-            ("NO_PROXY", no_proxy),
-            ("no_proxy", no_proxy),
-        ])
-    if all_proxy:
-        pairs.extend([
-            ("ALL_PROXY", all_proxy),
-            ("all_proxy", all_proxy),
-        ])
-    if openai_api_key:
-        pairs.append(("OPENAI_API_KEY", openai_api_key))
-    if openai_base_url:
-        pairs.extend([
-            ("OPENAI_BASE_URL", openai_base_url),
-            ("OPENAI_API_BASE", openai_base_url),
-        ])
-    if github_token:
-        pairs.extend([
-            ("GITHUB_TOKEN", github_token),
-            ("GH_TOKEN", github_token),
-            ("GITHUB_COPILOT_TOKEN", github_token),
-        ])
-    if github_models_endpoint:
-        pairs.extend([
-            ("GITHUB_MODELS_ENDPOINT", github_models_endpoint),
-            ("COPILOT_OPENAI_BASE_URL", github_models_endpoint),
-        ])
-    if copilot_cli_url:
-        pairs.append(("COPILOT_CLI_URL", copilot_cli_url))
-
-    pairs.extend([
-        ("NETWORK_MODE", "host"),
-        ("BUILD_NETWORK", "host"),
-    ])
-
-    args: list[str] = []
-    for key, value in pairs:
-        args.extend(["--environment-kwarg", f"{key}={value}"])
-    return args
 
 
 def build_harbor_run_command(config: EvalConfig, job_name: str) -> list[str]:
@@ -110,7 +21,9 @@ def build_harbor_run_command(config: EvalConfig, job_name: str) -> list[str]:
         List of command arguments
     """
     cmd = [
-        *_harbor_base_command(),
+        "uv",
+        "run",
+        "harbor",
         "run",
         "--job-name",
         job_name,
@@ -135,9 +48,6 @@ def build_harbor_run_command(config: EvalConfig, job_name: str) -> list[str]:
     # Add environment
     if config.environment.use_daytona:
         cmd.extend(["--env", "daytona"])
-
-    # Pass proxy/network env vars from host into Harbor runtime environment.
-    cmd.extend(_build_environment_kwargs())
 
     return cmd
 
@@ -292,13 +202,7 @@ def build_resume_command(job_path: Path) -> list[str]:
     Returns:
         List of command arguments
     """
-    return [
-        *_harbor_base_command(),
-        "jobs",
-        "resume",
-        "--job-path",
-        str(job_path),
-    ]
+    return ["uv", "run", "harbor", "jobs", "resume", "--job-path", str(job_path)]
 
 
 def build_retry_errors_command(job_path: Path, error_types: list[str]) -> list[str]:
@@ -311,13 +215,7 @@ def build_retry_errors_command(job_path: Path, error_types: list[str]) -> list[s
     Returns:
         List of command arguments
     """
-    cmd = [
-        *_harbor_base_command(),
-        "jobs",
-        "resume",
-        "--job-path",
-        str(job_path),
-    ]
+    cmd = ["uv", "run", "harbor", "jobs", "resume", "--job-path", str(job_path)]
     for error_type in error_types:
         cmd.extend(["--filter-error-type", error_type])
     return cmd

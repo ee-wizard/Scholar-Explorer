@@ -1,1 +1,0 @@
-The answers to all questions have been written to /root/answer.json in the required format. Each answer is a list, and the consumed tokens are logged as requested. You can now read this file directly with Python. If you need further breakdown or details, let me know!

@@ -1,6 +1,0 @@
-The mass calculation is complete. The largest connected component in your STL has:
-
-- Material ID: 42
-- Main part mass: 6.24 g
-
-This result is saved in /root/mass_report.json as requested. If you need the calculation details or further breakdown, let me know!

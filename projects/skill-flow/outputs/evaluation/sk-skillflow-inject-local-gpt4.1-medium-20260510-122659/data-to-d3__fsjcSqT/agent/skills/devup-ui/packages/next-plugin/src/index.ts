@@ -1,1 +1,0 @@
-export { DevupUI } from './plugin'

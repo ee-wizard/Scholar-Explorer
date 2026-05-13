@@ -16,7 +16,20 @@ _MIN_GPU_BYTES = 2 * 1024**3  # 2 GiB headroom for model + encoding
 
 
 def pick_device() -> str:
-    """Return the CUDA device with the most free memory, or ``'cpu'``."""
+    """Return the device to use for model inference.
+
+    Resolution order:
+    1. ``SKILL_FLOW_DEVICE`` env var (e.g. ``cuda:0``, ``cpu``) — explicit override.
+    2. CUDA device with the most free VRAM (must have >= 2 GiB free).
+    3. ``cpu`` fallback.
+    """
+    import os  # noqa: PLC0415
+
+    forced = os.environ.get("SKILL_FLOW_DEVICE", "").strip()
+    if forced:
+        logger.info("Device forced by SKILL_FLOW_DEVICE: %s", forced)
+        return forced
+
     try:
         import torch  # noqa: PLC0415
     except ImportError:

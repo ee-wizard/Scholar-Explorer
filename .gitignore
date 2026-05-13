@@ -48,3 +48,5 @@ temp/
 
 # ===== Large generated artifacts (not for git) =====
 projects/skill-flow/outputs/indices/
+overleaf_projects/
+paper_projects/

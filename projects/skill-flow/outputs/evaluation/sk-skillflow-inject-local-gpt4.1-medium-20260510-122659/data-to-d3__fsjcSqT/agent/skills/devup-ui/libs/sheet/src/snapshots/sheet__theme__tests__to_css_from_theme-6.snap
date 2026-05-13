@@ -1,5 +1,0 @@
----
-source: libs/sheet/src/theme.rs
-expression: theme.to_css()
----
-":root{--primary:#000}"

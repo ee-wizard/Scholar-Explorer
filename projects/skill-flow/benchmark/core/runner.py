@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import shutil
 import subprocess
 from datetime import datetime
@@ -230,10 +229,5 @@ class EvaluationRunner:
 
     def _execute_command(self, cmd: Sequence[str]) -> int:
         """Execute a command and return exit code."""
-        env = os.environ.copy()
-        if not self.config.environment.use_daytona:
-            env.setdefault("DOCKER_BUILDKIT", "0")
-            env.setdefault("COMPOSE_DOCKER_CLI_BUILD", "0")
-
-        result = subprocess.run(cmd, cwd=self.project_root, check=False, env=env)
+        result = subprocess.run(cmd, cwd=self.project_root, check=False)
         return result.returncode

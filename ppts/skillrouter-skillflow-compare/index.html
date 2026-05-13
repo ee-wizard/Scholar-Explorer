@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Routing at Scale · SkillFlow & SkillRouter 对比研读</title>
+    <style>
+        /* ── Reset ──────────────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #09090e;
+            --bg2: #111118;
+            --bg3: #1a1a24;
+            --fg: #e8e8f0;
+            --fg2: #9898b0;
+            --fg3: #555568;
+            --acc: #4a7cff;
+            --acc2: #f06030;
+            --acc3: #50d8a0;
+            --acc4: #f5b730;
+            --brd: rgba(255, 255, 255, 0.07);
+            --sans: 'Inter', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            --mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: #040408;
+            font-family: var(--sans);
+            color: var(--fg);
+            overflow: hidden;
+        }
+
+        /* ── Deck ───────────────────────────────────────────── */
+        #deck {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sw {
+            position: relative;
+            width: min(100vw, calc(100vh*16/9));
+            height: min(100vh, calc(100vw*9/16));
+            overflow: hidden;
+        }
+
+        /* ── Slides ─────────────────────────────────────────── */
+        .slide {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            padding: 5vh 5.5vw 7vh;
+            background: var(--bg);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(56px);
+            transition: opacity .32s ease, transform .32s ease;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: none;
+        }
+
+        .slide.exit-l {
+            opacity: 0;
+            transform: translateX(-56px);
+        }
+
+        .slide.dark2 {
+            background: var(--bg2);
+        }
+
+        .slide.light {
+            background: #f2f2f6;
+            color: #0e0e18;
+            --fg: #0e0e18;
+            --fg2: #444456;
+            --fg3: #8888a0;
+            --brd: rgba(0, 0, 0, 0.09);
+            --bg2: #e6e6ee;
+            --bg3: #d8d8e4;
+        }
+
+        /* ── Nav bar ────────────────────────────────────────── */
+        #nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            background: rgba(9, 9, 14, .94);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid var(--brd);
+            z-index: 100;
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--fg3);
+            user-select: none;
+        }
+
+        #pb {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--acc);
+            transition: width .28s;
+            z-index: 200;
+        }
+
+        .nb {
+            display: flex;
+            gap: 6px;
+        }
+
+        .nbtn {
+            padding: 5px 14px;
+            border: 1px solid var(--brd);
+            background: transparent;
+            color: var(--fg2);
+            cursor: pointer;
+            font-family: var(--mono);
+            font-size: 10px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            transition: background .18s, color .18s, border-color .18s;
+        }
+
+        .nbtn:hover {
+            background: rgba(74, 124, 255, .14);
+            color: var(--acc);
+            border-color: var(--acc);
+        }
+
+        /* ── Type ───────────────────────────────────────────── */
+        .kicker {
+            font-family: var(--mono);
+            font-size: clamp(9px, 1.05vw, 12px);
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--acc);
+            margin-bottom: 1.4vh;
+        }
+
+        .kicker.o {
+            color: var(--acc2);
+        }
+
+        .kicker.g {
+            color: var(--acc3);
+        }
+
+        .kicker.y {
+            color: var(--acc4);
+        }
+
+        .h1 {
+            font-size: clamp(22px, 4.4vw, 56px);
+            font-weight: 200;
+            line-height: 1.06;
+            letter-spacing: -.02em;
+        }
+
+        .h1 strong {
+            font-weight: 700;
+        }
+
+        .h2 {
+            font-size: clamp(18px, 3vw, 38px);
+            font-weight: 300;
+            line-height: 1.12;
+            letter-spacing: -.01em;
+        }
+
+        .h3 {
+            font-size: clamp(13px, 1.6vw, 20px);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .body {
+            font-size: clamp(12px, 1.28vw, 15.5px);
+            font-weight: 300;
+            line-height: 1.68;
+            color: var(--fg2);
+        }
+
+        .mono {
+            font-family: var(--mono);
+            font-size: clamp(9px, .95vw, 12px);
+            color: var(--fg3);
+            letter-spacing: .05em;
+        }
+
+        .hr {
+            border: none;
+            border-top: 1px solid var(--brd);
+            margin: 2vh 0;
+        }
+
+        /* ── Grid ───────────────────────────────────────────── */
+        .g2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.6vw;
+            align-items: start;
+            flex: 1;
+        }
+
+        .g3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2vw;
+            align-items: start;
+            flex: 1;
+        }
+
+        .g55 {
+            display: grid;
+            grid-template-columns: 5fr 5fr;
+            gap: 2.6vw;
+            align-items: start;
+            flex: 1;
+        }
+
+        .g46 {
+            display: grid;
+            grid-template-columns: 4fr 6fr;
+            gap: 2.8vw;
+            align-items: start;
+            flex: 1;
+        }
+
+        .g64 {
+            display: grid;
+            grid-template-columns: 6fr 4fr;
+            gap: 2.8vw;
+            align-items: start;
+            flex: 1;
+        }
+
+        /* ── Card ───────────────────────────────────────────── */
+        .card {
+            border: 1px solid var(--brd);
+            padding: 1.8vh 1.5vw;
+            background: var(--bg2);
+        }
+
+        .card.ab {
+            border-color: var(--acc);
+        }
+
+        .card.ob {
+            border-color: var(--acc2);
+        }
+
+        .card.gb {
+            border-color: var(--acc3);
+        }
+
+        .card.yb {
+            border-color: var(--acc4);
+        }
+
+        .card-hd {
+            font-family: var(--mono);
+            font-size: clamp(9px, .95vw, 11px);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--fg3);
+            margin-bottom: 1vh;
+        }
+
+        .card ul {
+            padding-left: 1.1em;
+        }
+
+        .card li {
+            font-size: clamp(11px, 1.2vw, 14.5px);
+            line-height: 1.62;
+            color: var(--fg2);
+            margin-bottom: .3vh;
+        }
+
+        .card li strong,
+        .card p strong {
+            color: var(--fg);
+            font-weight: 600;
+        }
+
+        .card p {
+            font-size: clamp(11px, 1.2vw, 14.5px);
+            line-height: 1.62;
+            color: var(--fg2);
+        }
+
+        /* ── Block quote / callout ──────────────────────────── */
+        .blk {
+            border-left: 3px solid var(--acc);
+            padding: 1.4vh 1.3vw;
+            background: rgba(74, 124, 255, .05);
+        }
+
+        .blk.o {
+            border-color: var(--acc2);
+            background: rgba(240, 96, 48, .05);
+        }
+
+        .blk.g {
+            border-color: var(--acc3);
+            background: rgba(80, 216, 160, .05);
+        }
+
+        .blk.y {
+            border-color: var(--acc4);
+            background: rgba(245, 183, 48, .05);
+        }
+
+        .blk p {
+            font-size: clamp(11px, 1.22vw, 15px);
+            line-height: 1.66;
+            color: var(--fg);
+        }
+
+        /* ── Chip ───────────────────────────────────────────── */
+        .chip {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 9px;
+            padding: 2px 8px;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border: 1px solid;
+        }
+
+        .chip.b {
+            color: var(--acc);
+            border-color: var(--acc);
+            background: rgba(74, 124, 255, .08);
+        }
+
+        .chip.o {
+            color: var(--acc2);
+            border-color: var(--acc2);
+            background: rgba(240, 96, 48, .08);
+        }
+
+        .chip.g {
+            color: var(--acc3);
+            border-color: var(--acc3);
+            background: rgba(80, 216, 160, .08);
+        }
+
+        .chip.y {
+            color: var(--acc4);
+            border-color: var(--acc4);
+            background: rgba(245, 183, 48, .08);
+        }
+
+        /* ── Stat row ───────────────────────────────────────── */
+        .srow {
+            display: flex;
+            gap: 1.8vw;
+            align-items: stretch;
+            margin-top: auto;
+            padding-top: 1.6vh;
+            border-top: 1px solid var(--brd);
+        }
+
+        .si .n {
+            font-size: clamp(18px, 2.8vw, 38px);
+            font-weight: 700;
+            letter-spacing: -.02em;
+            line-height: 1;
+            color: var(--acc);
+        }
+
+        .si .n.o {
+            color: var(--acc2);
+        }
+
+        .si .n.g {
+            color: var(--acc3);
+        }
+
+        .si .n.y {
+            color: var(--acc4);
+        }
+
+        .si .l {
+            font-family: var(--mono);
+            font-size: clamp(8px, .88vw, 11px);
+            color: var(--fg3);
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            margin-top: .3vh;
+        }
+
+        /* ── Figure frame ───────────────────────────────────── */
+        .fig {
+            display: flex;
+            flex-direction: column;
+            gap: .8vh;
+        }
+
+        .fig img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            background: #fff;
+        }
+
+        .fig-cap {
+            font-family: var(--mono);
+            font-size: clamp(8px, .85vw, 10.5px);
+            color: var(--fg3);
+            letter-spacing: .04em;
+            line-height: 1.5;
+        }
+
+        .fig-cap strong {
+            color: var(--fg2);
+        }
+
+        /* ── Compare table ──────────────────────────────────── */
+        .ctbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: clamp(10px, 1.1vw, 13.5px);
+        }
+
+        .ctbl th {
+            padding: 1vh 1vw;
+            text-align: left;
+            font-family: var(--mono);
+            font-size: clamp(8px, .88vw, 11px);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--fg3);
+            border-bottom: 1px solid var(--brd);
+        }
+
+        .ctbl td {
+            padding: .9vh 1vw;
+            border-bottom: 1px solid var(--brd);
+            color: var(--fg2);
+            vertical-align: top;
+            line-height: 1.52;
+        }
+
+        .ctbl tr:last-child td {
+            border-bottom: none;
+        }
+
+        .ctbl td:first-child {
+            font-family: var(--mono);
+            font-size: clamp(8px, .88vw, 11px);
+            letter-spacing: .05em;
+            color: var(--fg3);
+            white-space: nowrap;
+        }
+
+        .ctbl td.bl {
+            color: var(--acc);
+        }
+
+        .ctbl td.or {
+            color: var(--acc2);
+        }
+
+        .ctbl td.gr {
+            color: var(--acc3);
+        }
+
+        .ctbl td strong {
+            color: var(--fg);
+        }
+
+        /* ── Stage pipeline ─────────────────────────────────── */
+        .pipe {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            flex: 1;
+        }
+
+        .ps {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .ps:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -14px;
+            top: 26px;
+            color: var(--fg3);
+            font-size: 13px;
+        }
+
+        .ps-nb {
+            font-family: var(--mono);
+            font-size: clamp(8px, .88vw, 11px);
+            color: var(--acc);
+            letter-spacing: .12em;
+            margin-bottom: .5vh;
+        }
+
+        .ps-nb.o {
+            color: var(--acc2);
+        }
+
+        .pb {
+            border: 1px solid var(--brd);
+            background: var(--bg2);
+            padding: 1.4vh 1vw;
+            flex: 1;
+        }
+
+        .pb h4 {
+            font-size: clamp(11px, 1.18vw, 14px);
+            font-weight: 600;
+            margin-bottom: .5vh;
+            color: var(--fg);
+        }
+
+        .pb p {
+            font-size: clamp(9px, 1vw, 12.5px);
+            color: var(--fg2);
+            line-height: 1.55;
+        }
+
+        .pb .tag {
+            display: inline-block;
+            font-family: var(--mono);
+            font-size: 9px;
+            padding: 2px 6px;
+            background: rgba(74, 124, 255, .1);
+            color: var(--acc);
+            margin-top: .6vh;
+        }
+
+        .pb .tag.o {
+            background: rgba(240, 96, 48, .1);
+            color: var(--acc2);
+        }
+
+        /* ── Findings list ──────────────────────────────────── */
+        .flist {
+            display: flex;
+            flex-direction: column;
+            gap: 1.3vh;
+            flex: 1;
+        }
+
+        .frow {
+            display: flex;
+            align-items: flex-start;
+            gap: 1vw;
+            border: 1px solid var(--brd);
+            padding: 1.2vh 1.3vw;
+            background: var(--bg2);
+        }
+
+        .fnb {
+            font-family: var(--mono);
+            font-size: clamp(9px, .95vw, 12px);
+            color: var(--acc);
+            min-width: 26px;
+            padding-top: 2px;
+        }
+
+        .fnb.o {
+            color: var(--acc2);
+        }
+
+        .fnb.g {
+            color: var(--acc3);
+        }
+
+        .frow p {
+            font-size: clamp(11px, 1.2vw, 14.5px);
+            line-height: 1.62;
+            color: var(--fg2);
+        }
+
+        .frow p strong {
+            color: var(--fg);
+        }
+
+        /* ── Dot grid deco ──────────────────────────────────── */
+        .dots {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 220px;
+            opacity: .035;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+            background-size: 18px 18px;
+        }
+
+        /* ── Footnote ───────────────────────────────────────── */
+        .fn {
+            margin-top: auto;
+            padding-top: 1.4vh;
+            font-family: var(--mono);
+            font-size: clamp(8px, .85vw, 10px);
+            color: var(--fg3);
+            border-top: 1px solid var(--brd);
+            letter-spacing: .04em;
+            line-height: 1.5;
+        }
+
+        /* ── Bar compare ────────────────────────────────────── */
+        .barcmp {
+            display: flex;
+            flex-direction: column;
+            gap: 1.1vh;
+        }
+
+        .brow {
+            display: flex;
+            align-items: center;
+            gap: .7vw;
+        }
+
+        .blbl {
+            font-family: var(--mono);
+            font-size: clamp(8px, .88vw, 11px);
+            color: var(--fg3);
+            letter-spacing: .05em;
+            min-width: 13ch;
+        }
+
+        .btrk {
+            flex: 1;
+            height: 18px;
+            background: var(--bg3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bfil {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding-left: 6px;
+            font-family: var(--mono);
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--bg);
+            white-space: nowrap;
+        }
+
+        .bfil.b {
+            background: var(--acc);
+        }
+
+        .bfil.o {
+            background: var(--acc2);
+        }
+
+        .bfil.g {
+            background: var(--acc3);
+        }
+
+        .bfil.dim {
+            background: var(--fg3);
+        }
+
+        /* ── Index overlay ──────────────────────────────────── */
+        #ix {
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 4, 8, .97);
+            z-index: 300;
+            display: none;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 10px;
+            padding: 54px 32px;
+            overflow-y: auto;
+        }
+
+        #ix.open {
+            display: flex;
+        }
+
+        .th {
+            width: calc(20% - 8px);
+            aspect-ratio: 16/9;
+            border: 1px solid var(--brd);
+            background: var(--bg2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 5px;
+            padding: 10px;
+            text-align: center;
+            transition: border-color .18s;
+        }
+
+        .th:hover,
+        .th.cur {
+            border-color: var(--acc);
+        }
+
+        .thn {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--fg3);
+        }
+
+        .tht {
+            font-size: 10px;
+            color: var(--fg2);
+            line-height: 1.4;
+        }
+
+        /* helpers */
+        .mt-a {
+            margin-top: auto;
+        }
+
+        .mb2 {
+            margin-bottom: 2vh;
+        }
+
+        .mb3 {
+            margin-bottom: 2.8vh;
+        }
+
+        .flex1 {
+            flex: 1;
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="pb"></div>
+    <div id="deck">
+        <div class="sw" id="sw">
+
+            <!-- ══ 01 · 封面 ════════════════════════════════════════ -->
+            <section class="slide active dark2" data-t="封面">
+                <div class="dots"></div>
+                <div style="flex:1;display:flex;flex-direction:column;justify-content:center;max-width:100%">
+                    <div class="kicker" style="margin-bottom:2vh">组会文献汇报 · 2026.05</div>
+                    <div class="h1" style="margin-bottom:2.8vh">
+                        LLM Agent <strong>Skill Routing</strong> at Scale<br>
+                        <span style="font-weight:200;color:var(--fg2);font-size:.72em">
+                            SKILLFLOW 与 SkillRouter
+                        </span>
+                    </div>
+                    <div class="hr" style="max-width:52%;margin-bottom:2.4vh"></div>
+                    <div style="display:flex;gap:.8vw;flex-wrap:wrap;margin-bottom:2vh">
+                        <span class="chip b">SkillRouter — Alibaba Group · arXiv 2026</span>
+                        <span class="chip o">SkillFlow — USTC · arXiv 2026</span>
+                    </div>
+                    <p class="body" style="max-width:60ch">
+                        当 Skill 注册表膨胀到数万条时，把所有 Skill 塞进上下文已经不现实了。
+                        这两篇论文从不同切口进入同一个问题：一篇用 1.2B 的小模型做大规模路由，
+                        另一篇评测 Agent 能否自己发现并维护 Skill 库。
+                        </strong>
+                    </p>
+                </div>
+                <div class="srow">
+                    <div class="si">
+                        <div class="n">~80K</div>
+                        <div class="l">SkillRouter Skill 池规模</div>
+                    </div>
+                    <div class="si">
+                        <div class="n o">~36K</div>
+                        <div class="l">SkillFlow Skill 库规模</div>
+                    </div>
+                    <div class="si">
+                        <div class="n g">75 queries</div>
+                        <div class="l">SkillRouter 核心评测集</div>
+                    </div>
+                    <div class="si">
+                        <div class="n y">87 tasks</div>
+                        <div class="l">SkillsBench 评测规模</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══ 02 · 论文元数据 ════════════════════════════════════ -->
+            <section class="slide light" data-t="论文元数据">
+                <div class="kicker" style="color:var(--acc)">Paper Metadata</div>
+                <div class="h2 mb3" style="color:var(--fg)">两篇论文基本信息</div>
+
+                <div class="g55" style="flex:1;align-items:start;gap:3vw">
+
+                    <!-- SkillFlow -->
+                    <div class="col" style="gap:1.2vh">
+                        <div style="display:flex;align-items:center;gap:.8vw;margin-bottom:.4vh">
+                            <span class="chip o">SkillFlow</span>
+                            <span class="mono">arXiv 2026</span>
+                        </div>
+                        <div class="card ob" style="padding:2vh 1.6vw">
+                            <div class="card-hd" style="color:var(--acc2);margin-bottom:1.2vh">标题</div>
+                            <p
+                                style="font-size:clamp(12px,1.3vw,16px);font-weight:600;line-height:1.45;color:var(--fg);margin-bottom:1.4vh">
+                                SKILLFLOW: Benchmarking Lifelong Skill Discovery<br>and Evolution for Autonomous Agents
+                            </p>
+                            <div class="card-hd" style="color:var(--acc2);margin-bottom:.8vh">作者</div>
+                            <p style="font-size:clamp(10px,1.1vw,13px);line-height:1.7;color:var(--fg2)">
+                                Ziao Zhang · Kou Shi · Shiting Huang · Avery Nie · Yu Zeng<br>
+                                Yiming Zhao · Zhen Fang · Qisheng Su · Haibo Qiu · Wei Yang<br>
+                                Qingnan Ren · Shun Zou · Wenxuan Huang · Lin Chen<br>
+                                Zehui Chen · <strong>Feng Zhao*</strong>（通讯作者）
+                            </p>
+                            <div class="card-hd" style="color:var(--acc2);margin-top:1.2vh;margin-bottom:.6vh">机构</div>
+                            <p style="font-size:clamp(10px,1.1vw,13px);line-height:1.6;color:var(--fg2)">
+                                <sup>1</sup>中国科学技术大学 &nbsp;·&nbsp; <sup>2</sup>University of Toronto<br>
+                                <sup>3</sup>University of Sydney
+                            </p>
+                            <div class="card-hd" style="color:var(--acc2);margin-top:1.2vh;margin-bottom:.6vh">核心问题
+                            </div>
+                            <p style="font-size:clamp(10px,1.1vw,13px);line-height:1.6;color:var(--fg2)">
+                                现有 Agent 基准大多预设了 Skill 已存在，只测"用不用得好"。SKILLFLOW 问的是更上游的问题：
+                                Agent 能不能自己把解题经验写成 Skill，用错了还能修，
+                                并随着任务序列的推进让整个库越来越好用？
+                            </p>
+                            <div class="card-hd" style="color:var(--acc2);margin-top:1.2vh;margin-bottom:.6vh">核心设计
+                            </div>
+                            <p style="font-size:clamp(10px,1.1vw,13px);line-height:1.6;color:var(--fg2)">
+                                166 个任务按执行流程分组——而非按领域——形成 20 个 workflow family，横跨 5 个领域。
+                                关键是 <strong>DAEF</strong>（领域无关执行流）：两个看似不同领域的任务，只要执行步骤相似就算同一 family。
+                                这迫使 Skill 在<em>过程层面</em>迁移，而不只是"都是文档处理"这种表层相似。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- SkillRouter -->
+                    <div class="col" style="gap:1.2vh">
+                        <div style="display:flex;align-items:center;gap:.8vw;margin-bottom:.4vh">
+                            <span class="chip b">SkillRouter</span>
+                            <span class="mono">arXiv 2026</span>
+                        </div>
+                        <div class="card ab" style="padding:2vh 1.6vw">
+                            <div class="card-hd" style="color:var(--acc);margin-bottom:1.2vh">标题</div>
+                            <p
+                                style="font-size:clamp(12px,1.3vw,16px);font-weight:600;line-height:1.45;color:var(--fg);margin-bottom:1.4vh">
+                                SkillRouter: Skill Routing for LLM Agents at Scale
+                            </p>
+                            <div class="card-hd" style="color:var(--acc);margin-bottom:.8vh">作者</div>
+                            <p style="font-size:clamp(10px,1.1vw,13px);line-height:1.7;color:var(--fg2)">
+                                Alibaba Group 研究团队
+                            </p>
+                            <div class="card-hd" style="color:var(--acc);margin-top:1.2vh;margin-bottom:.6vh">机构</div>
+                            <p style="font-size:clamp(10px,1.1vw,13px);line-height:1.6;color:var(--fg2)">
+                                Alibaba Group
+                            </p>
+                            <div class="card-hd" style="color:var(--acc);margin-top:1.2vh;margin-bottom:.6vh">研究问题</div>
+                            <p style="font-size:clamp(10px,1.1vw,13px);line-height:1.6;color:var(--fg2)">
+                                在 ~80K Skill 的注册表中，如何高效、低延迟地将任务查询路由到最相关的 Skill 子集？
+                                （大规模 Skill 检索路由，Retrieve-and-Rerank）
+                            </p>
+                            <div class="card-hd" style="color:var(--acc);margin-top:1.2vh;margin-bottom:.6vh">项目页</div>
+                            <p style="font-family:var(--mono);font-size:clamp(9px,.95vw,11px);color:var(--fg3)">
+                                paper.report.md 已在本仓库归档分析
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="fn" style="border-top-color:rgba(0,0,0,0.09);color:#888">
+                    SkillFlow 项目页：zhangzi-a.github.io/SkillFlow-project-page · SkillRouter 详细分析见 paper.report.md
+                </div>
+            </section>
+
+            <!-- ══ 03 · SkillFlow Benchmark Visuals ═══════════════════ -->
+            <section class="slide light" data-t="SkillFlow：基准构建">
+                <div class="kicker o">SkillFlow · Benchmark Construction</div>
+                <div class="h2 mb2" style="color:var(--fg)">双智能体构建管线 · 五领域分类 · DAEF 对应</div>
+
+                <!-- 说明文字 -->
+                <p style="font-size:clamp(11px,1.15vw,14px);line-height:1.55;color:var(--fg2);margin-bottom:1vh">
+                    These figures summarize the <strong>dual-agent construction pipeline</strong>, the
+                    <strong>five-domain benchmark taxonomy</strong>,
+                    and the <strong>DAEF correspondences</strong> that let SKILLFLOW study procedural transfer beyond
+                    surface-level domain overlap.<br>
+                    <span style="color:var(--fg3)">双代理构建流程 · 五域基准分类法 · DAEF 对应关系——使 SKILLFLOW
+                        能够在程序迁移层面（而非主题重叠）衡量能力。</span>
+                </p>
+
+                <!-- 第一行：pipeline 全宽 -->
+                <div
+                    style="background:#fff;padding:4px;border-radius:4px;height:29vh;margin-bottom:1vh;overflow:hidden">
+                    <div class="fig-cap" style="margin-bottom:.3vh"><strong>Fig A — Dual-agent construction
+                            pipeline</strong></div>
+                    <img src="assets/data_pipeline.png" alt="Dual-agent data pipeline"
+                        style="width:100%;height:calc(100% - 1.8em);object-fit:contain;object-position:left top">
+                </div>
+
+                <!-- 第二行：taxonomy + DAEF 并列 -->
+                <div style="flex:1;display:flex;gap:1.6vw;min-height:0">
+                    <div
+                        style="flex:4;min-width:0;background:#fff;padding:4px;border-radius:4px;display:flex;flex-direction:column">
+                        <div class="fig-cap" style="margin-bottom:.3vh"><strong>Fig B — Five-domain taxonomy</strong>
+                        </div>
+                        <img src="assets/data_taxonomy.png" alt="Five-domain benchmark taxonomy"
+                            style="flex:1;width:100%;object-fit:contain;object-position:top;min-height:0">
+                    </div>
+                    <div
+                        style="flex:6;min-width:0;background:#fff;padding:4px;border-radius:4px;display:flex;flex-direction:column">
+                        <div class="fig-cap" style="margin-bottom:.3vh"><strong>Fig C — DAEF correspondences</strong>
+                        </div>
+                        <img src="assets/daef_example.png" alt="DAEF example"
+                            style="flex:1;width:100%;object-fit:contain;object-position:top;min-height:0">
+                    </div>
+                </div>
+
+                <div class="fn" style="border-top-color:rgba(0,0,0,0.09);color:#888">
+                    SkillFlow · zhangzi-a.github.io/SkillFlow-project-page · 166 tasks · 20 workflow families · 5
+                    domains · DAEF = Domain-Agnostic Execution Flow
+                </div>
+            </section>
+
+            <!-- ══ 04 · SkillFlow Main Findings ══════════════════════ -->
+            <section class="slide dark2" data-t="SkillFlow：主要发现">
+                <div class="kicker o">SkillFlow · Main Findings</div>
+                <div class="h2 mb3">六项核心实验发现</div>
+
+                <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:1.2vh 1.8vw;align-items:start">
+
+                    <div class="frow" style="flex-direction:column;gap:.7vh">
+                        <div style="display:flex;align-items:center;gap:.7vw">
+                            <div class="fnb">F1</div>
+                            <div style="font-size:clamp(13px,1.35vw,16px);font-weight:600;color:var(--fg)">Opus 4.6
+                                是最明确的正例</div>
+                        </div>
+                        <p style="font-size:clamp(12px,1.2vw,14.5px);line-height:1.8;color:var(--fg2)">
+                            Claude Opus 4.6 从 104/166 升至 <strong>118/166</strong>（+14 道题）。
+                            设一个 history-only 对照组——只是把历史记录喂给模型，不做 Skill 提炼——结果只有 51.04%。
+                            说明那 14 道的增益来自把经验结构化成 Skill，而不只是"上下文变长了"。
+                        </p>
+                    </div>
+
+                    <div class="frow" style="flex-direction:column;gap:.7vh">
+                        <div style="display:flex;align-items:center;gap:.7vw">
+                            <div class="fnb o">F2</div>
+                            <div style="font-size:clamp(13px,1.35vw,16px);font-weight:600;color:var(--fg)">错误 Skill
+                                产生下游漂移</div>
+                        </div>
+                        <p style="font-size:clamp(12px,1.2vw,14.5px);line-height:1.8;color:var(--fg2)">
+                            一个写坏的 Skill 不只影响当前任务，后续复用它的任务会把同样的错误继承进来，
+                            把局部失败变成序列级的系统性退化。
+                            这意味着<strong>修 Skill 的难度和重要性都超过写 Skill 本身</strong>。
+                        </p>
+                    </div>
+
+                    <div class="frow" style="flex-direction:column;gap:.7vh">
+                        <div style="display:flex;align-items:center;gap:.7vw">
+                            <div class="fnb g">F3</div>
+                            <div style="font-size:clamp(13px,1.35vw,16px);font-weight:600;color:var(--fg)">紧凑演化库优于碎片库
+                            </div>
+                        </div>
+                        <p style="font-size:clamp(12px,1.2vw,14.5px);line-height:1.8;color:var(--fg2)">
+                            最强的库不是 Skill 最多的，而是由<strong>少数几个被反复修缮的高质量 Skill</strong> 组成的。
+                            任务级记忆堆叠得再多也无法弥补单个 Skill 质量差的问题。
+                        </p>
+                    </div>
+
+                    <div class="frow" style="flex-direction:column;gap:.7vh">
+                        <div style="display:flex;align-items:center;gap:.7vw">
+                            <div class="fnb y">F4</div>
+                            <div style="font-size:clamp(13px,1.35vw,16px);font-weight:600;color:var(--fg)">Qwen /
+                                MiniMax 存在 Skill 膨胀</div>
+                        </div>
+                        <p style="font-size:clamp(12px,1.2vw,14.5px);line-height:1.8;color:var(--fg2)">
+                            部分较弱的设置随着任务推进不断往库里加 Skill，数量几乎单调增长，
+                            但这些新增的 Skill 高度重叠，<strong>库增长和性能提升之间的关系断掉了</strong>。
+                        </p>
+                    </div>
+
+                    <div class="frow" style="flex-direction:column;gap:.7vh">
+                        <div style="display:flex;align-items:center;gap:.7vw">
+                            <div class="fnb">F5</div>
+                            <div style="font-size:clamp(13px,1.35vw,16px);font-weight:600;color:var(--fg)">Codex 紧凑但不够
+                            </div>
+                        </div>
+                        <p style="font-size:clamp(12px,1.2vw,14.5px);line-height:1.8;color:var(--fg2)">
+                            Codex 倾向于把相近的变体合并成一个共用的核心 Skill，库保持紧凑。
+                            但<strong>整理能力强不等于任务解决能力强</strong>，端到端指标没跟上。
+                        </p>
+                    </div>
+
+                    <div class="frow" style="flex-direction:column;gap:.7vh">
+                        <div style="display:flex;align-items:center;gap:.7vw">
+                            <div class="fnb o">F6</div>
+                            <div style="font-size:clamp(13px,1.35vw,16px);font-weight:600;color:var(--fg)">修复 Skill 比写
+                                Skill 难</div>
+                        </div>
+                        <p style="font-size:clamp(12px,1.2vw,14.5px);line-height:1.8;color:var(--fg2)">
+                            任务结束后写出点什么，大多数模型都能做到。
+                            真正的分水岭是：能不能认出哪个 Skill 写错了，
+                            <strong>把它改好，然后在后续任务里真的用上</strong>这个修复结果。
+                        </p>
+                    </div>
+
+                </div>
+                <div class="fn">SkillFlow Main Findings · zhangzi-a.github.io/SkillFlow-project-page · history-only
+                    control = 51.04%</div>
+            </section>
+
+            <!-- ══ 05 · 研究背景与问题定义 ══════════════════════════ -->
+            <section class="slide" data-t="研究背景与问题定义">
+                <div class="kicker">Background · §1 两篇</div>
+                <div class="h2 mb3">为什么 Skill Routing 是一个非平凡问题</div>
+
+                <div style="flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.4vw;align-items:start">
+                    <!-- 列1：动机 -->
+                    <div class="col" style="gap:1.2vh">
+                        <div class="card-hd">问题来源</div>
+                        <p class="body">
+                            Claude Code、Codex 这类产品已经把 Skill 注册表接入了推理流程。
+                            随着开源社区的 Skill 库突破万级，
+                            把所有 Skill 直接塞进上下文已经不现实——
+                            实验表明无关 Skill 会明显拉低 Agent 表现（Li et al., 2026a）。
+                        </p>
+                        <div class="blk">
+                            <p><strong>一个不对称之处</strong>（SkillRouter §1）：<br>
+                                路由系统检索时能看到完整的 Skill body（中位 704 词、P90 达 1,991 词），
+                                但 Agent 推理时通常只能看 name + description 这 21 个词（Table 7）。
+                                这个剪刀差是理解两篇论文设计决策的起点。</p>
+                        </div>
+                    </div>
+                    <!-- 列2：难点 + 评测 -->
+                    <div class="col" style="gap:1.2vh">
+                        <div class="card-hd">难点：大规模重叠</div>
+                        <div class="card ob">
+                            <ul style="margin:0">
+                                <li>80K Skill 跨 51 类别，同一功能被不同作者重复实现</li>
+                                <li>候选语义高度重叠，元数据信息密度太低</li>
+                                <li>推理延迟有严格服务约束（~500ms 目标）</li>
+                            </ul>
+                        </div>
+                        <div class="card" style="margin-top:.4vh">
+                            <div class="card-hd">评测集：SkillsBench (Li et al., 2026b)</div>
+                            <ul>
+                                <li>87 个 expert-curated 任务，229 个匹配 Skill</li>
+                                <li>SkillRouter 保留 75 条核心 query（去除 generic-only）</li>
+                                <li>多技能任务 51/75（68%）：Pipeline / Substitute / Mixed</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- 列3：形式化 -->
+                    <div class="col" style="gap:1.2vh">
+                        <div class="card-hd">形式化定义（SkillRouter §2）</div>
+                        <div class="card ab">
+                            <p style="margin-bottom:.8vh">给定查询 <em>q</em> 与技能池 <em>S</em>（|S| ≈ 80K），返回 Top-K 子集
+                                Ĝ<sub>q</sub>，优化三项指标：</p>
+                            <div class="flist" style="gap:.6vh">
+                                <div class="frow" style="padding:.6vh .8vw">
+                                    <div class="fnb" style="font-size:10px;min-width:52px">Hit@1</div>
+                                    <p>Rank-1 结果是否命中任意真实 Skill</p>
+                                </div>
+                                <div class="frow" style="padding:.6vh .8vw">
+                                    <div class="fnb o" style="font-size:10px;min-width:52px">Recall@K</div>
+                                    <p>Top-K 中 GT Skill 的比例</p>
+                                </div>
+                                <div class="frow" style="padding:.6vh .8vw">
+                                    <div class="fnb g" style="font-size:10px;min-width:52px">FC@10</div>
+                                    <p>全部 GT Skill 均在 Top-10（严格多技能全覆盖）</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="blk y" style="margin-top:.4vh">
+                            <p><strong>优化张力</strong>：Hit@1（精准率）与 FC@10（全覆盖）之间存在根本性权衡——SkillRouter 在 Hit@1 领先但 FC@10
+                                退步即为例证。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fn">SkillRouter §1–2 · SkillFlow §1 · SkillsBench (Li et al., 2026b) Appendix A · Table 7
+                </div>
+            </section>
+
+            <!-- ══ 05-B · Skill 基础结构 ══════════════════════════════ -->
+            <section class="slide light" data-t="Skill 的基础结构">
+                <div class="kicker" style="color:var(--acc)">Skill Anatomy · SkillRouter §1 · Table 7</div>
+                <div class="h2 mb3" style="color:var(--fg)">一个 Skill 由什么构成？</div>
+
+                <div class="g55" style="flex:1;align-items:start;gap:2.6vw">
+                    <!-- 左：三字段结构 -->
+                    <div class="col" style="gap:1.3vh">
+                        <div class="card ab" style="padding:1.6vh 1.4vw">
+                            <div class="card-hd" style="color:var(--acc);margin-bottom:1vh">Skill 三字段结构（SkillRouter
+                                Table 7）</div>
+                            <div class="flist" style="gap:.8vh">
+                                <div class="frow" style="padding:.9vh 1vw;align-items:start">
+                                    <div class="fnb" style="min-width:56px;font-size:11px">name</div>
+                                    <div>
+                                        <p style="font-weight:600;margin-bottom:.3vh">技能名称</p>
+                                        <p style="font-size:clamp(10px,1.05vw,12.5px);color:var(--fg2)">中位 3 词 · 唯一标识符，如
+                                            <code>audio_transcribe_whisper</code></p>
+                                    </div>
+                                </div>
+                                <div class="frow" style="padding:.9vh 1vw;align-items:start">
+                                    <div class="fnb o" style="min-width:56px;font-size:11px">desc</div>
+                                    <div>
+                                        <p style="font-weight:600;margin-bottom:.3vh">自然语言描述</p>
+                                        <p style="font-size:clamp(10px,1.05vw,12.5px);color:var(--fg2)">中位 18 词 ·
+                                            摘要性说明，如 "Transcribe audio files using OpenAI Whisper API"</p>
+                                    </div>
+                                </div>
+                                <div class="frow" style="padding:.9vh 1vw;align-items:start">
+                                    <div class="fnb g" style="min-width:56px;font-size:11px">body</div>
+                                    <div>
+                                        <p style="font-weight:600;margin-bottom:.3vh">完整实现体</p>
+                                        <p style="font-size:clamp(10px,1.05vw,12.5px);color:var(--fg2)">中位 704 词 · P90 达
+                                            1,991 词 · 包含代码实现、示例调用、依赖声明、错误处理</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="blk">
+                            <p>Agent 在<strong>推理时只看 name + desc</strong>（避免上下文爆炸）；
+                                路由系统在<strong>检索时访问完整 body</strong>——这一非对称是 SkillRouter 的核心工程前提。</p>
+                        </div>
+                    </div>
+                    <!-- 右：规模统计 + 两篇论文对 Skill 的不同定义 -->
+                    <div class="col" style="gap:1.3vh">
+                        <div class="card ob">
+                            <div class="card-hd" style="color:var(--acc2)">SkillRouter 技能库规模（§1）</div>
+                            <div class="barcmp" style="margin-top:.6vh">
+                                <div class="brow">
+                                    <div class="blbl">总 Skill 数</div>
+                                    <div class="btrk">
+                                        <div class="bfil b" style="width:80%">~80,000</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">类别数</div>
+                                    <div class="btrk">
+                                        <div class="bfil o" style="width:51%">51 categories</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">Body 中位词数</div>
+                                    <div class="btrk">
+                                        <div class="bfil g" style="width:35.2%">704 词</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">Name+Desc 词数</div>
+                                    <div class="btrk">
+                                        <div class="bfil dim" style="width:1.05%">21 词</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-hd">两篇论文对 Skill 的不同定义</div>
+                            <table class="ctbl" style="margin-top:.6vh">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th style="color:var(--acc)">SkillRouter</th>
+                                        <th style="color:var(--acc2)">SkillFlow</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>来源</td>
+                                        <td>外部社区提供，静态工具</td>
+                                        <td>Agent 自主生成，动态演化</td>
+                                    </tr>
+                                    <tr>
+                                        <td>库更新</td>
+                                        <td>离线批量索引</td>
+                                        <td>任务后实时写入/修复</td>
+                                    </tr>
+                                    <tr>
+                                        <td>规模</td>
+                                        <td>~80K 预存</td>
+                                        <td>从零构建，随任务增长</td>
+                                    </tr>
+                                    <tr>
+                                        <td>质量控制</td>
+                                        <td>无（社区原始）</td>
+                                        <td>Architect Agent 审核</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="fn" style="border-top-color:rgba(0,0,0,0.09);color:#888">SkillRouter §1 · Table 7（字段统计）·
+                    SkillFlow §2（Skill 定义与 DAEF 审核标准）</div>
+            </section>
+
+            <!-- ══ 03 · 核心实验发现（Figure 1 SR）══════════════════ -->
+            <section class="slide dark2" data-t="核心发现：全文信号">
+                <div class="kicker y">Key Finding · SkillRouter §3 · Figure 1</div>
+                <div class="h2 mb3">隐去 body 全文后，路由精度下降 31–44 pp</div>
+
+                <div class="g46" style="flex:1;align-items:start;min-height:0">
+                    <div class="col" style="gap:1.4vh">
+                        <p class="body">
+                            对三类代表性 baseline 进行消融：全文（name + desc + body）vs 仅元数据（name + desc，记为 nd）。
+                            Easy/Hard 均值结果：
+                        </p>
+                        <div class="barcmp" style="margin-top:.4vh">
+                            <div class="brow">
+                                <div class="blbl">BM25 · full</div>
+                                <div class="btrk">
+                                    <div class="bfil b" style="width:31.4%">31.4%</div>
+                                </div>
+                            </div>
+                            <div class="brow">
+                                <div class="blbl">BM25 · nd</div>
+                                <div class="btrk">
+                                    <div class="bfil dim" style="width:1%">0.0%</div>
+                                </div>
+                            </div>
+                            <div class="brow">
+                                <div class="blbl">Emb-8B · full</div>
+                                <div class="btrk">
+                                    <div class="bfil b" style="width:64%">64.0%</div>
+                                </div>
+                            </div>
+                            <div class="brow">
+                                <div class="blbl">Emb-8B · nd</div>
+                                <div class="btrk">
+                                    <div class="bfil o" style="width:25.3%">25.3%</div>
+                                </div>
+                            </div>
+                            <div class="brow">
+                                <div class="blbl">Rerank-8B · full</div>
+                                <div class="btrk">
+                                    <div class="bfil b" style="width:68%">68.0%</div>
+                                </div>
+                            </div>
+                            <div class="brow">
+                                <div class="blbl">Rerank-8B · nd</div>
+                                <div class="btrk">
+                                    <div class="bfil o" style="width:24%">24.0%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="blk g" style="margin-top:1vh">
+                            <p>
+                                <strong>长度控制（Appendix C–D）</strong>：注意力诊断显示，name 字段仅占 3.0% token 但在 Layer 19 达到 26.3%
+                                注意力峰值；最终层 body 注意力与 body 绝对长度不相关（r = 0.04）。
+                                GT 描述最长四分位分层控制：nd vs full 差距仍 ≥26pp。
+                            </p>
+                        </div>
+                    </div>
+                    <!-- 右列：两图限高，整体不超出幻灯片 -->
+                    <div class="fig" style="max-height:62vh;overflow:hidden;gap:.5vh">
+                        <img src="../../papers/agentic_ai/SkillRouter Skill Routing for LLM Agents at Scale/images/5b63b4076daef1eac2569eb50ea13cec5aa86c7525cf81fde18fa091f1666a12.jpg"
+                            alt="Figure 1 Left: nd vs full Hit@1 bar chart"
+                            style="max-height:29vh;width:100%;object-fit:contain;object-position:top">
+                        <img src="../../papers/agentic_ai/SkillRouter Skill Routing for LLM Agents at Scale/images/9abf142cfabf4be2ef8c6eb6e8a95fee075507211f67cc49bf75f30dc2a8577a.jpg"
+                            alt="Figure 1 Right: layer-wise attention by field"
+                            style="max-height:27vh;width:100%;object-fit:contain;object-position:top">
+                        <div class="fig-cap">
+                            <strong>Figure 1 (SkillRouter)</strong>：上：三类 baseline nd vs full Hit@1 对比（Easy/Hard 均值）。
+                            下：SR-Rank-0.6B 各层对 name / body 字段的注意力占比，token-share 基准线已标注。
+                        </div>
+                    </div>
+                </div>
+                <div class="fn">SkillRouter §3 · Figure 1 · Table 9 · Appendix C–D（长度控制与描述质量分层实验）</div>
+            </section>
+
+            <!-- ══ 04 · SkillFlow 管线架构 ══════════════════════════ -->
+            <section class="slide light" data-t="SkillFlow：四阶段管线">
+                <div class="kicker o">SkillFlow · §3 · Figure 1</div>
+                <div class="h2 mb2" style="color:var(--fg)">四阶段渐进式检索管线</div>
+
+                <div class="fig mb2" style="max-height:32vh;overflow:hidden;background:#fff;padding:4px">
+                    <img src="../../papers/agentic_ai/SkillFlow Scalable and Efficient Agent Skill Retrieval System/images/ff1416b8445f16887ebc8a5bfc005c8745c46ab3e1f88aa266e5bf66c9341f56.jpg"
+                        alt="SkillFlow pipeline overview Figure 1"
+                        style="max-height:28vh;width:auto;margin:0 auto;display:block">
+                    <div class="fig-cap"
+                        style="border-top:1px solid rgba(0,0,0,0.09);padding-top:.6vh;margin-top:.4vh;color:#888">
+                        <strong>Figure 1 (SkillFlow)</strong>：用户任务经四阶段逐步缩减候选集（1K→100→10→≤5），Retrieved skills 返回给 Agent
+                        用于任务执行。
+                    </div>
+                </div>
+
+                <div class="pipe">
+                    <div class="ps">
+                        <div class="ps-nb o">Stage 0</div>
+                        <div class="pb">
+                            <h4>LLM Query Gen</h4>
+                            <p>GPT-4o-mini 生成 M₁=5 条多维查询（域/语言/工具/库抽象层）</p>
+                            <span class="tag o">在线 LLM ①</span>
+                        </div>
+                    </div>
+                    <div class="ps">
+                        <div class="ps-nb">Stage 1</div>
+                        <div class="pb">
+                            <h4>Dense Retrieval</h4>
+                            <p>BAAI/bge-base-en-v1.5 余弦 ANN</p>
+                            <p style="color:var(--acc2);font-weight:600;margin-top:.4vh">36K → 1,000</p>
+                            <span class="tag">通用模型，无微调</span>
+                        </div>
+                    </div>
+                    <div class="ps">
+                        <div class="ps-nb">Stage 2</div>
+                        <div class="pb">
+                            <h4>Shallow Rerank</h4>
+                            <p>MiniLM-L-6 Cross-Encoder，截断至 512 tokens</p>
+                            <p style="color:var(--acc2);font-weight:600;margin-top:.4vh">1,000 → 100</p>
+                            <span class="tag">通用模型，无微调</span>
+                        </div>
+                    </div>
+                    <div class="ps">
+                        <div class="ps-nb">Stage 3</div>
+                        <div class="pb">
+                            <h4>Deep Rerank</h4>
+                            <p>BGE-reranker-v2-m3，截断至 4,096 tokens</p>
+                            <p style="color:var(--acc2);font-weight:600;margin-top:.4vh">100 → 10</p>
+                            <span class="tag">通用模型，无微调</span>
+                        </div>
+                    </div>
+                    <div class="ps">
+                        <div class="ps-nb o">Stage 4</div>
+                        <div class="pb">
+                            <h4>LLM Selector</h4>
+                            <p>GPT-4o-mini 语义相关性过滤，输出可变数量 ≤5</p>
+                            <p style="color:var(--acc2);font-weight:600;margin-top:.4vh">10 → ≤5</p>
+                            <span class="tag o">在线 LLM ②</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="srow" style="border-top-color:rgba(0,0,0,0.09)">
+                    <div class="si">
+                        <div class="n" style="color:var(--acc2)">~35s</div>
+                        <div class="l">中位延迟/任务（RTX A5000）</div>
+                    </div>
+                    <div class="si">
+                        <div class="n" style="color:var(--acc2)">~26s</div>
+                        <div class="l">其中 Deep Reranker 占</div>
+                    </div>
+                    <div class="si">
+                        <div class="n" style="color:var(--acc)">90.5%</div>
+                        <div class="l">Retriever Recall@Oracle</div>
+                    </div>
+                    <div class="si">
+                        <div class="n" style="color:var(--acc)">84.1%</div>
+                        <div class="l">Oracle 天花板覆盖率</div>
+                    </div>
+                </div>
+                <div class="fn" style="border-top-color:rgba(0,0,0,0.09);color:#888">SkillFlow §3–4 · Figure 1 · Table
+                    4–5（各阶段延迟细分）· §A.4（超参数消融）</div>
+            </section>
+
+            <!-- ══ 05 · SkillRouter 管线架构 ════════════════════════ -->
+            <section class="slide" data-t="SkillRouter：两阶段管线">
+                <div class="kicker">SkillRouter · §4 · Figure 2</div>
+                <div class="h2 mb2">两阶段全文 Retrieve-and-Rerank（1.2B 参数）</div>
+
+                <div class="g55" style="flex:1;align-items:start">
+                    <div class="col" style="gap:1.4vh">
+                        <div class="fig mb2">
+                            <img src="../../papers/agentic_ai/SkillRouter Skill Routing for LLM Agents at Scale/images/e95be44f0826ce3ccd51c05f06163401f12195a6433c73fbabe43a37598fb13b.jpg"
+                                alt="SkillRouter pipeline Figure 2">
+                            <div class="fig-cap">
+                                <strong>Figure 2 (SkillRouter)</strong>：Bi-Encoder 从 ~80K 池中检索 Top-20，Cross-Encoder 对 20
+                                个候选做 Listwise 重排。
+                                两阶段均使用 Skill 全文（name + desc + body）。
+                            </div>
+                        </div>
+                        <div class="blk y">
+                            <p><strong>Listwise CE 的必要性（Table 5 消融）</strong>：
+                                SR-Rank-0.6B + Listwise CE = 74.0% Hit@1；
+                                替换为 Pointwise BCE = 43.3%（差 <strong>30.7pp</strong>）。
+                                当 20 个候选全部主题相关时，逐点分类无法在候选间建立相对顺序。</p>
+                        </div>
+                    </div>
+                    <div class="col" style="gap:1.4vh">
+                        <div class="card ab">
+                            <div class="card-hd" style="color:var(--acc)">SR-Emb-0.6B（Bi-Encoder 微调）</div>
+                            <ul>
+                                <li>基础模型：Qwen3-Emb-0.6B；37,979 合成 (query, skill) 对</li>
+                                <li>InfoNCE 对比学习 + 四类硬负例（语义邻居 ×4、BM25 ×3、类别干扰 ×2、随机 ×1）</li>
+                                <li><strong>三层假负例过滤</strong>：name 去重 → Trigram Jaccard>0.6 → 余弦>0.92；
+                                    移除约 10% 挖掘负样本，消融贡献 <strong>+4.0pp</strong></li>
+                            </ul>
+                        </div>
+                        <div class="card ob">
+                            <div class="card-hd" style="color:var(--acc2)">SR-Rank-0.6B（Cross-Encoder 微调）</div>
+                            <ul>
+                                <li>基础模型：Qwen3-Rank-0.6B；32,283 条候选列表（每条 20 候选 + 二元标注）</li>
+                                <li>Listwise Cross-Entropy 损失，对整个候选列表计算排列概率</li>
+                                <li>两阶段共 <strong>1.2B</strong> 参数；推理中位延迟 <strong>495.8 ms</strong>（vs 16B 基线 5.8× 更慢）
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="fn">SkillRouter §4 · Figure 2 · Table 5（消融）· Appendix E（负例挖掘细节）· Appendix H（延迟基准，80 query
+                    测量）</div>
+            </section>
+
+            <!-- ══ SR-A · 全文信号机制深析 ══════════════════════════ -->
+            <section class="slide" data-t="SkillRouter：为什么需要全文">
+                <div class="kicker y">SkillRouter §3 · Body Signal Analysis</div>
+                <div class="h2 mb3">注意力机制揭示：决策权重 91.7% 在 body 字段</div>
+
+                <div class="g55" style="flex:1;align-items:start;gap:2.6vw">
+                    <div class="col" style="gap:1.4vh">
+                        <div class="blk y">
+                            <p>业界普遍假设 name + description（约 21 词）就足以区分 Skill。
+                                但在 ~80K 条、51 个类别的池子里，这 21 个词根本不够用——
+                                同一功能被不同作者以不同名字反复实现，元数据完全无法区分。</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-hd">注意力诊断（§3，75 query-skill 对）</div>
+                            <table class="ctbl">
+                                <thead>
+                                    <tr>
+                                        <th>字段</th>
+                                        <th>Token 占比</th>
+                                        <th>Layer 19 注意力</th>
+                                        <th>Layer 27（最终层）</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>name</td>
+                                        <td>3.0%</td>
+                                        <td class="bl"><strong>26.3%</strong>（峰值）</td>
+                                        <td>0.9%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>description</td>
+                                        <td>0.5%</td>
+                                        <td>1.0%</td>
+                                        <td>1.0%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>body</td>
+                                        <td class="bl"><strong>96.5%</strong></td>
+                                        <td>72.0%</td>
+                                        <td class="bl"><strong>98.1%</strong>（决策层）</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p style="margin-top:.8vh;font-size:clamp(10px,1.1vw,13px);color:var(--fg2)">
+                                中间层 name 短暂激活（26.3%）——模型先定位 Skill 范畴，最终层回归 body 执行精细区分。
+                                body 最终层注意力与 body 绝对长度相关系数 <strong>r = 0.04</strong>，排除"仅是 token 更多"的解释。
+                            </p>
+                        </div>
+                        <div class="card ob">
+                            <div class="card-hd">仅元数据路由的真实代价（Easy/Hard 均值）</div>
+                            <p style="font-size:clamp(11px,1.2vw,14px);line-height:1.7;color:var(--fg2)">
+                                BM25：full 31.4% → nd <strong>0.0%</strong>（差 31.4pp）<br>
+                                Qwen3-Emb-8B：full 64.0% → nd <strong>25.3%</strong>（差 38.7pp）<br>
+                                Qwen3-Emb-8B × Rank-8B：full 68.0% → nd <strong>24.0%</strong>（差 44.0pp）
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col" style="gap:1.4vh">
+                        <div class="card ab">
+                            <div class="card-hd" style="color:var(--acc)">Skill 字段规模非对称性（Table 7）</div>
+                            <div class="barcmp" style="margin-top:.6vh">
+                                <div class="brow">
+                                    <div class="blbl">body（中位数）</div>
+                                    <div class="btrk">
+                                        <div class="bfil b" style="width:70.4%">704 词</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">body（P90）</div>
+                                    <div class="btrk">
+                                        <div class="bfil b" style="width:100%">1,991 词</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">name + desc</div>
+                                    <div class="btrk">
+                                        <div class="bfil dim" style="width:2.1%">21 词</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p style="margin-top:1vh;font-size:clamp(10px,1.1vw,13px);color:var(--fg2)">
+                                Body 是 Skill 的主体——实现代码、调用示例、依赖声明都在里面；
+                                name + description 更像是"目录条目"，信息量根本不够做细粒度区分。
+                            </p>
+                        </div>
+                        <div class="blk">
+                            <p>SkillRouter 的设计选择：检索阶段读完整 body，Agent 推理阶段只看 name + description，
+                                两侧信息不对称——这是有意为之的工程决策，不是限制。</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-hd">控制实验：Description 质量不是解释（Appendix D）</div>
+                            <p style="font-size:clamp(10px,1.1vw,13px);color:var(--fg2)">
+                                按 description 长度分四分位，即便在描述最丰富的那组，
+                                去掉 body 后 Hit@1 仍下降 <strong>≥ 26pp</strong>。
+                                "是因为 description 写得太短"这个解释被直接排除。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fn">SkillRouter §3 · Figure 1 · Table 9 · Appendix C（注意力诊断）· Appendix D（描述质量分层控制）</div>
+            </section>
+
+            <!-- ══ SR-B · 假负例过滤 + Listwise 损失 ══════════════ -->
+            <section class="slide dark2" data-t="SkillRouter：训练创新一·二">
+                <div class="kicker">SkillRouter §4 · Training Innovations</div>
+                <div class="h2 mb3">两项决定性训练适配：假负例过滤 &amp; Listwise 损失</div>
+
+                <div class="g55" style="flex:1;align-items:start;gap:2.6vw">
+
+                    <!-- 假负例过滤 -->
+                    <div class="col" style="gap:1.3vh">
+                        <div style="display:flex;align-items:center;gap:.8vw;margin-bottom:.2vh">
+                            <span class="chip b">Innovation 1</span>
+                            <span style="font-size:clamp(12px,1.3vw,15px);font-weight:600">假负例过滤（FNF）</span>
+                        </div>
+                        <div class="blk">
+                            <p>开源 Skill 生态里同一功能经常被不同作者重复实现，名字各异。
+                                负例挖掘时这类"功能等价的 Skill"就变成了假负样本，
+                                训练时模型反而被要求把真实答案打低——信号被污染了。</p>
+                        </div>
+                        <div class="card ab">
+                            <div class="card-hd" style="color:var(--acc)">三层级联过滤策略</div>
+                            <div class="flist" style="gap:.8vh">
+                                <div class="frow" style="padding:.8vh 1vw">
+                                    <div class="fnb" style="min-width:20px">L1</div>
+                                    <p><strong>名称去重</strong>：Skill name 完全相同者直接剔除</p>
+                                </div>
+                                <div class="frow" style="padding:.8vh 1vw">
+                                    <div class="fnb" style="min-width:20px">L2</div>
+                                    <p><strong>Body 文本重叠</strong>：Trigram Jaccard &gt; 0.6 的候选剔除（捕捉代码实现高度相似）</p>
+                                </div>
+                                <div class="frow" style="padding:.8vh 1vw">
+                                    <div class="fnb" style="min-width:20px">L3</div>
+                                    <p><strong>向量余弦相似度</strong>：embedding 相似度 &gt; 0.92 的候选剔除（语义高度相近但文字不同）</p>
+                                </div>
+                            </div>
+                            <p style="margin-top:.8vh;font-size:clamp(10px,1.1vw,13px);color:var(--fg2)">
+                                三层过滤合计移除约 <strong>10%</strong> 挖掘负样本 → 消融贡献 <strong>+4.0pp Hit@1</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Listwise 损失 -->
+                    <div class="col" style="gap:1.3vh">
+                        <div style="display:flex;align-items:center;gap:.8vw;margin-bottom:.2vh">
+                            <span class="chip o">Innovation 2</span>
+                            <span style="font-size:clamp(12px,1.3vw,15px);font-weight:600">Listwise 重排序损失</span>
+                        </div>
+                        <div class="blk o">
+                            <p>Bi-Encoder 召回的 20 个候选，通常全都跟任务主题相关——比如查 git 操作，20 个都是 git 工具。
+                                逐点打分时模型对每个候选单独评分，分数互相咬在一起，
+                                最终排序几乎靠运气。</p>
+                        </div>
+                        <div class="card ob">
+                            <div class="card-hd" style="color:var(--acc2)">Listwise CE vs Pointwise BCE 消融（Table 5）
+                            </div>
+                            <div class="barcmp" style="margin-top:.6vh">
+                                <div class="brow">
+                                    <div class="blbl">Listwise CE</div>
+                                    <div class="btrk">
+                                        <div class="bfil b" style="width:74%">74.0% Hit@1</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">Pointwise BCE</div>
+                                    <div class="btrk">
+                                        <div class="bfil o" style="width:43.3%">43.3%</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">无重排（仅 Emb）</div>
+                                    <div class="btrk">
+                                        <div class="bfil dim" style="width:65.3%">65.3%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p style="margin-top:.8vh;font-size:clamp(10px,1.1vw,13px);color:var(--fg2)">
+                                差距 <strong>30.7pp</strong>——在这个设定下，损失函数的选择比模型大小影响更大。
+                                Listwise CE 一次性对 20 个候选排全序，让模型直接比较谁更好，而不是各打各的分。
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="fn">SkillRouter §4 · Table 5（两项消融完整对比）· Appendix E（假负例过滤实现细节）</div>
+            </section>
+
+            <!-- ══ SR-C · 硬负例挖掘策略 ═════════════════════════════ -->
+            <section class="slide light" data-t="SkillRouter：训练创新三">
+                <div class="kicker" style="color:var(--acc)">SkillRouter §4 · Hard Negative Mining</div>
+                <div class="h2 mb2" style="color:var(--fg)">四类混合硬负例：系统性对抗三种混淆模式</div>
+
+                <div style="flex:1;display:grid;grid-template-columns:3fr 2fr;gap:2vw;align-items:start">
+                    <!-- 左：说明 + 表格 -->
+                    <div class="col" style="gap:1vh">
+                        <p class="body" style="margin-bottom:.6vh">
+                            随机负样本无法教会 Encoder 做细粒度区分。每个 query 配 <strong>10 个</strong>混合硬负例，
+                            系统性覆盖三种混淆模式——这三种混淆恰好都需要访问完整 body 才能区分，与全文访问需求相互强化。
+                        </p>
+                        <table class="ctbl">
+                            <thead>
+                                <tr>
+                                    <th style="width:18%">类型</th>
+                                    <th style="width:10%">配比</th>
+                                    <th>来源与描述</th>
+                                    <th style="width:18%">对抗混淆</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong style="color:var(--acc)">语义邻居</strong></td>
+                                    <td class="bl">×4</td>
+                                    <td>Base Encoder 最近邻 Skill——<em>语义相近但功能不同</em>，如多个"text summarizer"变体</td>
+                                    <td>语义混淆</td>
+                                </tr>
+                                <tr>
+                                    <td><strong style="color:var(--acc4)">词汇匹配</strong></td>
+                                    <td class="bl">×3</td>
+                                    <td>BM25 高分 Skill——<em>词汇重叠高但功能不同</em>，如都含"audio"的不同工具</td>
+                                    <td>词汇混淆</td>
+                                </tr>
+                                <tr>
+                                    <td><strong style="color:var(--acc2)">类别干扰</strong></td>
+                                    <td class="bl">×2</td>
+                                    <td>同 Category 的其他 Skill——<em>类别相同但功能不同</em>，如同为"audio processing"的不同任务</td>
+                                    <td>类别混淆</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>随机</strong></td>
+                                    <td class="bl">×1</td>
+                                    <td>不同类别的随机 Skill，作为<em>难度锚点</em>，防止训练分布过度偏向困难样本</td>
+                                    <td>分布校准</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="blk" style="margin-top:.6vh">
+                            <p><strong>核心逻辑</strong>：语义 / 词汇 / 类别三种混淆都无法仅靠 name + description 区分——必须读取完整 body
+                                才能判断实际功能差异。硬负例设计与全文访问需求相互强化。</p>
+                        </div>
+                    </div>
+                    <!-- 右：训练规模 + 消融效果 -->
+                    <div class="col" style="gap:1.2vh">
+                        <div class="card ab">
+                            <div class="card-hd" style="color:var(--acc)">训练数据规模</div>
+                            <div class="flist" style="gap:.6vh;margin-top:.6vh">
+                                <div class="frow" style="padding:.6vh .8vw">
+                                    <div class="fnb" style="font-size:10px;min-width:60px">SR-Emb</div>
+                                    <p>37,979 合成 (query, skill) 对<br><span
+                                            style="color:var(--fg3);font-size:clamp(9px,.95vw,11px)">GPT-4o-mini 生成查询 ·
+                                            分层采样保证类别多样性</span></p>
+                                </div>
+                                <div class="frow" style="padding:.6vh .8vw">
+                                    <div class="fnb o" style="font-size:10px;min-width:60px">SR-Rank</div>
+                                    <p>32,283 条候选列表<br><span
+                                            style="color:var(--fg3);font-size:clamp(9px,.95vw,11px)">每条含 20 候选 + 二元相关标注
+                                            · 由 SR-Emb 生成</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card ob">
+                            <div class="card-hd" style="color:var(--acc2)">各训练组件消融贡献（Table 5）</div>
+                            <div class="barcmp" style="margin-top:.6vh">
+                                <div class="brow">
+                                    <div class="blbl">完整系统</div>
+                                    <div class="btrk">
+                                        <div class="bfil b" style="width:74%">74.0%</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">去假负例过滤</div>
+                                    <div class="btrk">
+                                        <div class="bfil o" style="width:70%">70.0% (−4pp)</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">Pointwise BCE</div>
+                                    <div class="btrk">
+                                        <div class="bfil o" style="width:43.3%">43.3% (−31pp)</div>
+                                    </div>
+                                </div>
+                                <div class="brow">
+                                    <div class="blbl">仅 Bi-Encoder</div>
+                                    <div class="btrk">
+                                        <div class="bfil dim" style="width:65.3%">65.3%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="blk g">
+                            <p>合计 <strong>1.2B 参数</strong> · 推理中位延迟 <strong>495.8 ms</strong><br>
+                                比 16B 基线快 <strong>5.8×</strong>（Appendix H，80-query GPU 基准）</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fn" style="border-top-color:rgba(0,0,0,0.09);color:#888">SkillRouter §4 · Appendix
+                    E（硬负例挖掘配比）· Table 5（各组件消融）· Appendix H（推理延迟基准）</div>
+            </section>
+
+            <!-- ══ 06 · 架构对比 ════════════════════════════════════ -->
+            <section class="slide light" data-t="架构设计对比">
+                <div class="kicker" style="color:var(--acc)">Design Comparison</div>
+                <div class="h2 mb3" style="color:var(--fg)">两种设计权衡</div>
+
+                <table class="ctbl" style="flex:1">
+                    <colgroup>
+                        <col style="width:15%">
+                        <col style="width:42.5%">
+                        <col style="width:42.5%">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th style="color:var(--acc2)">SkillFlow（USTC）</th>
+                            <th style="color:var(--acc)">SkillRouter（Alibaba）</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Skill 池规模</td>
+                            <td class="or">36K（SkillsMP 爬取）</td>
+                            <td class="bl">~80K（SkillsBench + Claude Registry Core）</td>
+                        </tr>
+                        <tr>
+                            <td>检索阶段数</td>
+                            <td class="or"><strong>4 个阶段</strong>（含预处理 Query Gen）</td>
+                            <td class="bl"><strong>2 个阶段</strong>（Bi-Encoder → Cross-Encoder）</td>
+                        </tr>
+                        <tr>
+                            <td>在线 LLM</td>
+                            <td class="or"><strong>每任务 2 次</strong>（Query Gen + Selector）</td>
+                            <td class="bl"><strong>0 次</strong>（纯检索推理，无在线 LLM 依赖）</td>
+                        </tr>
+                        <tr>
+                            <td>模型微调</td>
+                            <td>无（使用通用预训练模型）</td>
+                            <td class="bl">任务特定微调（37K + 32K 合成数据）</td>
+                        </tr>
+                        <tr>
+                            <td>Skill 全文访问</td>
+                            <td>Deep Reranker 截断至 4,096 tokens</td>
+                            <td class="bl">两阶段全程全文，无截断限制</td>
+                        </tr>
+                        <tr>
+                            <td>端到端延迟</td>
+                            <td class="or"><strong>~35s/任务中位</strong>（未作为主要评测指标）</td>
+                            <td class="bl"><strong>495.8ms 中位</strong>（80-query GPU 基准）</td>
+                        </tr>
+                        <tr>
+                            <td>统计检验</td>
+                            <td class="gr"><strong>有</strong>（Holm-Bonferroni，p<sub>adj</sub>=0.036）</td>
+                            <td>主指标差异<strong>未报告</strong>置信区间或显著性</td>
+                        </tr>
+                        <tr>
+                            <td>FC@10</td>
+                            <td>未单独报告</td>
+                            <td class="or">35.3%，<strong>低于</strong> 16B 基线 38.2%（−2.9pp）</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="fn" style="border-top-color:rgba(0,0,0,0.09);color:#888">
+                    SkillRouter §5.1 · Table 3–4 · SkillFlow §4.2 · Table 2–5 · 注：两篇评测集构成不完全一致，数字不可直接比较
+                </div>
+            </section>
+
+            <!-- ══ 07 · 主要实验结果 ═════════════════════════════════ -->
+            <section class="slide dark2" data-t="主要实验结果">
+                <div class="kicker g">Results</div>
+                <div class="h2 mb3">两篇论文的核心实验数据</div>
+
+                <div class="g55" style="flex:1;align-items:start">
+                    <div class="col" style="gap:1.3vh">
+                        <div style="display:flex;align-items:center;gap:.7vw;margin-bottom:.6vh">
+                            <span class="chip o">SkillFlow</span>
+                            <span class="mono">SkillsBench · 87 tasks · 3 runs</span>
+                        </div>
+                        <div class="card ob">
+                            <div class="card-hd">Pass@1（SkillsBench 端到端）</div>
+                            <p>No Skills: 9.2% → SkillFlow: <strong>16.4%</strong>（相对提升 +78.3%）</p>
+                            <p style="margin-top:.5vh">p<sub>adj</sub> = 3.64×10⁻²（Holm-Bonferroni 校正，有统计显著性）</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-hd">Terminal-Bench — Null Result（§4.3）</div>
+                            <p>SkillFlow 使用率 <strong>70.1%</strong>（vs Vercel 22.3%，p<sub>adj</sub>&lt;10⁻⁶），
+                                但 Pass@1 无显著提升。</p>
+                            <p style="margin-top:.5vh;color:var(--acc3)">论文结论：当 Skill 库缺乏可执行代码时，检索质量不是主要瓶颈。</p>
+                        </div>
+                        <div class="fig" style="margin-top:.6vh">
+                            <img src="../../papers/agentic_ai/SkillFlow Scalable and Efficient Agent Skill Retrieval System/images/e13697b7b1d8da090acd6d6ef4f210e72299ea128f2b9db8e72845d39e4cbe57.jpg"
+                                alt="Figure 2: Oracle vs Community skill structure metrics"
+                                style="max-height:16vh;width:auto;margin:0 auto">
+                            <div class="fig-cap">
+                                <strong>Figure 2 (SkillFlow)</strong>：Oracle Skill vs Community Skill 结构指标。
+                                Oracle 含可执行代码显著更多（p<sub>adj</sub>=2.83×10⁻¹²），bundled script 概率高
+                                3×（p<sub>adj</sub>=2.83×10⁻¹⁷）；
+                                长度与文档量无显著差异。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col" style="gap:1.3vh">
+                        <div style="display:flex;align-items:center;gap:.7vw;margin-bottom:.6vh">
+                            <span class="chip b">SkillRouter</span>
+                            <span class="mono">75 queries · ~80K pool · Easy/Hard avg</span>
+                        </div>
+                        <div class="card ab">
+                            <div class="card-hd">Hit@1 检索精度（Table 3）</div>
+                            <p>SR 1.2B: <strong>74.0%</strong> vs 16B 基线（Qwen3-Emb-8B×Qwen3-Rank-8B）:
+                                <strong>68.0%</strong>
+                            </p>
+                            <p style="margin-top:.5vh">SR-Emb-0.6B（微调）= 65.4% vs Qwen3-Emb-8B（未微调，13× 参数）= 64.0%</p>
+                            <p style="margin-top:.5vh;color:var(--fg3)">注：SkillBench-Supp（256 query）上差距收窄至 0.004（.641 vs
+                                .637）</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-hd">端到端代理成功率（Table 6）</div>
+                            <p>No Skills: 14.89% → Gold Oracle: 32.67%<br>
+                                Base Router Top-1: 25.78% → <strong>SR 1.2B Top-1: 27.56%</strong>（+1.78pp）</p>
+                            <p style="margin-top:.5vh;color:var(--acc2)">⚠ 端到端提升的统计显著性未报告；Agent 能力对路由收益影响显著
+                                （Claude Sonnet/Opus 4.6 获益 +3.22pp，glm-5 仅 +0.89pp）。</p>
+                        </div>
+                        <div class="card ob">
+                            <div class="card-hd">⚠ FC@10 退步（Table 4）</div>
+                            <p>SR 1.2B multi-skill FC@10 = <strong>35.3%</strong> vs 16B 基线 =
+                                <strong>38.2%</strong>（−2.9pp）
+                            </p>
+                            <p style="margin-top:.5vh">Hit@1 与 FC@10 之间存在优化张力；51/75 query 为多技能任务。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fn">SkillRouter Table 3–4–6 · SkillFlow Table 1–3 · Figure 2 · 两篇评测集构成不完全相同，直接数字比较需谨慎</div>
+            </section>
+
+            <!-- ══ 08 · SkillFlow 多查询消融 ══════════════════════════ -->
+            <section class="slide" data-t="SkillFlow 多查询消融（Figure 3）">
+                <div class="kicker o">SkillFlow · §A.4 · Figure 3</div>
+                <div class="h2 mb3">多查询（M&gt;1）提升召回但损害精排 MRR</div>
+
+                <div class="g46" style="flex:1;align-items:start">
+                    <div class="col" style="gap:1.4vh">
+                        <p class="body mb2">
+                            Query Gen 阶段默认 M₁=5 条查询以提升 Retriever 召回。Figure 3 的消融实验揭示了一个权衡：
+                        </p>
+                        <div class="flist">
+                            <div class="frow">
+                                <div class="fnb">↑</div>
+                                <p><strong>Retriever 召回提升</strong>：M=5 相比 M=1 在通过率（R@k<sub>output</sub>）上有显著提升，
+                                    多查询可覆盖更多语义视角（图 c 在某截断点处 M=5 超越 M=1）。</p>
+                            </div>
+                            <div class="frow">
+                                <div class="fnb o">↓</div>
+                                <p><strong>Reranker MRR 退步</strong>：M=1 在每个阶段的 MRR 均优于 M&gt;1（图 b）。
+                                    多查询引入更多候选会<strong>稀释精排阶段的判别能力</strong>。</p>
+                            </div>
+                            <div class="frow">
+                                <div class="fnb g">→</div>
+                                <p>最终配置 M₁=5（Retriever）、M₂=M₃=1（Reranker），是召回与精度的工程折中，
+                                    并非全局最优（Table A.4 有完整超参数消融）。</p>
+                            </div>
+                        </div>
+                        <div class="blk" style="margin-top:1vh">
+                            <p>与 SkillRouter 形成对比：后者不使用多查询，依赖 Listwise 重排在单一查询下实现候选区分，
+                                将召回质量的保障转移至训练数据质量（硬负例设计）。</p>
+                        </div>
+                    </div>
+                    <div class="fig">
+                        <img src="../../papers/agentic_ai/SkillFlow Scalable and Efficient Agent Skill Retrieval System/images/9bba51eb3cc988566d78c298c4fcfeb4fd54fbb7c48835f0f22e058e089e0b92.jpg"
+                            alt="Figure 3: Multi-query ablation across pipeline stages">
+                        <div class="fig-cap">
+                            <strong>Figure 3 (SkillFlow)</strong>：(a) 各 M 值相对 M=1 的通过率变化；(b) 各阶段 MRR——M=1 在每阶段均最优；
+                            (c–e) 各阶段 Recall@k 曲线，(c) 中虚线标记 M=5 超越 M=1 的截断点。
+                        </div>
+                    </div>
+                </div>
+                <div class="fn">SkillFlow §A.4 · Figure 3 · Table A.3–A.4（多查询完整消融）</div>
+            </section>
+
+            <!-- ══ 09 · 矛盾1+2 ══════════════════════════════════════ -->
+            <section class="slide dark2" data-t="三大核心矛盾（一·二）">
+                <div class="kicker g">Open Tensions · Cross-Paper Analysis</div>
+                <div class="h2 mb3">两篇论文共同暴露的范式矛盾</div>
+
+                <div class="g55" style="flex:1;align-items:start;gap:2.4vw">
+                    <!-- 矛盾1 -->
+                    <div class="col" style="gap:1.3vh">
+                        <div style="display:flex;align-items:center;gap:.8vw;margin-bottom:.2vh">
+                            <span class="chip b" style="font-size:clamp(10px,1vw,12px)">矛盾 1</span>
+                            <span style="font-size:clamp(13px,1.3vw,16px);font-weight:700;color:var(--fg)">Hit@1 与 FC@10
+                                的根本张力</span>
+                        </div>
+                        <div class="blk y">
+                            <p style="font-size:clamp(11px,1.15vw,14px);line-height:1.8">
+                                SkillRouter 优化 Hit@1 后，FC@10 反而从基线 <strong>38.2% 退步至 35.3%</strong>。
+                                原因在于：<strong>ranked list 这个范式本来就不适合"找到一组互补 Skill"的问题</strong>。<br>
+                                75 个 query 里有 51 个需要多个 Skill 协同，但两篇论文都在用"排一个列表"的方式回答"选一个集合"的问题——范式和需求之间有根本性的错位。
+                            </p>
+                        </div>
+                        <div class="card ab">
+                            <div class="card-hd" style="color:var(--acc)">潜在方向：Set-Based Skill Retrieval</div>
+                            <p style="font-size:clamp(11px,1.15vw,14px);line-height:1.8;color:var(--fg2)">
+                                把检索目标从"返回一个排列"改成"返回一个互补集合"。
+                                SkillsBench 已经标注了 pipeline / substitute / mixed 三种 Skill 依赖类型，
+                                可以直接用来训练集合优化模型——比如 Submodular maximization 或 DPP，
+                                让模型知道选出来的 Skill 之间要互补，而不只是各自得分高。
+                            </p>
+                        </div>
+                    </div>
+                    <!-- 矛盾2 -->
+                    <div class="col" style="gap:1.3vh">
+                        <div style="display:flex;align-items:center;gap:.8vw;margin-bottom:.2vh">
+                            <span class="chip o" style="font-size:clamp(10px,1vw,12px)">矛盾 2</span>
+                            <span
+                                style="font-size:clamp(13px,1.3vw,16px);font-weight:700;color:var(--fg)">Body-Visibility
+                                非对称性——谁来弥合？</span>
+                        </div>
+                        <div class="blk o">
+                            <p style="font-size:clamp(11px,1.15vw,14px);line-height:1.8">
+                                SkillRouter 论文的核心发现是：路由系统看到的（body，中位 704 词）和 Agent 运行时看到的（metadata，21 词）是两套完全不同的信息。
+                                论文把这个 gap 当作固定的工程约束接了下来，但其实<strong>这个 gap 本身是可以被填的</strong>。
+                            </p>
+                        </div>
+                        <div class="card ob">
+                            <div class="card-hd" style="color:var(--acc2)">潜在方向：Routing-Aware Skill Description
+                                Generation</div>
+                            <p style="font-size:clamp(11px,1.15vw,14px);line-height:1.8;color:var(--fg2)">
+                                训练一个"描述改写器"：给定完整 body，生成一个<strong>在路由精度上最优</strong>的 description，
+                                使 metadata-only 场景下路由也不崩。
+                                本质上是把 body 里的判别性信息蒸馏进 21 个词——
+                                副产品是 Agent 对 Skill 的理解也变好了，同时 SkillRouter 不再非要索引全文。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="fn">SkillRouter §5.3 · Table 4（FC@10 退步）· §3（Body-Visibility 非对称，Table 7）· SkillsBench
+                    Appendix A（多技能类型标注）</div>
+            </section>
+
+            <!-- ══ 10 · 矛盾3 ════════════════════════════════════════ -->
+            <section class="slide dark2" data-t="三大核心矛盾（三）">
+                <div class="dots"></div>
+                <div class="kicker g">Open Tensions · Cross-Paper Analysis</div>
+                <div class="h2 mb3">矛盾 3：静态 Skill 池 vs 动态社区生态</div>
+
+                <div style="flex:1;display:flex;flex-direction:column;gap:1.4vh">
+                    <div class="blk" style="max-width:100%">
+                        <p style="font-size:clamp(12px,1.25vw,15px);line-height:1.7">
+                            两篇论文都假设 Skill 池<strong>静态</strong>。但 Claude Skill Registry 这类社区生态在持续增长——当新 Skill 加入时：
+                        </p>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.6vw">
+                        <div class="card ab">
+                            <div class="card-hd" style="color:var(--acc)">SkillRouter 的静态代价</div>
+                            <ul style="font-size:clamp(11px,1.15vw,14px);line-height:1.8;margin:0">
+                                <li>需要对新增 Skill 重新向量化全部 body（80K × 中位 704 词）</li>
+                                <li>假负例过滤需对新 Skill 重新计算全局相似度（Trigram Jaccard + 余弦）</li>
+                                <li>新 Skill 与现有 Skill 的功能重叠无自动检测机制</li>
+                            </ul>
+                        </div>
+                        <div class="card ob">
+                            <div class="card-hd" style="color:var(--acc2)">SkillFlow 的静态假设</div>
+                            <ul style="font-size:clamp(11px,1.15vw,14px);line-height:1.8;margin:0">
+                                <li>Benchmark Skill 池固定，未测试随社区增长的检索退化</li>
+                                <li>Agent 生成的 Skill 无跨 Agent 共享机制</li>
+                                <li>Lifelong 仅在固定 166 任务序列中测量，未延伸至开放任务流</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card" style="border-left:3px solid var(--acc4)">
+                        <div class="card-hd" style="color:var(--acc4)">潜在方向：Incremental Routing with Conflict Detection
+                        </div>
+                        <p style="font-size:clamp(11px,1.15vw,14px);line-height:1.7;color:var(--fg2)">
+                            新 Skill 加入时，主动检测它跟现有 Skill 的重叠（Trigram Jaccard + 余弦相似度，
+                            复用 SkillRouter 假负例过滤的同套逻辑），<strong>自动合并、去重或标注冲突</strong>，
+                            维护一个动态 Skill 知识图谱，避免每次加新 Skill 就要重索引整个库。
+                            顺带还能把 Skill 之间的显式依赖结构暴露给集合检索层。
+                        </p>
+                    </div>
+
+                    <div class="blk g" style="margin-top:.2vh">
+                        <p style="font-size:clamp(12px,1.2vw,15px);line-height:1.8">
+                            这三个矛盾指向同一个方向：Skill Routing 目前还停留在"给一个查询返回一个排列"的简单框架里。
+                            真正需要的是<strong>面向集合、支持增量更新的动态检索系统</strong>——
+                            目标函数要对，数据结构要能改，更新机制要跟上社区生态的速度。
+                        </p>
+                    </div>
+                </div>
+                <div class="fn">SkillRouter §1（社区 Skill 生态）· §4 Appendix E（假负例过滤逻辑）· SkillFlow §2（Lifelong 设定）</div>
+            </section>
+
+        </div>
+    </div>
+
+    <nav id="nav">
+        <span id="sc">1 / 10</span>
+        <div style="display:flex;align-items:center;gap:10px">
+            <span class="mono">← → Space · ESC 索引</span>
+            <div class="nb">
+                <button class="nbtn" id="bp">← Prev</button>
+                <button class="nbtn" id="bn">Next →</button>
+            </div>
+        </div>
+    </nav>
+    <div id="ix"></div>
+
+    <script>
+        (function () {
+            const slides = [...document.querySelectorAll('.slide')];
+            const pb = document.getElementById('pb');
+            const sc = document.getElementById('sc');
+            const ix = document.getElementById('ix');
+            let cur = 0, ixOpen = false;
+            slides.forEach((s, i) => {
+                const d = document.createElement('div');
+                d.className = 'th' + (i === 0 ? ' cur' : '');
+                d.innerHTML = `<span class="thn">${String(i + 1).padStart(2, '0')}</span><span class="tht">${s.dataset.t || ''}</span>`;
+                d.onclick = () => { goTo(i); toggleIx(false); };
+                ix.appendChild(d);
+            });
+            function upd() {
+                pb.style.width = ((cur + 1) / slides.length * 100) + '%';
+                sc.textContent = `${cur + 1} / ${slides.length}`;
+                document.querySelectorAll('.th').forEach((t, i) => t.classList.toggle('cur', i === cur));
+            }
+            function goTo(n) {
+                if (n < 0 || n >= slides.length) return;
+                slides[cur].classList.remove('active'); slides[cur].classList.add('exit-l');
+                setTimeout(() => slides[cur].classList.remove('exit-l'), 360);
+                cur = n; slides[cur].classList.add('active'); upd();
+            }
+            function next() { goTo(Math.min(cur + 1, slides.length - 1)); }
+            function prev() { goTo(Math.max(cur - 1, 0)); }
+            function toggleIx(f) { ixOpen = f !== undefined ? f : !ixOpen; ix.classList.toggle('open', ixOpen); }
+            document.getElementById('bn').onclick = next;
+            document.getElementById('bp').onclick = prev;
+            document.addEventListener('keydown', e => {
+                if (ixOpen) { if (e.key === 'Escape') toggleIx(false); return; }
+                if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+                else if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+                else if (e.key === 'Escape') toggleIx(true);
+            });
+            let tx = null;
+            document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+            document.addEventListener('touchend', e => {
+                if (tx === null) return;
+                const d = e.changedTouches[0].clientX - tx;
+                if (Math.abs(d) > 50) d < 0 ? next() : prev();
+                tx = null;
+            });
+            upd();
+        })();
+    </script>
+</body>
+
+</html>

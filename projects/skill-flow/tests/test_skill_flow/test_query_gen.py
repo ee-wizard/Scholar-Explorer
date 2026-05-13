@@ -1,6 +1,7 @@
 """Tests for skill_flow.query_gen."""
 
 import json
+import os
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -366,3 +367,38 @@ class TestGenerateMulti:
         result = gen.generate_multi("task-1", "instruction")
 
         assert result == ["query one", "query two", "query three"]
+
+    @patch("skill_flow.query_gen.query_gen.OpenAI")
+    def test_strict_multi_does_not_fallback_to_single(self, mock_openai_cls, tmp_path):
+        config = _make_multi_config(tmp_path, num_queries=3)
+        mock_client = MagicMock()
+        mock_openai_cls.return_value = mock_client
+        bad = _mock_response("not valid json")
+        mock_client.chat.completions.create.side_effect = [bad, bad]
+
+        with patch.dict(os.environ, {"SKILL_FLOW_QGEN_STRICT_MULTI": "1"}):
+            gen = QueryGenerator(config)
+            try:
+                gen.generate_multi("task-1", "instruction")
+            except RuntimeError as exc:
+                assert "Strict multi-query mode" in str(exc)
+            else:
+                raise AssertionError("Expected strict multi-query mode to raise")
+
+        assert mock_client.chat.completions.create.call_count == 2
+
+    @patch("skill_flow.query_gen.query_gen.OpenAI")
+    def test_strict_multi_rejects_partial_numbered_list(self, mock_openai_cls, tmp_path):
+        config = _make_multi_config(tmp_path, num_queries=3)
+        mock_client = MagicMock()
+        mock_openai_cls.return_value = mock_client
+        partial = _mock_response("1. query one\n2. query two")
+        full = _mock_response("1. query one\n2. query two\n3. query three")
+        mock_client.chat.completions.create.side_effect = [partial, full]
+
+        with patch.dict(os.environ, {"SKILL_FLOW_QGEN_STRICT_MULTI": "1"}):
+            gen = QueryGenerator(config)
+            result = gen.generate_multi("task-1", "instruction")
+
+        assert result == ["query one", "query two", "query three"]
+        assert mock_client.chat.completions.create.call_count == 2

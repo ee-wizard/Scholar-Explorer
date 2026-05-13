@@ -4,12 +4,6 @@ import argparse
 import logging
 from pathlib import Path
 
-# Load .env early so HF_HOME (and any other env vars) are set before
-# sentence-transformers / HuggingFace libraries initialize their caches.
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from skill_flow.config import Config, load_config
 from skill_flow.corpus.loader import load_corpus
 from skill_flow.index.builder import build_index

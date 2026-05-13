@@ -1,9 +1,0 @@
-The calculation is complete. The main part's mass is 34.65 grams, and the Material ID is 42. The result is saved in /root/mass_report.json:
-
-```json
-{
- "main_part_mass": 34.65,
- "material_id": 42
-}
-```
-Let me know if you need further analysis or details!

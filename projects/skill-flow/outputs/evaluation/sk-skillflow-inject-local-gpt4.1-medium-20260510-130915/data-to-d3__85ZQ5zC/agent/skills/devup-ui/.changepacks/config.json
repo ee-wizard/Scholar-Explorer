@@ -1,5 +1,0 @@
-{
-  "ignore": ["*", "!packages/*/*", "!bindings/*/package.json"],
-  "baseBranch": "main",
-  "latestPackage": null
-}

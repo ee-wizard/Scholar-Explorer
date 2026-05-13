@@ -101,29 +101,16 @@ class TarGzSkillInjector:
         skill_name = skill_folder.name
         self._logger.debug(f"Staging skill: {skill_name}")
 
-        staged_skill_dir = self._unique_skill_dir(staging_dir, skill_name)
-
         # Copy to staging
-        shutil.copytree(skill_folder, staged_skill_dir)
+        shutil.copytree(skill_folder, staging_dir / skill_name)
 
         # Copy to logs directory for visibility in outputs
-        skills_log_dir = self._unique_skill_dir(logs_dir / "skills", skill_name)
+        skills_log_dir = logs_dir / "skills" / skill_name
         try:
             skills_log_dir.mkdir(parents=True, exist_ok=True)
             shutil.copytree(skill_folder, skills_log_dir, dirs_exist_ok=True)
         except PermissionError:
             self._logger.warning(f"Could not copy skill to logs dir: {skill_name}")
-
-    def _unique_skill_dir(self, parent_dir: Path, skill_name: str) -> Path:
-        """Return a unique directory path for a staged skill."""
-        candidate = parent_dir / skill_name
-        suffix = 2
-
-        while candidate.exists():
-            candidate = parent_dir / f"{skill_name}-{suffix}"
-            suffix += 1
-
-        return candidate
 
     async def _upload_archive(
         self, environment: BaseEnvironment, temp_path: Path

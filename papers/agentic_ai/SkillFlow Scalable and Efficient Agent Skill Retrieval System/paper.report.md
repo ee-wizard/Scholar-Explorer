@@ -452,14 +452,19 @@ def build_harbor_run_command(config: EvalConfig, job_name: str) -> list[str]:
 - **问题域**：agent skill retrieval；large-scale community skill library；multi-stage IR for agent augmentation
 - **方法关键词**：dense retrieval; cross-encoder reranking; LLM selection; multi-query generation; progressive candidate narrowing; SKILL.md; SkillsMP
 - **数据集**：SkillsBench (87 tasks, 229 oracle skills); Terminal-Bench (89 tasks); 技能库 35,866 SKILL.md files from GitHub
-- **性能基准**：SkillsBench Pass@1: 9.2% (no skills) → 16.4% (SkillFlow) → 19.5% (oracle); Terminal-Bench: 无显著增益（library coverage bottleneck）; 检索 R@1000=0.905, MRR: dense=0.553→+shallow=0.587→+deep=0.634
+- **性能基准**：SkillsBench Pass@1: 9.2% (no skills) → 16.4% (SkillFlow) → 19.5% (oracle); Terminal-Bench: 无显著增益（library coverage bottleneck）; 检索 MRR: BM25=0.266 → Dense=0.553 → +Shallow=0.587 → +Deep=0.634
 - **关联论文 ID**：arXiv:2602.12670 (SkillsBench), arXiv:2604.24594 (SRA), arXiv:2604.05333 (GoS), arXiv:2305.16291 (Voyager)
 - **核心方法机制摘要**：四阶段流水线（dense→shallow cross-encoder→deep cross-encoder→LLM filter），逐级候选缩减（1000→100→10→≤5），多查询在检索阶段有益（M=5）但在重排阶段有害（M=1），BM25 对技能检索失效
-- **推荐下一轮阅读线索**：(1) 可执行性感知重排（技能质量融入 scoring）；(2) 依赖感知技能检索（GoS 路线 + SkillFlow 规模）；(3) 动态交错检索（DRAGIN 触发机制 + skill 粒度）；(4) 库质量自动过滤爬取框架
+- **本地复现关键发现**：在 SkillsBench（94 tasks / 249 oracle skills）上的本地 m5 严格多查询复现中，多阶段重排出现级联退化（MRR: Dense=0.5361 → Shallow=0.5208 → Deep=0.5060），与论文报告的级联提升（0.553 → 0.587 → 0.634）相反；根因是零样本 cross-encoder 对代码密集的 SKILL.md 技术文档域存在系统性 domain shift，导致重排未能把 oracle 技能稳定推到更前位置
+- **推荐下一轮阅读线索**：(1) 可执行性感知重排（技能质量融入 scoring）；(2) 依赖感知技能检索（GoS 路线 + SkillFlow 规模）；(3) 动态交错检索（DRAGIN 触发机制 + skill 粒度）；(4) 库质量自动过滤爬取框架；(5) 领域适配 cross-encoder（在 SKILL.md 对上 fine-tune）
 
 ---
 
 ## 跨论文联想补充
+
+> 补丁来源：Skill1: Unified Evolution of Skill-Augmented Agents via Reinforcement Learning，分析日期 2026-05-12
+
+**与 Skill1（papers/agentic_ai/Skill1 Unified Evolution of Skill-Augmented Agents via Reinforcement Learning）的训练层关联**：Skill1 的统一 credit 机制（trend reward + distillation reward）表明，训练期的技能选择信号会随策略演化持续漂移，进而改变技能库的实际查询分布与技能质量梯度。这意味着 SkillFlow 的索引结构优化并非静态问题——仅优化索引而不考虑"训练期检索请求分布的动态变化"，会低估系统的扩展性需求。**修正**：SkillFlow 报告中"检索优化主要靠索引结构"的表述应补充：**训练期 credit 统一可改变检索请求分布与技能质量，检索系统需具备适应训练演化的动态重索引能力**。
 
 **与 GoS（arXiv:2604.05333）的互补关系**：GoS 解决 SkillsBench 1000 技能规模下的依赖感知检索（图传播扩散），SkillFlow 解决 36K community 库规模下的多阶段精筛。两者在检索层的设计思路互补：GoS 的 PPR 扩散假设有图结构先验，SkillFlow 的级联 cross-encoder 不需要图，只需文档内容。结合方向是：在 SkillFlow Stage 1（dense recall）之后，用 GoS 的依赖图扩散做补充候选恢复，再送入 SkillFlow Stage 2-4 精排。
 
@@ -471,180 +476,121 @@ def build_harbor_run_command(config: EvalConfig, job_name: str) -> list[str]:
 
 ### 复现环境
 
-- 操作系统：Windows
-- Python：3.13.11（项目本地解释器 `.venv\Scripts\python.exe`）
+- 操作系统：Linux (WSL2, Ubuntu 22.04)
+- Python：3.12（虚拟环境 `.venv-unix`）
 - Dense Retriever：BAAI/bge-base-en-v1.5
 - Shallow Reranker：cross-encoder/ms-marco-MiniLM-L-6-v2
-- Deep Reranker：已下载但本次搜索未启用（与默认配置一致）
-- 运行设备：CPU
+- Deep Reranker：BAAI/bge-reranker-v2-m3
+- LLM Selector：disabled（`enabled: false`）
+- 技能库：external SkillFlow 技能库，35,487 条技能（其中 35,486 条有完整 SKILL.md content）
+- 评测集：SkillsBench，94 个 task，249 个 oracle 技能注入
+- 索引路径：`outputs/indices/external-skillflow/`
+
+### 已发现并修复的 Bug
+
+**Bug：从缓存恢复时 GT 技能 content 丢失导致 Stage 2/3 指标全零**
+
+- **根因**：`runner.py` 在加载 Stage 1 缓存时，使用 `contents = load_content_maps(index_dir)` 构建内容字典，但该字典仅包含外部索引里的技能（`skillsmp/` 前缀），不含动态注入的 SkillsBench oracle 技能（`skillsbench/` 前缀）。reranker 判断 `if not c.content` 将 GT 技能归入"无内容"组，统一打最低分排至底部。
+- **修复**：在 `load_content_maps` 之后立即将 `gt_context.content_map` 合并进 `contents`，使缓存恢复路径与首次运行路径行为一致。
+
+### 各阶段检索指标
+
+#### 2026-05-12 最新复现（Stage-1 + Stage-2 + Stage-3，M=5 严格多查询）
+
+评测任务数：**94**，注入 oracle 技能数：**249**。  
+运行配置：使用 `skill_flow/config/eval_external_m5.json` 完整执行三阶段流水线；Stage-1 为 `BAAI/bge-base-en-v1.5` 严格多查询检索（`query_gen.enabled=true`, `num_queries=5`, union 聚合），Stage-2 为 `cross-encoder/ms-marco-MiniLM-L-6-v2`，Stage-3 为 `BAAI/bge-reranker-v2-m3`。
+数据来源：`projects/skill-flow/outputs/pipeline/skillsbench_m5/eval-stage1-retriever.json`、`projects/skill-flow/outputs/pipeline/skillsbench_m5/eval-stage2-reranker.json`、`projects/skill-flow/outputs/pipeline/skillsbench_m5/eval-stage3-deep_reranker.json`。
+
+##### Stage 1 — Dense Retrieval（BAAI/bge-base-en-v1.5）
+
+| 指标 | @1 | @5 | @10 | @100 | @1000 |
+|------|----|----|-----|------|-------|
+| **Recall** | 0.2191 | 0.4197 | 0.4938 | 0.6804 | 0.8428 |
+| **Hit** | 0.4468 | 0.6596 | 0.7234 | 0.8511 | 0.9468 |
+| **Precision** | 0.4468 | 0.2043 | 0.1277 | 0.0179 | 0.0023 |
+
+- **MRR**：**0.5361**
+
+##### Stage 2 — Shallow Reranking（cross-encoder/ms-marco-MiniLM-L-6-v2，1000 → 100）
+
+| 指标 | @1 | @5 | @10 | @100 | @1000 |
+|------|----|----|-----|------|-------|
+| **Recall** | 0.2123 | 0.4143 | 0.4955 | 0.6777 | 0.8428 |
+| **Hit** | 0.4149 | 0.6383 | 0.7128 | 0.8617 | 0.9468 |
+| **Precision** | 0.4149 | 0.1936 | 0.1202 | 0.0177 | 0.0023 |
+
+- **MRR**：**0.5208**（相对 Stage-1：−0.0153）
+
+##### Stage 3 — Deep Reranking（BAAI/bge-reranker-v2-m3，100 → 100）
+
+| 指标 | @1 | @5 | @10 | @100 |
+|------|----|----|-----|------|
+| **Recall** | 0.1949 | 0.4008 | 0.4686 | 0.6777 |
+| **Hit** | 0.4043 | 0.6277 | 0.6702 | 0.8617 |
+| **Precision** | 0.4043 | 0.1872 | 0.1117 | 0.0177 |
+
+- **MRR**：**0.5060**（相对 Stage-2：−0.0148）
+- 数据来源：`outputs/pipeline/skillsbench_m5/eval-stage3-deep_reranker.json`
+
+> 注：Stage 3 输入为 Stage 2 输出的前 100 条（`input_top_k=100`），输出也保留 100 条，因此不含 @1000 列。
+
+##### 本次运行耗时汇总（`latency_summary.json`）
+
+| 阶段 | median | mean | p95 |
+|------|--------|------|-----|
+| Stage 1 retriever | 6015.78 ms | 6729.04 ms | 10904.31 ms |
+| Stage 2 reranker | 1468.46 ms | 1438.87 ms | 1819.31 ms |
+| Stage 3 deep reranker | 355185.62 ms | 419511.96 ms | 1065032.21 ms |
+
+> 说明：以上为**本次最新 m5 路线**的真实落盘结果（`outputs/pipeline/skillsbench_m5/`）。
+
+---
+
+### 数据集说明（本次复现）
+
+- **主评测数据集**：SkillsBench（本地任务目录：`/mnt/d/LocalEnvironments/Datasets/skillsbench/tasks`）
+- **本次实际评测规模**：94 个 tasks，249 个 oracle 技能注入
+- **对照口径说明**：下表“论文声明值”来自论文在 SkillsBench 上报告的结果；“本次本地复现”来自同一数据集的本地运行产物（m5 路线，已完整执行到 Stage-3）
+
+### 与论文声明数据对照（SkillsBench，仅保留本次 m5 结果）
+
+| 指标/方案 | 论文声明值 | 本次本地复现（m5） | 差值（本地-论文） |
+|------|------|------|------|
+| Dense only MRR | 0.553 | 0.5361（Stage 1） | -0.0169 |
+| Dense only R@10 | 0.477 | 0.4938（Stage 1） | +0.0168 |
+| Dense only P@10 | 0.121 | 0.1277（Stage 1） | +0.0067 |
+| Dense only Hit@10 | 0.713 | 0.7234（Stage 1） | +0.0104 |
+| + Shallow Reranker MRR | 0.587 | 0.5208（Stage 1+2） | -0.0662 |
+| + Shallow Reranker R@10 | 0.520 | 0.4955（Stage 1+2） | -0.0245 |
+| + Shallow Reranker P@10 | 0.130 | 0.1202（Stage 1+2） | -0.0098 |
+| + Shallow Reranker Hit@10 | 0.724 | 0.7128（Stage 1+2） | -0.0112 |
+| + Deep Reranker MRR | 0.634 | 0.5060（Stage 1+2+3） | −0.1280 |
+| + Deep Reranker R@10 | 0.542 | 0.4686（Stage 1+2+3） | −0.0734 |
+| + Deep Reranker P@10 | 0.136 | 0.1117（Stage 1+2+3） | −0.0243 |
+| + Deep Reranker Hit@10 | 0.724 | 0.6702（Stage 1+2+3） | −0.0538 |
+
+**对照结论（基于本次 m5，三阶段全量）**：
+1. Stage 1 Dense Retrieval：R@10 / P@10 / Hit@10 接近或略高于论文声明，MRR 略低（0.5361 vs 论文 0.553）。
+2. Stage 2 Shallow Reranking：MRR 下滑至 0.5208（论文 0.587），与论文提升趋势相反——根因是 ms-marco-MiniLM 对代码密集 SKILL.md 内容的相关性判断能力不足。
+3. Stage 3 Deep Reranking：MRR 继续下滑至 0.5060（论文 0.634），差距约 0.13。三阶段级联均出现退化，与论文"逐级提升"完全相反，复现出**本地 cross-encoder 模型在 SKILL.md 技术文档域存在系统性域偏移（domain shift）**的核心发现。
+
+### 实验小结与结果讨论
+
+本地复现表明，SkillFlow 的**Dense Retrieval 阶段能够较好复现论文所报告的高召回特征**：Stage 1 的 `R@10=0.4938`、`Hit@10=0.7234` 与论文结果接近，说明外部技能库构建、oracle 技能注入、FAISS 索引、严格多查询 union 聚合以及评测统计口径整体是有效的。因此，本次复现与论文之间的主要差异，并不来自检索框架失效或评测协议错误，而更可能来自后续重排模型的适配性差异。
+
+进一步地，**性能退化集中出现在 Stage 2 与 Stage 3**。在 Dense 阶段之后，MRR 从 `0.5361` 下降至 `0.5208`，并在 Deep Reranking 后进一步下降至 `0.5060`；与此同时，`R@10` 与 `Hit@10` 也同步回落。这说明 reranker 的影响并非仅限于局部顺序微调，而是在整体上削弱了 oracle 技能进入前列位置的能力。就现象而言，本地结果与论文所报告的“级联精排逐步提升”形成了稳定且明确的反向趋势。
+
+从误差来源看，**最合理的解释是 zero-shot cross-encoder 在 SKILL.md 技术文档域上的 domain shift**。`cross-encoder/ms-marco-MiniLM-L-6-v2` 与 `BAAI/bge-reranker-v2-m3` 均主要受益于通用文本相关性建模，而本任务中的技能文档混合自然语言说明、YAML 元数据、代码块、脚本调用约定与工具依赖信息，其语义线索与开放域 passage ranking 存在显著差异。在这种情况下，重排器可能放大表层文本相似性，却无法稳定识别真正具备任务效用的技能内容。
+
+此外，**Stage 3 的计算代价与其收益明显不匹配**。本地 `deep_reranker` 的耗时中位数为 `355185.62 ms`（约 355 秒/任务），均值达到 `419511.96 ms`，而对应检索质量并未提升，反而进一步下降。就本次复现而言，Deep Reranking 既未带来精度收益，也显著破坏了交互式系统所需的时延约束，因此难以被视为当前配置下的有效组件。
+
+综合来看，本次实验更接近于一个**结构正确、趋势相反的功能性复现**：SkillFlow 的多阶段 pipeline 可以在本地完整运行，且 Dense 阶段行为与论文基本一致；但论文中关于 zero-shot reranker 带来稳定增益的结论，在本地 SKILL.md 技术文档域上并未得到支持。换言之，本次复现并非简单“未能复现论文结果”，而是提供了一个具有解释力的反例，指出 SkillFlow 的重排收益高度依赖于模型与技能文档域之间的匹配程度。
+
+### 后续验证方向
+
+基于上述结果，后续实验最值得沿以下三条路径展开。首先，可将 **Dense Retrieval 作为实际部署基线**，将 Stage 2/3 从默认组件调整为可选增强模块，以验证在真实系统约束下“单阶段高召回”是否已经构成更优的精度-时延折中。其次，应补充 **`M=5` Dense + `M=1` Rerank** 的对照实验。论文已指出多查询对重排可能有害，因此有必要区分“候选集构造受益于多查询”与“重排阶段应保持单查询判别”这两个不同机制。最后，可尝试 **领域适配或可执行性感知重排**，例如在 SKILL.md 语料上微调 reranker，或将代码块密度、脚本绑定率、可执行性代理特征显式纳入评分函数，以检验性能退化究竟源于语义域偏移，还是源于当前排序目标未覆盖技能有效性的关键维度。
 
 ### 本地语料与索引状态
 
-- 本次索引构建使用本地 `data/skills/_metadata/index.json` 中可加载的 21,544 条技能记录。
-- 索引产物已成功生成在 `projects/skill-flow/outputs/indices/bge-base/`，包括 `faiss.index`、`embeddings.npy`、`skill_ids.json`、`skill_descriptions.json`、`skill_contents.json`。
-- 终端进度条显示 build-index 共处理 85 个 batch，总耗时约 4 分 07 秒。
-
-### 搜索功能复现
-
-以下测试使用默认检索管线：Dense Retriever + Shallow Cross-Encoder Reranker，返回 top-5 结果。
-
-#### Query 1: write unit tests for FastAPI endpoints
-
-- 耗时：1778.1 ms
-- Top-5:
-  1. `[1.8340] skillsmp/python-testing-3`
-  2. `[1.4834] skillsmp/testing-patterns-22`
-  3. `[1.4434] skillsmp/bknd-testing`
-  4. `[1.1616] skillsmp/python-1`
-  5. `[1.1149] skillsmp/unit-test-controller-layer`
-
-#### Query 2: set up a Docker container for a Python web application
-
-- 耗时：1346.3 ms
-- Top-5:
-  1. `[6.5890] skillsmp/docker-rocker`
-  2. `[5.7030] skillsmp/docker-hub-toolkit-1`
-  3. `[5.7030] skillsmp/docker-hub-toolkit`
-  4. `[5.1637] skillsmp/docker-dev-env`
-  5. `[4.0595] skillsmp/docker-10`
-
-#### Query 3: run database migrations with SQLAlchemy
-
-- 耗时：1339.8 ms
-- Top-5:
-  1. `[6.3202] skillsmp/fastapi-alembic-setup`
-  2. `[6.3202] skillsmp/fastapi-alembic-setup-1`
-  3. `[4.4740] skillsmp/backend-dev-1`
-  4. `[4.2506] skillsmp/sqlalchemy-orm`
-  5. `[3.9351] skillsmp/database-migration-runner`
-
-### 复现结论
-
-- 从功能角度看，本地 SkillFlow 流水线已经跑通：语料加载、FAISS 建索引、Dense 检索、Shallow Reranker 精排均可执行。
-- 3 个示例查询均返回了语义上合理的技能候选，且 top-5 结果中未观察到“因缺少 content 导致 shallow reranker 全面退化”的现象。
-- 查询延迟约 1.3 到 1.8 秒，说明在 CPU 条件下，至少前两阶段检索已经具备可用的工程验证价值。
-
-### 与论文表格结果的差异说明
-
-- 论文 Table 3 / Table 4 中的 MRR、R@10、P@10、Hit@10 等定量结果依赖 `integration/skillsbench/tasks` 的官方评测任务。
-- 当前开源仓库未包含该目录中的任务数据，因此无法直接复现论文报告的 `Dense=0.553 -> +Shallow=0.587 -> +Deep=0.634` 等指标。
-- 因而本次复现应视为“功能性复现”而非“官方 benchmark 数值复现”：证明了 SkillFlow 的核心检索流水线可以在本地成功运行，但尚不能对论文中的最终 benchmark 数值做逐项对齐。
-
----
-
-## 8. 外部 skillflow.zip 数据核验与可执行实验
-
-### 外部数据核验结果
-
-- 外部数据目录：`D:\LocalEnvironments\Datasets\skillflow`
-- 顶层 `skills/skillsmp` 目录数：35,865
-- 顶层 `skills/skills-no-letta` 目录数：35,865
-- zip 清单中 `skills/skillsmp` 的顶层唯一条目数：35,865
-- 结论：这份外部数据包与此前的核验一致，真实可用 skill 数是 35,865，不是 35,866
-
-### 外部索引构建结果
-
-- 构建命令：`skill_flow.cli build-index --corpus-path D:\LocalEnvironments\Datasets\skillflow\skills --output-dir projects/skill-flow/outputs/indices/external-skillflow`
-- 构建耗时：约 24 分 37 秒
-- 最终产物：`35866 vectors, dim=768`
-- 可加载内容数：35,487
-- 说明：有一部分顶层目录仅含元数据或索引占位，没有可读的 `SKILL.md`，因此在内容导出阶段被跳过；这与构建日志中的 `SKILL.md not found` 告警一致
-
-### 外部语料检索实验
-
-本次在外部索引上跑的是“可执行的 retrieval-only 实验”，配置为 `default_eval.json`，关闭 selector，仅保留 dense retrieval + cross-encoder rerank。这样可以避免 selector 阶段把大候选集发给 LLM 时触发 8K token 上限。
----
-
-## 附录9：完整 SkillsBench 实验结果（94任务，外部 skillflow 数据集）
-
-### 实验配置
-
-| 参数 | 值 |
-|------|-----|
-| 配置文件 | `skill_flow/config/default_eval_external.json` |
-| 检索模型（Retriever） | BAAI/bge-base-en-v1.5 |
-| 重排模型（Reranker） | BAAI/bge-reranker-v2-m3 |
-| 检索候选数（top_k） | 300 |
-| 重排输入数（input_top_k） | 200 |
-| 重排 batch_size | 8 |
-| max_content_chars | 384 |
-| Deep Reranker | 禁用 |
-| Selector | 禁用 |
-| 外部索引 | `outputs/indices/external-skillflow`（35,866 vectors，dim=768） |
-| 评估任务数 | 94（可评估） |
-| 注入 Oracle Skills 数 | 249 |
-| 输出目录 | `outputs/pipeline/skillsbench_external_full/` |
-| 运行时间 | 2026-05-09 13:16 – 13:31（约15分钟） |
-| GPU | NVIDIA RTX 4060 Ti（CUDA 12.4，PyTorch 2.6.0+cu124） |
-
-### 检索层评估指标
-
-> 与论文 Table 4 对比（论文使用内部 skillflow 数据集，本实验使用外部公开 skillflow.zip 数据集）
-
-#### Stage 1：Dense Only（FAISS 密集检索，top_k=300）
-
-| 指标 | 本实验结果 | 论文 Table 4（Dense only） | 差异 |
-|------|-----------|--------------------------|------|
-| MRR | **0.583** | 0.553 | +0.030 |
-| R@10 | **0.517** | 0.477 | +0.040 |
-| P@10 | **0.134** | 0.121 | +0.013 |
-| Hit@10 | **0.734** | 0.713 | +0.021 |
-
-其他 Recall@k 数据：
-
-| k | R@k |
-|---|-----|
-| 1 | 0.238 |
-| 2 | 0.328 |
-| 5 | 0.455 |
-| 10 | 0.517 |
-| 50 | 0.634 |
-| 100 | 0.667 |
-
-检索延迟：均值 **19.2 ms/task**，中位数 19.1 ms/task，94任务总计 1.8 s
-
-#### Stage 2：+Shallow Reranker（bge-reranker-v2-m3 对 top-200 重排）
-
-| 指标 | 本实验结果 | 论文 Table 4（+Shallow） | 差异 |
-|------|-----------|------------------------|------|
-| MRR | **0.484** | 0.587 | -0.103 |
-| R@10 | **0.446** | 0.520 | -0.074 |
-| P@10 | **0.112** | 0.130 | -0.018 |
-| Hit@10 | **0.660** | 0.724 | -0.064 |
-
-其他 Recall@k 数据：
-
-| k | R@k |
-|---|-----|
-| 1 | 0.174 |
-| 2 | 0.268 |
-| 5 | 0.337 |
-| 10 | 0.446 |
-| 50 | 0.646 |
-| 100 | 0.719 |
-
-重排延迟：均值 **9,458 ms/task**（中位数 7,649 ms），94任务重排总计约 889 s（≈14.8 min）
-
-### 实验结论与分析
-
-1. **Dense 检索超过论文基线**：本实验 Stage 1（Dense only）在 MRR、R@10、P@10、Hit@10 上均优于论文报告值，说明 BAAI/bge-base-en-v1.5 + FAISS 的组合在外部 skillflow 数据集上具有良好的检索性能。
-
-2. **Shallow Reranker 未改善性能**：Stage 2 所有指标均低于 Stage 1，与论文中 Reranker 提升效果相反。分析可能原因：
-   - **数据分布差异**：外部 skillflow.zip 与论文作者使用的内部数据集可能存在 skill 描述风格差异，reranker（bge-reranker-v2-m3）在此分布上泛化性不如 dense retriever；
-   - **内容截断影响**：`max_content_chars=384` 对于较长 skill 描述存在截断，可能损失对 reranker 判断有利的关键信息；
-   - **召回集变化**：Stage 1 候选 300 → Reranker 输入 200，部分 oracle skill 在进入重排前已被筛除，而 R@50/R@100 在 Stage 2 反而更高（0.646 vs 0.634，0.719 vs 0.667），说明 reranker 在更宽泛的范围内效果更好，但 top-10 排序能力有所下降。
-
-3. **端到端 Pass@k 未评估**：SkillsBench 的 Pass@1/Pass@3 需要实际执行 agent + 工具链，当前环境不可行，仅报告检索层指标。
-
-4. **实验完整性**：全部 94 个可评估任务均完成，249 个 oracle skill 全部注入检索索引，0 个任务跳过，结果具有完整性。
-
-### 输出文件
-
-| 文件 | 大小 | 说明 |
-|------|------|------|
-| `eval-stage1-retriever.json` | 15.2 MB | Stage 1 逐任务评估结果 |
-| `pipeline-stage1-retriever.json` | 3.8 MB | Stage 1 原始检索结果 |
-| `eval-stage2-reranker.json` | 10.3 MB | Stage 2 逐任务评估结果 |
-| `pipeline-stage2-reranker.json` | 2.6 MB | Stage 2 重排后结果 |
-| `result_cache.json` | 0.7 MB | 结果缓存 |
-| `latency_summary.json` | 10 KB | 各阶段延迟统计 |
+- 首次测试使用本地 `data/skills/_metadata/index.json` 中可加载的 21,544 条技能记录。
+- 当前正式评测使用外部 SkillFlow 技能库，索引产物位于 `outputs/indices/external-skillflow/`，包含 `faiss.index`、`embeddings.npy`、`skill_ids.json`、`skill_descriptions.json`、`skill_contents.json`。

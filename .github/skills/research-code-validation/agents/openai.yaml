@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Code Validation"
+  short_description: "Implement/reproduce ideas with specified language and validate on real datasets"
+  default_prompt: "Use 研究复现与实现Agent with $research-code-validation to implement a paper or idea in my specified programming language and run real-dataset experiments with reproducible metrics."

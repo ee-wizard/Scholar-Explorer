@@ -73,6 +73,9 @@ def run_pipeline(
     deep_cfg = config.models.deep_reranker
 
     descriptions, contents = load_content_maps(index_dir)
+    # Merge GT skill contents so cache resume doesn't lose them
+    if gt_context:
+        contents.update(gt_context.content_map)
     cached, last_stage = find_latest_cache(
         output_dir,
         task_ids,

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Paper Writing"
+  short_description: "Academic paper writing and section-level refinement"
+  default_prompt: "Use 研究论文写作Agent with $research-paper-writing to produce an evidence-grounded LaTeX paper project from a selected template, reusing local paper.report.md first and searching/analyzing missing references only when needed."

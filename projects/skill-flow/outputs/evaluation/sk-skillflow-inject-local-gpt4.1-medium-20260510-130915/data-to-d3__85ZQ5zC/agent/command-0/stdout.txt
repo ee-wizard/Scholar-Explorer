@@ -1,9 +1,0 @@
-The D3.js visualization logic is now implemented in visualization.js. The web app will:
-
-- Load and parse the CSV data.
-- Render a bubble chart clustered by sector, sized by market cap (uniform for ETFs), colored by sector, with legends.
-- Show tooltips for non-ETF stocks.
-- Render a data table with ticker, name, sector, and formatted market cap.
-- Support interactive highlighting: clicking a bubble or table row highlights both.
-
-You can now open /root/output/index.html in your browser to view and interact with the visualization. Let me know if you need further adjustments!

@@ -37,13 +37,10 @@ def load_corpus(corpus_path: Path) -> list[SkillRecord]:
             if k not in {"name", "description", "source", "local_path"}
         }
 
-        raw_name = entry.get("name")
-        name = raw_name if isinstance(raw_name, str) and raw_name else key.split("/")[-1]
-
         records.append(
             SkillRecord(
                 key=key,
-                name=name,
+                name=entry.get("name", ""),
                 description=description,
                 source=entry.get("source", ""),
                 local_path=local_path,

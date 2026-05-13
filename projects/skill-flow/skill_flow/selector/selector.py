@@ -11,8 +11,6 @@ from typing import TYPE_CHECKING
 from dotenv import load_dotenv
 from jinja2 import Template
 
-from skill_flow.copilot_client import create_copilot_client
-
 if TYPE_CHECKING:
     from skill_flow.config import SelectorConfig
     from skill_flow.retriever.retriever import SearchResult
@@ -60,7 +58,8 @@ class Selector:
         self._config = config
         self._lock = threading.RLock()
         load_dotenv()
-        self._client = create_copilot_client()
+        from skill_flow.llm import get_llm_client
+        self._client = get_llm_client()
         self._cache = _load_json_cache(self._cache_path)
         self._system_template = _load_template(config.system_instruction)
         self._user_template = _load_template(config.user_instruction)

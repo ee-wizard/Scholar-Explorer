@@ -1,4 +1,0 @@
-/tests/test.sh: line 2: $'\r': command not found
-/tests/test.sh: line 5: $'\r': command not found
-/tests/test.sh: line 8: $'\r': command not found
-/tests/test.sh: line 37: syntax error: unexpected end of file

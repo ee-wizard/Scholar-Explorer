@@ -1,69 +1,0 @@
-Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
-Hit:2 http://security.ubuntu.com/ubuntu noble-security InRelease
-Hit:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease
-Hit:4 http://archive.ubuntu.com/ubuntu noble-backports InRelease
-Reading package lists...
-Reading package lists...
-Building dependency tree...
-Reading state information...
-The following additional packages will be installed:
-  libcurl3t64-gnutls libcurl4-openssl-dev libcurl4t64
-Suggested packages:
-  libcurl4-doc libidn-dev libkrb5-dev libldap2-dev librtmp-dev libssh2-1-dev
-  pkg-config
-The following packages will be upgraded:
-  curl libcurl3t64-gnutls libcurl4-openssl-dev libcurl4t64
-4 upgraded, 0 newly installed, 0 to remove and 86 not upgraded.
-Need to get 1350 kB of archives.
-After this operation, 6144 B of additional disk space will be used.
-Get:1 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcurl4-openssl-dev amd64 8.5.0-2ubuntu10.9 [446 kB]
-Get:2 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 curl amd64 8.5.0-2ubuntu10.9 [227 kB]
-Get:3 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcurl4t64 amd64 8.5.0-2ubuntu10.9 [342 kB]
-Get:4 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcurl3t64-gnutls amd64 8.5.0-2ubuntu10.9 [334 kB]
-Fetched 1350 kB in 3s (390 kB/s)
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 22615 files and directories currently installed.)
-Preparing to unpack .../libcurl4-openssl-dev_8.5.0-2ubuntu10.9_amd64.deb ...
-Unpacking libcurl4-openssl-dev:amd64 (8.5.0-2ubuntu10.9) over (8.5.0-2ubuntu10.6) ...
-Preparing to unpack .../curl_8.5.0-2ubuntu10.9_amd64.deb ...
-Unpacking curl (8.5.0-2ubuntu10.9) over (8.5.0-2ubuntu10.6) ...
-Preparing to unpack .../libcurl4t64_8.5.0-2ubuntu10.9_amd64.deb ...
-Unpacking libcurl4t64:amd64 (8.5.0-2ubuntu10.9) over (8.5.0-2ubuntu10.6) ...
-Preparing to unpack .../libcurl3t64-gnutls_8.5.0-2ubuntu10.9_amd64.deb ...
-Unpacking libcurl3t64-gnutls:amd64 (8.5.0-2ubuntu10.9) over (8.5.0-2ubuntu10.6) ...
-Setting up libcurl4t64:amd64 (8.5.0-2ubuntu10.9) ...
-Setting up libcurl3t64-gnutls:amd64 (8.5.0-2ubuntu10.9) ...
-Setting up libcurl4-openssl-dev:amd64 (8.5.0-2ubuntu10.9) ...
-Setting up curl (8.5.0-2ubuntu10.9) ...
-Processing triggers for man-db (2.12.0-4build2) ...
-Processing triggers for libc-bin (2.39-0ubuntu8.6) ...
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0100 16631  100 16631    0     0  39348      0 --:--:-- --:--:-- --:--:-- 39409
-=> Downloading nvm from git to '/root/.nvm'
-=> Cloning into '/root/.nvm'...
-* (HEAD detached at FETCH_HEAD)
-  master
-=> Compressing and cleaning up git repository
-
-=> Appending nvm source string to /root/.bashrc
-=> Appending bash_completion source string to /root/.bashrc
-=> Close and reopen your terminal to start using nvm or run the following to use it now:
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-Downloading and installing node v22.22.2...
-Downloading https://nodejs.org/dist/v22.22.2/node-v22.22.2-linux-x64.tar.xz...
-#=#=#                                                                          ##O#-#                                                                         ##O=#  #                                                                       #=#=-#  #                                                                      -#O#- #   #                                                                                                                                               0.1%                                                                           0.2%                                                                           0.4%                                                                           0.6%                                                                           0.8%                                                                           1.0%                                                                           1.2%#                                                                          1.6%#                                                                          1.9%#                                                                          2.3%##                                                                         3.0%##                                                                         3.6%###                                                                        4.4%###                                                                        5.5%####                                                                       6.8%#####                                                                      7.6%######                                                                     9.2%########                                                                  11.2%#########                                                                 13.2%##########                                                                14.5%###########                                                               16.6%##############                                                            20.1%#################                                                         24.0%##################                                                        25.8%#####################                                                     30.3%#########################                                                 35.6%###########################                                               38.9%#############################                                             41.2%#################################                                         46.7%#####################################                                     52.4%#######################################                                   54.4%##########################################                                58.8%############################################                              61.8%################################################                          67.2%##################################################                        70.8%####################################################                      72.7%#######################################################                   76.4%###########################################################               82.2%#############################################################             85.8%##############################################################            86.9%################################################################          89.8%#####################################################################     96.7%#######################################################################   99.2%######################################################################## 100.0%
-Computing checksum with sha256sum
-Checksums matched!
-Now using node v22.22.2 (npm v10.9.7)
-Creating default alias: default -> 22 (-> v22.22.2 *)
-10.9.7
-
-added 1 package in 29s
-npm notice
-npm notice New major version of npm available! 10.9.7 -> 11.14.1
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.14.1
-npm notice To update run: npm install -g npm@11.14.1
-npm notice
